@@ -8,4 +8,6 @@
 <use name="ROOT"/>
 <use name="FWCore/ServiceRegistry"/>
 <use name="CommonTools/UtilAlgos"/>
+<use name="SimDataFormats/GeneratorProducts"/>
+<use name="PhysicsTools/Utilities"/>
 <flags EDM_PLUGIN="1"/>

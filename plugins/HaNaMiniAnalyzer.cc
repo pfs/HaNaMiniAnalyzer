@@ -38,16 +38,20 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 #include "../interface/Histograms.h"
 
 #include "JetMETCorrections/Modules/interface/JetResolution.h"
 #include "TRandom3.h"
+#include "TH2.h"
+#include "TROOT.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
 //
 // class declaration
 //
@@ -69,6 +73,47 @@ public:
   ~HaNaMiniAnalyzer();
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  double MuonSFMedium( double etaL , double ptL , double etaSL , double ptSL ){
+    //AN2016_025_v7 Figure 6, Middle Row, Right for trigger
+    double ret = 1.0;
+
+    double el = fabs(etaL);
+    double esl = fabs(etaSL);
+    if(el < 1.2 && esl < 1.2 )
+      ret = 0.926 ;				
+    else if( el < 1.2 )
+      ret = 0.943;
+    else if( esl < 1.2 )
+      ret = 0.958 ;
+    else 
+      ret = 0.926 ;
+
+    ret *= ( hMuSFID->GetBinContent( hMuSFID->FindBin( ptL , el ) ) * hMuSFID->GetBinContent( hMuSFID->FindBin( ptSL , esl ) ) );
+    ret *= (hMuSFIso->GetBinContent(hMuSFIso->FindBin(ptL ,el ) ) * hMuSFIso->GetBinContent( hMuSFIso->FindBin( ptSL , esl ) ) );
+
+    return ret;
+  }
+  double MuonSFLoose( double etaL , double ptL , double etaSL , double ptSL ){
+    //AN2016_025_v7 Figure 19, Middle Row, Right for trigger
+    double ret = 1.0;
+    
+    double el = fabs(etaL);
+    double esl = fabs(etaSL);
+    if(el < 1.2 && esl < 1.2 )
+      ret = 0.930 ;				
+    else if( el < 1.2 )
+      ret = 0.933;
+    else if( esl < 1.2 )
+      ret = 0.951 ;
+    else 
+      ret = 0.934 ;
+
+    ret *= ( hMuSFID->GetBinContent( hMuSFID->FindBin( ptL , el ) ) * hMuSFID->GetBinContent( hMuSFID->FindBin( ptSL , esl ) ) );
+    ret *= (hMuSFIso->GetBinContent(hMuSFIso->FindBin(ptL ,el ) ) * hMuSFIso->GetBinContent( hMuSFIso->FindBin( ptSL , esl ) ) );
+
+    return ret;
+  }
 
   reco::Candidate::LorentzVector HT4( pat::JetCollection jets ){
     reco::Candidate::LorentzVector ret ;
@@ -125,6 +170,8 @@ private:
   string SampleName;
   std::vector<std::string> HLT_To_Or;
 
+  edm::EDGetTokenT< int > ntrpuToken_;
+  edm::EDGetTokenT< LHEEventProduct > lheToken_ ;
   edm::EDGetTokenT< edm::TriggerResults > trigResultsToken_;
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
   edm::EDGetTokenT<pat::MuonCollection> muonToken_;
@@ -142,6 +189,11 @@ private:
   JME::JetResolutionScaleFactor resolution_sf;
   edm::EDGetTokenT<double> t_Rho_;
   TRandom3* rndJER;
+
+  edm::LumiReWeighting LumiWeights_;
+
+  TH2* hMuSFID;
+  TH2* hMuSFIso;
 };
 
 //
@@ -184,13 +236,18 @@ HaNaMiniAnalyzer::HaNaMiniAnalyzer(const edm::ParameterSet& iConfig):
   resolution_sf("Fall15_25nsV2_MC_SF_AK4PFchs.txt"),
   t_Rho_(consumes<double>( edm::InputTag( "fixedGridRhoFastjetAll" ) ) ),
   rndJER(new TRandom3( 13611360 ) )
-  
 {
   //now do what ever initialization is needed
   usesResource("TFileService");
 
   if( !IsData ){
     oldjetToken_=consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("oldjets")) ;
+    LumiWeights_ = edm::LumiReWeighting( "pileUp" + iConfig.getParameter<string>("dataPUFile")  + ".root" , 
+					 "DataPileupHistogram_69mbMinBias.root",std::string("pileup"),std::string("pileup")) ; 
+    ntrpuToken_ = consumes< int >( edm::InputTag( "eventUserData","puNtrueInt" ) );
+
+    if( LHEWeight )
+      lheToken_ = consumes<LHEEventProduct>(edm::InputTag("externalLHEProducer") );
   }
 
 }
@@ -214,6 +271,14 @@ void
 HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   double W = 1.0;
+
+  if( LHEWeight ){
+    edm::Handle<LHEEventProduct> lhes;
+    iEvent.getByToken(lheToken_, lhes);
+    double LHE_weight = lhes->hepeup().XWGTUP;
+    W = (LHE_weight > 0) ? 1.0 : -1.0 ; 
+  }
+
   int nCut = 1;
   hCutFlowTable->Fill( nCut , W );
 
@@ -248,12 +313,18 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     return;
   hCutFlowTable->Fill( ++nCut , W );
 
+  if( !IsData ){
+    edm::Handle<int> ntrpu;
+    iEvent.getByToken(ntrpuToken_,ntrpu);
+    W *= LumiWeights_.weight(*ntrpu);
+  }
+
   edm::Handle<pat::MuonCollection> muons;
   iEvent.getByToken(muonToken_, muons);
 
   pat::MuonCollection goodMus;
   for (const pat::Muon &mu : *muons) {
-    if (mu.pt() < MuonSubLeadingPtCut || fabs(mu.eta()) > MuonEtaCut || !mu.isLooseMuon()) continue;
+    if (mu.pt() < MuonSubLeadingPtCut || fabs(mu.eta()) > MuonEtaCut || !mu.isTightMuon(*PV)) continue;
 
     reco::MuonPFIsolation iso = mu.pfIsolationR04();
     double reliso = (iso.sumChargedHadronPt+ max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-(0.5*iso.sumPUPt)))/mu.pt();
@@ -265,6 +336,13 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    
   if( goodMus.size() < 2 ) return;
   if( goodMus[0].pt() < MuonLeadingPtCut ) return ;
+
+  if( !IsData ){
+    if( MuonIsoCut == 0.25 )
+      W *= MuonSFLoose(  goodMus[0].eta() , goodMus[0].pt() , goodMus[1].eta() , goodMus[1].pt() ); 
+    else if( MuonIsoCut == 0.15 )
+      W *= MuonSFMedium( goodMus[0].eta() , goodMus[0].pt() , goodMus[1].eta() , goodMus[1].pt() ); 
+  }
 
   hCutFlowTable->Fill( ++nCut , W );
 
@@ -348,7 +426,21 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 void 
 HaNaMiniAnalyzer::beginJob()
 {
-  hCutFlowTable = new Histograms( SampleName , "CutFlowTable" , 10 , 0 , 10 );
+  hCutFlowTable = new Histograms( SampleName , "CutFlowTable" , 10 , 0.5 , 10.5 );
+
+
+  TFile* f1 = TFile::Open("MuonID_Z_RunCD_Reco76X_Feb15.root");
+  gROOT->cd();
+  hMuSFID = (TH2*)( f1->Get("MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio")->Clone("MuSFID") );
+  f1->Close();
+
+  f1 = TFile::Open("MuonIso_Z_RunCD_Reco76X_Feb15.root");
+  gROOT->cd();
+  if( MuonIsoCut == 0.15 )
+    hMuSFIso = (TH2*)( f1->Get("MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio")->Clone("MuSFIso") );
+  else if( MuonIsoCut == 0.25 )
+    hMuSFIso = (TH2*)( f1->Get("MC_NUM_LooseRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio")->Clone("MuSFIso") );
+  f1->Close();
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
