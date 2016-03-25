@@ -165,6 +165,10 @@ private:
   // ----------member data ---------------------------
   Histograms* hCutFlowTable;
 
+
+
+  string SetupDir;
+
   bool LHEWeight ;
   bool IsData ;
   string SampleName;
@@ -208,6 +212,8 @@ private:
 // constructors and destructor
 //
 HaNaMiniAnalyzer::HaNaMiniAnalyzer(const edm::ParameterSet& iConfig):
+  SetupDir( iConfig.getParameter<string>("SetupDir") ),
+
   LHEWeight(iConfig.getParameter< bool >("useLHEW") ),
   IsData( iConfig.getParameter< bool >("isData") ),
   SampleName(iConfig.getParameter< string >("sample") ),
@@ -232,8 +238,8 @@ HaNaMiniAnalyzer::HaNaMiniAnalyzer(const edm::ParameterSet& iConfig):
 
   BTagAlgo( iConfig.getParameter<string>( "BTagAlgo" ) ),
 
-  resolution("Fall15_25nsV2_MC_PtResolution_AK4PFchs.txt"),
-  resolution_sf("Fall15_25nsV2_MC_SF_AK4PFchs.txt"),
+  resolution( SetupDir + "/MCJetPtResolution.txt" ),
+  resolution_sf( SetupDir + "/MCJetSF.txt"),
   t_Rho_(consumes<double>( edm::InputTag( "fixedGridRhoFastjetAll" ) ) ),
   rndJER(new TRandom3( 13611360 ) )
 {
@@ -242,8 +248,9 @@ HaNaMiniAnalyzer::HaNaMiniAnalyzer(const edm::ParameterSet& iConfig):
 
   if( !IsData ){
     oldjetToken_=consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("oldjets")) ;
-    LumiWeights_ = edm::LumiReWeighting( "pileUp" + iConfig.getParameter<string>("dataPUFile")  + ".root" , 
-					 "DataPileupHistogram_69mbMinBias.root",std::string("pileup"),std::string("pileup")) ; 
+    LumiWeights_ = edm::LumiReWeighting( SetupDir + "/pileUpMC.root" ,
+					 SetupDir + "/pileUpData.root", 
+					 std::string("pileup"), std::string("pileup") );
     ntrpuToken_ = consumes< int >( edm::InputTag( "eventUserData","puNtrueInt" ) );
 
     if( LHEWeight )
@@ -429,12 +436,12 @@ HaNaMiniAnalyzer::beginJob()
   hCutFlowTable = new Histograms( SampleName , "CutFlowTable" , 10 , 0.5 , 10.5 );
 
 
-  TFile* f1 = TFile::Open("MuonID_Z_RunCD_Reco76X_Feb15.root");
+  TFile* f1 = TFile::Open( TString(SetupDir + "/MuonIDSF.root") );
   gROOT->cd();
   hMuSFID = (TH2*)( f1->Get("MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio")->Clone("MuSFID") );
   f1->Close();
 
-  f1 = TFile::Open("MuonIso_Z_RunCD_Reco76X_Feb15.root");
+  f1 = TFile::Open( TString(SetupDir + "/MuonIsoSF.root") );
   gROOT->cd();
   if( MuonIsoCut == 0.15 )
     hMuSFIso = (TH2*)( f1->Get("MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio")->Clone("MuSFIso") );

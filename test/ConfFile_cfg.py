@@ -41,7 +41,9 @@ process.HaNaAnalyzer = cms.EDAnalyzer('HaNaMiniAnalyzer',
 
                                       HLT_To_Or = cms.vstring(),
 
-                                      dataPUFile = cms.string("DistrFall15_25ns")
+                                      dataPUFile = cms.string("DistrFall15_25ns"),
+                                      
+                                      SetupDir = cms.string("Setup76")
                               )
 
 
@@ -66,7 +68,7 @@ options.register('output',
 options.parseArguments()
 
 
-from Samples import MiniAOD76Samples as samples
+from Samples76.Samples import MiniAOD76Samples as samples
 import os
 theSample = None
 for sample in samples:
@@ -84,7 +86,7 @@ process.maxEvents.input = options.maxEvents
 
 if theSample.IsData :
     import FWCore.PythonUtilities.LumiList as LumiList
-    process.source.lumisToProcess = LumiList.LumiList(filename = 'Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_v2.txt').getVLuminosityBlockRange()
+    process.source.lumisToProcess = LumiList.LumiList(filename = process.HaNaAnalyzer.SetupDir + '/JSON.txt').getVLuminosityBlockRange()
     process.GlobalTag.globaltag = '76X_dataRun2_v15'
     process.p = cms.Path( process.HaNaAnalyzer )
     for v in range(0 , 10 ):
