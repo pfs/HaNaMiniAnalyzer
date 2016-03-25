@@ -39,6 +39,7 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include "../interface/Histograms.h"
 
@@ -162,6 +163,18 @@ private:
   virtual void endJob() override;
 
 
+
+  // --------- All Info needed in the event processing ---------------
+  double W, Rho; //to store the event weight
+  int nCut ;
+  reco::Vertex * PV;
+  pat::MuonCollection goodMus;
+  Candidate::LorentzVector oldht , newht;
+  pat::JetCollection selectedJets;
+  pat::JetCollection bjetsL;
+  pat::JetCollection bjetsM;
+  pat::JetCollection bjetsT;
+
   // ----------member data ---------------------------
   Histograms* hCutFlowTable;
 
@@ -174,7 +187,18 @@ private:
   string SampleName;
   std::vector<std::string> HLT_To_Or;
 
-  edm::EDGetTokenT< int > ntrpuToken_;
+
+
+  edm::Handle<LHEEventProduct> lhes;  edm::Handle<edm::TriggerResults> trigResults;
+  edm::Handle<reco::VertexCollection> vertices;
+  edm::Handle<std::vector< PileupSummaryInfo > >  PupInfo;
+  edm::Handle<pat::MuonCollection> muons;
+  edm::Handle<pat::JetCollection> oldjets;
+  edm::Handle<pat::JetCollection> jets;
+  edm::Handle<double> rho;
+  edm::Handle<pat::METCollection> mets;
+
+  edm::EDGetTokenT< std::vector< PileupSummaryInfo > > PileupToken_;
   edm::EDGetTokenT< LHEEventProduct > lheToken_ ;
   edm::EDGetTokenT< edm::TriggerResults > trigResultsToken_;
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
@@ -251,7 +275,7 @@ HaNaMiniAnalyzer::HaNaMiniAnalyzer(const edm::ParameterSet& iConfig):
     LumiWeights_ = edm::LumiReWeighting( SetupDir + "/pileUpMC.root" ,
 					 SetupDir + "/pileUpData.root", 
 					 std::string("pileup"), std::string("pileup") );
-    ntrpuToken_ = consumes< int >( edm::InputTag( "eventUserData","puNtrueInt" ) );
+    PileupToken_ = consumes<std::vector<PileupSummaryInfo>>(iConfig.getParameter<edm::InputTag>("pileupSrc")) ;
 
     if( LHEWeight )
       lheToken_ = consumes<LHEEventProduct>(edm::InputTag("externalLHEProducer") );
@@ -277,27 +301,23 @@ HaNaMiniAnalyzer::~HaNaMiniAnalyzer()
 void
 HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  double W = 1.0;
+  W = 1.0;
 
   if( LHEWeight ){
-    edm::Handle<LHEEventProduct> lhes;
     iEvent.getByToken(lheToken_, lhes);
-    double LHE_weight = lhes->hepeup().XWGTUP;
-    W = (LHE_weight > 0) ? 1.0 : -1.0 ; 
+    W = (lhes->hepeup().XWGTUP > 0) ? 1.0 : -1.0 ; 
   }
 
-  int nCut = 1;
+  nCut = 1;
   hCutFlowTable->Fill( nCut , W );
 
-  using namespace edm;
-  edm::Handle<edm::TriggerResults> trigResults;
   iEvent.getByToken(trigResultsToken_,trigResults);
   const edm::TriggerNames& trigNames = iEvent.triggerNames(*trigResults);
   bool passTrig = false;
   for(auto hlt : HLT_To_Or){
     uint hltindex = trigNames.triggerIndex(hlt);
     if( hltindex < trigNames.size() )
-      passTrig |= trigResults->accept();
+      passTrig |= trigResults->accept(hltindex);
   }
 
   if( !passTrig )
@@ -305,10 +325,9 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   hCutFlowTable->Fill( ++nCut , W );
 
 
-  edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(vtxToken_, vertices);
   if (vertices->empty()) return; // skip the event if no PV found
-  reco::Vertex * PV = NULL;
+  PV = NULL;
   for(auto vtx : *vertices){
     if(vtx.ndof() < 4 ) continue;
     if(vtx.position().z() > 24 ) continue;
@@ -321,15 +340,18 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   hCutFlowTable->Fill( ++nCut , W );
 
   if( !IsData ){
-    edm::Handle<int> ntrpu;
-    iEvent.getByToken(ntrpuToken_,ntrpu);
-    W *= LumiWeights_.weight(*ntrpu);
+    iEvent.getByToken(PileupToken_, PupInfo);
+    // auto PVI = PupInfo->begin();
+    // for(; PVI != PupInfo->end(); ++PVI) {
+    //   puBX->push_back(  PVI->getBunchCrossing() ); 
+    //   puNInt->push_back( PVI->getPU_NumInteractions() );
+    // }
+    W *= LumiWeights_.weight(PupInfo->begin()->getTrueNumInteractions());
   }
 
-  edm::Handle<pat::MuonCollection> muons;
   iEvent.getByToken(muonToken_, muons);
 
-  pat::MuonCollection goodMus;
+  goodMus.clear();
   for (const pat::Muon &mu : *muons) {
     if (mu.pt() < MuonSubLeadingPtCut || fabs(mu.eta()) > MuonEtaCut || !mu.isTightMuon(*PV)) continue;
 
@@ -353,29 +375,22 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   hCutFlowTable->Fill( ++nCut , W );
 
-  Candidate::LorentzVector oldht;
-  if( ! IsData ){
-    edm::Handle<pat::JetCollection> oldjets;
-    iEvent.getByToken(oldjetToken_, oldjets);
-    oldht = HT4( *oldjets );
-  }
-
-  edm::Handle<pat::JetCollection> jets;
   iEvent.getByToken(jetToken_, jets);
 
-  Candidate::LorentzVector newht;
-  if( !IsData )
+  if( ! IsData ){
+    iEvent.getByToken(oldjetToken_, oldjets);
+    oldht = HT4( *oldjets );
     newht = HT4( *jets );
 
-  pat::JetCollection selectedJets;
-  pat::JetCollection bjetsL;
-  pat::JetCollection bjetsM;
-  pat::JetCollection bjetsT;
+    iEvent.getByToken(t_Rho_ ,rho);
+    Rho = *rho;
+  }
 
 
-  edm::Handle<double> rho;
-  iEvent.getByToken(t_Rho_ ,rho);
-  double Rho = *rho;
+  selectedJets.clear();
+  bjetsT.clear();
+  bjetsM.clear();
+  bjetsL.clear();
 
   for ( pat::Jet j : *jets) {
     if( !IsData ){
@@ -410,7 +425,6 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   if( bjetsL.size() + bjetsM.size() + bjetsT.size() < 2 ) return;
   hCutFlowTable->Fill( ++nCut , W );
 
-  edm::Handle<pat::METCollection> mets;
   iEvent.getByToken(metToken_, mets);
   const pat::MET &met_ = mets->front();
   /*printf("MET: pt %5.1f, phi %+4.2f, sumEt (%.1f). genMET %.1f. MET with JES up/down: %.1f/%.1f\n",

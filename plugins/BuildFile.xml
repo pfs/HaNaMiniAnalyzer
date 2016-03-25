@@ -10,4 +10,5 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="PhysicsTools/Utilities"/>
+<use name="SimDataFormats/PileupSummaryInfo" />
 <flags EDM_PLUGIN="1"/>

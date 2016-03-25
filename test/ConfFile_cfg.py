@@ -17,6 +17,8 @@ process.source = cms.Source("PoolSource",
 )
 
 process.HaNaAnalyzer = cms.EDAnalyzer('HaNaMiniAnalyzer',
+                                      pileupSrc = cms.InputTag("slimmedAddPileupInfo"),
+                                      
                                       vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                       muons = cms.InputTag("slimmedMuons"),
                                       jets = cms.InputTag("slimmedJets"),
@@ -86,7 +88,7 @@ process.maxEvents.input = options.maxEvents
 
 if theSample.IsData :
     import FWCore.PythonUtilities.LumiList as LumiList
-    process.source.lumisToProcess = LumiList.LumiList(filename = process.HaNaAnalyzer.SetupDir + '/JSON.txt').getVLuminosityBlockRange()
+    process.source.lumisToProcess = LumiList.LumiList(filename = (process.HaNaAnalyzer.SetupDir.value() + '/JSON.txt')).getVLuminosityBlockRange()
     process.GlobalTag.globaltag = '76X_dataRun2_v15'
     process.p = cms.Path( process.HaNaAnalyzer )
     for v in range(0 , 10 ):
