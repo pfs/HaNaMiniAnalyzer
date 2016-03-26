@@ -11,15 +11,26 @@ cd HaNaMiniAnalyzer/
 git checkout $4
 scram b
 cd test
-cmsRun ConfFile_cfg.py sample=$5 file=$6 output=$7 maxEvents=-1
-if [[ $8 == eos* ]] ;
+if [ -z "$LSB_JOBINDEX" ];
+then
+    FILEID=`expr $LSB_JOBINDEX -1`
+fi
+
+if [ -z "$CONDORJOBID" ];
+then
+    FILEID=$CONDORJOBID
+fi
+
+cmsRun ConfFile_cfg.py sample=$5 file=$FILEID output=$6 maxEvents=-1
+if [[ $7 == eos* ]] ;
 then
     echo is mounting eos
     mkdir eos
     /afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select -b fuse mount eos
 fi
-mv $7*$5*.root $8
-if [[ $8 == eos* ]] ;
+mkdir -p $7
+mv $6*$5*.root $7
+if [[ $7 == eos* ]] ;
 then
     /afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select -b fuse umount eos
     rm -rf eos
