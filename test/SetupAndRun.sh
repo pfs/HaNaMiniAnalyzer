@@ -11,7 +11,7 @@ cd HaNaMiniAnalyzer/
 git checkout $4
 scram b
 cd test
-cmsRun ConfFile_cfg.py sample=$5 file=$6 output=$7
+cmsRun ConfFile_cfg.py sample=$5 file=$6 output=$7 maxEvents=-1
 if [[ $8 == eos* ]] ;
 then
     echo is mounting eos

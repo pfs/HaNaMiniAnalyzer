@@ -11,4 +11,5 @@
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="PhysicsTools/Utilities"/>
 <use name="SimDataFormats/PileupSummaryInfo" />
+<use name="CondFormats/BTauObjects"/>
 <flags EDM_PLUGIN="1"/>

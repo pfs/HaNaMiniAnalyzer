@@ -42,6 +42,7 @@
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include "../interface/Histograms.h"
+#include "../interface/BTagWeight.h"
 
 #include "JetMETCorrections/Modules/interface/JetResolution.h"
 #include "TRandom3.h"
@@ -177,7 +178,7 @@ private:
 
   // ----------member data ---------------------------
   Histograms* hCutFlowTable;
-
+  BTagWeight* btw; 
 
 
   string SetupDir;
@@ -279,6 +280,11 @@ HaNaMiniAnalyzer::HaNaMiniAnalyzer(const edm::ParameterSet& iConfig):
 
     if( LHEWeight )
       lheToken_ = consumes<LHEEventProduct>(edm::InputTag("externalLHEProducer") );
+
+    //**************************************************************
+    //********* To be adjusted for different WP & bTagAlgo Choices *
+    //**************************************************************
+    btw = new BTagWeight("CSVv2", BTagWPL, SetupDir);
   }
 
 }
@@ -423,6 +429,9 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   hCutFlowTable->Fill( ++nCut , W );
 
   if( bjetsL.size() + bjetsM.size() + bjetsT.size() < 2 ) return;
+  //Apply bTag Weight
+  if(!IsData)
+	W*=btw->weight(*jets);
   hCutFlowTable->Fill( ++nCut , W );
 
   iEvent.getByToken(metToken_, mets);
