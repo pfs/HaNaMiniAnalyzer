@@ -11,16 +11,22 @@ cd HaNaMiniAnalyzer/
 git checkout $4
 scram b
 cd test
-if [ -z "$LSB_JOBINDEX" ];
+
+if [ ! -z "$LSB_JOBINDEX" ];
 then
-    FILEID=`expr $LSB_JOBINDEX -1`
+    echo $LSB_JOBINDEX
+    export FILEID=`expr $LSB_JOBINDEX - 1`
+    echo $FILEID
+else
+    if [ ! -z "$CONDORJOBID" ];
+    then
+	export FILEID=$CONDORJOBID
+	echo $FILEID
+    fi
 fi
 
-if [ -z "$CONDORJOBID" ];
-then
-    FILEID=$CONDORJOBID
-fi
 
+echo cmsRun ConfFile_cfg.py sample=$5 file=$FILEID output=$6 maxEvents=-1
 cmsRun ConfFile_cfg.py sample=$5 file=$FILEID output=$6 maxEvents=-1
 if [[ $7 == eos* ]] ;
 then
