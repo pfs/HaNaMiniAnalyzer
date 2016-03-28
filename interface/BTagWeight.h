@@ -97,12 +97,9 @@ class BTagWeight
 float BTagWeight::weight(pat::JetCollection jets){
     float pMC = 1;
     float pData = 1;
-	std::cout<<"In jet loop! "<<WPT <<std::endl;
     for (auto j : jets){
 	float eff = this->MCTagEfficiency(j,WPT);
-	std::cout<<"MC efficiency: "<<eff<<"\t";
 	float sf= this->TagScaleFactor(j);
-	std::cout<<"Data/MC SF: "<<sf<<endl;
 	if(j.bDiscriminator(algo)>bTagMapCSVv2[WPT] ){
 		pMC*=eff;
 		pData*=sf*eff;
@@ -110,7 +107,6 @@ float BTagWeight::weight(pat::JetCollection jets){
 		pMC*=(1-eff);
 		pData*=(1-sf*eff);
 	}
-	std::cout<< pMC << "\t"<<pData<<", Probability: "<<pData/pMC<<endl;
     }
     return pData/pMC;
 }
@@ -173,7 +169,6 @@ float BTagWeight::TagScaleFactor(pat::Jet jet, bool LooseWP ){
 	float MaxBJetPt = 670., MaxLJetPt = 1000.;
         float JetPt = jet.pt(); bool DoubleUncertainty = false;
 	int flavour = fabs(jet.hadronFlavour());
-	cout<<"Jet Flavor: "<<flavour<<endl;
 	if(flavour == 5) flavour = BTagEntry::FLAV_B;
 	else if(flavour == 4) flavour = BTagEntry::FLAV_C;
 	else flavour = BTagEntry::FLAV_UDSG;
@@ -184,7 +179,6 @@ float BTagWeight::TagScaleFactor(pat::Jet jet, bool LooseWP ){
         	DoubleUncertainty = true;
       	   }
 	} else {
- 	   cout<<"Jet is Light!"<<endl;
 	   if (JetPt>MaxLJetPt)  { // use MaxLJetPt for  light jets
                 JetPt = MaxBJetPt;
                 DoubleUncertainty = true;
@@ -206,7 +200,6 @@ float BTagWeight::TagScaleFactor(pat::Jet jet, bool LooseWP ){
 			jet_scalefactor = readerExcLight->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
 	}
 
-	cout<<"\tSF is "<<jet_scalefactor<<endl;
 
 	if(DoubleUncertainty && syst != 0){
 	        float jet_scalefactorCent = 1;

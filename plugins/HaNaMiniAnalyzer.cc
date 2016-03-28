@@ -367,6 +367,26 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   goodMus.clear();
   for (const pat::Muon &mu : *muons) {
 
+     /* Sanity Check for Tight ID **********************************
+      * cout << mu.isPFMuon() <<"\t"<< mu.isGlobalMuon()  << "\t"<<flush;
+      * if(!(!mu.isPFMuon() || !mu.isGlobalMuon() )) {
+      * bool muID = muon::isGoodMuon(mu,muon::GlobalMuonPromptTight) && (mu.numberOfMatchedStations() > 1);
+      * if(muID) {
+      * cout<<muon::isGoodMuon(mu,muon::GlobalMuonPromptTight)<<"\t"<<flush;
+      * cout<<(mu.numberOfMatchedStations() > 1)<<"\t"<<flush;
+      * bool hits = mu.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&  mu.innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
+      * if(hits) {
+      * cout<<( mu.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5)<<"\t"<<flush;
+      * cout<< (mu.innerTrack()->hitPattern().numberOfValidPixelHits() > 0)<<"\t"<<flush;
+      * bool ip = fabs(mu.muonBestTrack()->dxy(PV->position())) < 0.2 && fabs(mu.muonBestTrack()->dz(PV->position())) < 0.5;
+      * if(ip) {
+      * cout<<(fabs(mu.muonBestTrack()->dxy(PV->position())) < 0.2)<<"\t"<<flush;
+      * cout<<(fabs(mu.muonBestTrack()->dz(PV->position())) < 0.5)<<"\t";
+      * }}}}
+      * cout << "\n========== "<<mu.pt() << "\t" << mu.eta() << "\t" << muon::isTightMuon(mu,*PV) << "\t" << flush ;
+      */
+
+
     if (mu.pt() < MuonSubLeadingPtCut || fabs(mu.eta()) > MuonEtaCut || !muon::isLooseMuon(mu/*,*PV*/)) continue;
     reco::MuonPFIsolation iso = mu.pfIsolationR04();
     double reliso = (iso.sumChargedHadronPt+ max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-(0.5*iso.sumPUPt)))/mu.pt();
@@ -375,7 +395,6 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     goodMus.push_back( mu );
   }
 
-  cout<<"goodMus.size() "<<goodMus.size()<<endl;
    
   if( goodMus.size() < 2 ) return;
   if( goodMus[0].pt() < MuonLeadingPtCut ) return ;
@@ -435,12 +454,10 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   if( selectedJets.size() < 2 ) return ;
   hCutFlowTable->Fill( ++nCut , W );
-  cout<<"after jet before btag!"<<endl;
   if( bjetsL.size() + bjetsM.size() + bjetsT.size() < 2 ) return;
   //Apply bTag Weight
   if(!IsData)
 	W*=btw->weight(*jets);
-  cout<<"btag weight applied"<<endl;
   hCutFlowTable->Fill( ++nCut , W );
 
   iEvent.getByToken(metToken_, mets);
