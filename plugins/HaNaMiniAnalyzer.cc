@@ -70,6 +70,14 @@ using namespace edm;
 using namespace std;
 
 
+template <class G>
+class ptSort{
+public:
+  bool operator()(G o1 ,G o2 ){
+    return (o1.pt()>o2.pt());
+  }
+};
+
 class HaNaMiniAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 public:
   explicit HaNaMiniAnalyzer(const edm::ParameterSet&);
@@ -158,6 +166,40 @@ public:
 
     return looseJetID1 || looseJetID2 ;
   }
+  void initHistograms(){   
+    hNPV_pv = new Histograms(SampleName, "NPV_pv", 100, -0.5, 99.5);
+    hMuMult = new Histograms(SampleName, "MuMult", 10, -0.5, 9.5);
+    hJetMult = new Histograms(SampleName, "JetMult", 10, -0.5, 9.5);
+    hBJetMult = new Histograms(SampleName, "BJetMult", 10, -0.5, 9.5);
+    hNPV_final = new Histograms(SampleName, "NPV_final", 100, -0.5, 99.5);
+    hMuPt = new Histograms(SampleName, "MuPt", 30, 0., 150.);
+    hMuEta = new Histograms(SampleName, "MuEta", 30, -3.0, 3.0);
+    hLeadMuPt= new Histograms(SampleName, "LeadMuPt", 30, 0., 150.);
+    hLeadMuEta= new Histograms(SampleName, "LeadMuEta", 30, -3.0, 3.0);
+    hSubLeadMuPt= new Histograms(SampleName, "SubLeadMuPt", 30, 0., 150.);
+    hSubLeadMuEta= new Histograms(SampleName, "SubLeadMuEta", 30, -3.0, 3.0);
+    hDiMuMass= new Histograms(SampleName, "DiMuMass", 17, 10., 180.);
+    hDiMuPt= new Histograms(SampleName, "DiMuPt", 40, 0., 200.);
+    hDiMuDr= new Histograms(SampleName, "DiMuDr", 50, 0, 5.0);
+    hJetPt= new Histograms(SampleName, "JetPt", 30, 0., 150.);
+    hJetEta= new Histograms(SampleName, "JetEta", 50, -5.0, 5.0);
+    hJetBTag= new Histograms(SampleName, "JetBTag", 20, 0, 1.);
+    hLeadJetPt= new Histograms(SampleName, "LeadJetPt", 30, 0., 150.);
+    hLeadJetEta= new Histograms(SampleName, "LeadJetEta", 50, -5.0, 5.0);
+    hLeadJetBTag= new Histograms(SampleName, "LeadJetBTag", 20, 0, 1.);
+    hSubLeadJetPt= new Histograms(SampleName, "SunLeadJetPt", 30, 0., 150.);
+    hSubLeadJetEta= new Histograms(SampleName, "SubLeadJetEta", 50, -5.0, 5.0);
+    hSubLeadJetBTag= new Histograms(SampleName, "SubLeadJetBTag", 20, 0, 1.);
+    hDiBJetMass= new Histograms(SampleName, "DiBJetMass", 30, 0., 300.);
+    hDiBJetPt= new Histograms(SampleName, "DiBJetPt", 15, 0., 150.);
+    hDiBJetDr= new Histograms(SampleName, "DiBJetDr", 50, 0, 5.0);
+    hFourBodyMass= new Histograms(SampleName, "FourBodyMass", 30, 0., 300.);
+    hFourBodyPt= new Histograms(SampleName, "FourBodyPt", 20, 0., 200.);
+    hDiffMassMuB= new Histograms(SampleName, "DiffMassMuB", 15, 0., 150.);
+    hRelDiffMassMuB= new Histograms(SampleName, "RelDiffMassMuB", 20, 0, 1.);
+    hMET= new Histograms(SampleName, "MET", 20, 0., 200.);
+    hMETSignificance= new Histograms(SampleName, "METSignificance", 20, 0, 20.);
+  }
 
 private:
   virtual void beginJob() override;
@@ -173,12 +215,43 @@ private:
   pat::MuonCollection goodMus;
   Candidate::LorentzVector oldht , newht;
   pat::JetCollection selectedJets;
-  pat::JetCollection bjetsL;
-  pat::JetCollection bjetsM;
-  pat::JetCollection bjetsT;
+  pat::JetCollection selectedBJets;
 
   // ----------member data ---------------------------
   Histograms* hCutFlowTable;
+  Histograms* hNPV_pv;
+  Histograms* hMuMult;
+  Histograms* hJetMult;
+  Histograms* hBJetMult;
+  Histograms* hNPV_final;
+  Histograms* hMuPt;
+  Histograms* hMuEta;
+  Histograms* hLeadMuPt;
+  Histograms* hLeadMuEta;
+  Histograms* hSubLeadMuPt;
+  Histograms* hSubLeadMuEta;
+  Histograms* hDiMuMass;
+  Histograms* hDiMuPt;
+  Histograms* hDiMuDr;
+  Histograms* hJetPt;
+  Histograms* hJetEta;
+  Histograms* hJetBTag;
+  Histograms* hLeadJetPt;
+  Histograms* hLeadJetEta;
+  Histograms* hLeadJetBTag;
+  Histograms* hSubLeadJetPt;
+  Histograms* hSubLeadJetEta;
+  Histograms* hSubLeadJetBTag;
+  Histograms* hDiBJetMass;
+  Histograms* hDiBJetPt;
+  Histograms* hDiBJetDr;
+  Histograms* hFourBodyMass;
+  Histograms* hFourBodyPt;
+  Histograms* hDiffMassMuB;
+  Histograms* hRelDiffMassMuB;
+  Histograms* hMET;
+  Histograms* hMETSignificance;
+
   BTagWeight* btw; 
 
 
@@ -341,26 +414,19 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(vtxToken_, vertices);
   if (vertices->empty()) return; // skip the event if no PV found
   PV = NULL;
+  int vtxMult = 0;
   for(auto vtx : *vertices){
     if(vtx.ndof() < 4 ) continue;
     if(vtx.position().z() > 24 ) continue;
     if(vtx.position().rho() > 2 ) continue;
+    vtxMult++;
     if( !PV )
       PV = &vtx ;
   }
   if( !PV )
     return;
-  hCutFlowTable->Fill( ++nCut , W );
 
-  if( !IsData ){
-    iEvent.getByToken(PileupToken_, PupInfo);
-    // auto PVI = PupInfo->begin();
-    // for(; PVI != PupInfo->end(); ++PVI) {
-    //   puBX->push_back(  PVI->getBunchCrossing() ); 
-    //   puNInt->push_back( PVI->getPU_NumInteractions() );
-    // }
-    W *= LumiWeights_.weight(PupInfo->begin()->getTrueNumInteractions());
-  }
+  hCutFlowTable->Fill( ++nCut , W );
 
   iEvent.getByToken(muonToken_, muons);
 
@@ -388,16 +454,19 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
     if (mu.pt() < MuonSubLeadingPtCut || fabs(mu.eta()) > MuonEtaCut || !muon::isLooseMuon(mu/*,*PV*/)) continue;
+    
     reco::MuonPFIsolation iso = mu.pfIsolationR04();
     double reliso = (iso.sumChargedHadronPt+ max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-(0.5*iso.sumPUPt)))/mu.pt();
     if( reliso > MuonIsoCut ) continue;
-
+    if( (goodMus.size() == 0)) {
+	if(mu.pt() < MuonLeadingPtCut ) continue ;
+    }
     goodMus.push_back( mu );
+    
   }
 
-   
+  hMuMult->Fill(goodMus.size(), W);
   if( goodMus.size() < 2 ) return;
-  if( goodMus[0].pt() < MuonLeadingPtCut ) return ;
 
   if( !IsData ){
     if( MuonIsoCut == 0.25 )
@@ -406,7 +475,32 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       W *= MuonSFMedium( goodMus[0].eta() , goodMus[0].pt() , goodMus[1].eta() , goodMus[1].pt() ); 
   }
 
+  /***** Filling Histograms ******/
+  hNPV_pv->Fill(vtxMult,W);
+  if( !IsData ){
+    iEvent.getByToken(PileupToken_, PupInfo);
+    // auto PVI = PupInfo->begin();
+    // for(; PVI != PupInfo->end(); ++PVI) {
+    //   puBX->push_back(  PVI->getBunchCrossing() ); 
+    //   puNInt->push_back( PVI->getPU_NumInteractions() );
+    // }
+    W *= LumiWeights_.weight(PupInfo->begin()->getTrueNumInteractions());
+  }
+  hNPV_final->Fill(vtxMult,W);
+  hMuPt->Fill(goodMus[0].pt(), W); hMuPt->Fill(goodMus[1].pt(), W);
+  hMuEta->Fill(goodMus[0].eta(), W); hMuPt->Fill(goodMus[1].eta(), W);
+  hLeadMuPt->Fill(goodMus[0].pt(), W);
+  hLeadMuEta->Fill(goodMus[0].eta(), W);
+  hSubLeadMuPt->Fill(goodMus[1].pt(), W);
+  hSubLeadMuEta->Fill(goodMus[1].eta(), W);
+  hDiMuMass->Fill((goodMus[0].p4()+goodMus[1].p4()).M(), W);
+  hDiMuPt->Fill((goodMus[0].p4()+goodMus[1].p4()).Pt(), W);
+  hDiMuDr->Fill(reco::deltaR( goodMus[1].p4() , goodMus[0].p4() ), W);
   hCutFlowTable->Fill( ++nCut , W );
+  /***** End Filling Histograms **/ 
+
+
+
 
   iEvent.getByToken(jetToken_, jets);
 
@@ -421,9 +515,7 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
   selectedJets.clear();
-  bjetsT.clear();
-  bjetsM.clear();
-  bjetsL.clear();
+  selectedBJets.clear();
 
   for ( pat::Jet j : *jets) {
     if( !IsData ){
@@ -443,21 +535,48 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     selectedJets.push_back(j);
 
     float btagval = j.bDiscriminator( BTagAlgo );
-    if( btagval > BTagWPL )
-      bjetsL.push_back( j );
-    else if( btagval > BTagWPM )
-      bjetsM.push_back(j );
-    else if( btagval > BTagWPT )
-      bjetsT.push_back( j);
-   
+    if(BTagCuts[0] == 0) {
+	if(btagval > BTagWPL) selectedBJets.push_back(j);
+    } else if (BTagCuts[0] == 1) {
+	if(btagval > BTagWPM) selectedBJets.push_back(j);
+    } else if (BTagCuts[0] == 2) {
+	if(btagval > BTagWPT) selectedBJets.push_back(j);
+    }
   }
+  ptSort<pat::Jet> mySort; 
+  std::sort(selectedJets.begin(),selectedJets.end(),mySort);
+  std::sort(selectedBJets.begin(),selectedBJets.end(),mySort);
+
+  hJetMult->Fill(selectedJets.size(), W);
 
   if( selectedJets.size() < 2 ) return ;
+
   hCutFlowTable->Fill( ++nCut , W );
-  if( bjetsL.size() + bjetsM.size() + bjetsT.size() < 2 ) return;
+
+  for( unsigned int iJet = 0; iJet < selectedJets.size(); iJet++){
+    hJetPt->Fill(selectedJets[iJet].pt(), W);
+    hJetEta->Fill(selectedJets[iJet].eta(), W);
+    hJetBTag->Fill(selectedJets[iJet].bDiscriminator(BTagAlgo), W);
+  }
+
+  hLeadJetPt->Fill(selectedJets[0].pt(), W); hSubLeadJetPt->Fill(selectedJets[1].pt(), W);
+  hLeadJetEta->Fill(selectedJets[0].eta(), W); hSubLeadJetEta->Fill(selectedJets[1].eta(), W);
+  hLeadJetBTag->Fill(selectedJets[0].bDiscriminator(BTagAlgo), W); hSubLeadJetBTag->Fill(selectedJets[1].bDiscriminator(BTagAlgo), W);
+
+  hBJetMult->Fill(selectedBJets.size(), W);
+  if(  selectedBJets.size() < 2 ) return;
+
   //Apply bTag Weight
   if(!IsData)
 	W*=btw->weight(*jets);
+
+  hDiBJetMass->Fill((selectedBJets[0].p4()+selectedBJets[1].p4()).M(),W);
+  hDiBJetPt->Fill((selectedBJets[0].p4()+selectedBJets[1].p4()).Pt(),W);
+  hDiBJetDr->Fill(reco::deltaR(selectedBJets[0].p4(),selectedBJets[1].p4()),W);
+  hFourBodyMass->Fill((goodMus[0].p4()+goodMus[1].p4()+selectedBJets[0].p4()+selectedBJets[1].p4()).M(),W);
+  hFourBodyPt->Fill((goodMus[0].p4()+goodMus[1].p4()+selectedBJets[0].p4()+selectedBJets[1].p4()).Pt(),W);
+  hDiffMassMuB->Fill(fabs((goodMus[0].p4()+goodMus[1].p4()).M()- (selectedBJets[0].p4()+selectedBJets[1].p4()).M()),W);
+  hRelDiffMassMuB->Fill(fabs((goodMus[0].p4()+goodMus[1].p4()).M()- (selectedBJets[0].p4()+selectedBJets[1].p4()).M())/(selectedBJets[0].p4()+selectedBJets[1].p4()).M(),W);
   hCutFlowTable->Fill( ++nCut , W );
 
   iEvent.getByToken(metToken_, mets);
@@ -470,6 +589,8 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   Candidate::LorentzVector met = met_.p4() ;
   if( !IsData )
     met -= ( newht - oldht ); 
+  
+  hMET->Fill(met.Pt(),W);
 
   if( met.Pt() > 30 )
     hCutFlowTable->Fill( ++nCut , W );
@@ -483,7 +604,7 @@ void
 HaNaMiniAnalyzer::beginJob()
 {
   hCutFlowTable = new Histograms( SampleName , "CutFlowTable" , 10 , 0.5 , 10.5 );
-
+  this->initHistograms();
 
   TFile* f1 = TFile::Open( TString(SetupDir + "/MuonIDSF.root") );
   gROOT->cd();
