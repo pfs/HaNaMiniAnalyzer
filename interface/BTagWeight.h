@@ -28,7 +28,6 @@ using namespace std;
  *
  */
 
-const float bTagMapCSVv2[]={0.460,0.800,0.935};
 
 
 class BTagWeight
@@ -37,10 +36,15 @@ class BTagWeight
     string algo;
     int WPT, WPL;
     int syst;
+    float bTagMapCSVv2[3];
   public:
-    BTagWeight(string algorithm, int WPt, string setupDir, int systematics = 0 , int WPl = -1): algo(algorithm), WPT(WPt), WPL(WPl), syst(systematics),
-	readerExc(0),readerCentExc(0)
+    BTagWeight(string algorithm, int WPt, string setupDir, double BLCut = 0.460, double BMCut = 0.800, 
+        double BTCut = 0.935, int WPl = -1, int systematics = 0): 
+	algo(algorithm), WPT(WPt), WPL(WPl), syst(systematics),readerExc(0),readerCentExc(0)
     {
+	bTagMapCSVv2[0] = BLCut;
+	bTagMapCSVv2[1] = BMCut;
+	bTagMapCSVv2[2] = BTCut;
 	if(WPL != -1){
     		if (WPL > WPT){
 		       	int tmp;
@@ -56,10 +60,23 @@ class BTagWeight
 	calib = new BTagCalibration(algo /*"CSVv2"*/, setupDir+"/"+algo+string(".csv"));
 	reader = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"mujets",Systs[syst]);
         readerCent = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"mujets","central");  
+	readerLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"incl",Systs[syst]);
+        readerCentLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"incl","central");  
 	if(WPL != -1){
 		readerExc = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPL,"mujets",Systs[syst]);
         	readerCentExc = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint) WPL,"mujets","central");  
+		readerExcLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPL,"incl",Systs[syst]);
+        	readerCentExcLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint) WPL,"incl","central");  
 	}
+
+	/* Sanity checks
+	 * std::cout<< "---- BTag WPs ----\n\t" <<bTagMapCSVv2[0] <<",\t"<<bTagMapCSVv2[1] <<",\t"<<bTagMapCSVv2[2]
+	 *	 <<"\n---- WPs to select ----\n\t"<<bTagMapCSVv2[WPT]
+	 *	 <<"\n---- WPs to veto ----\n\t";
+	 *	 if(WPL != -1) std::cout << bTagMapCSVv2[WPL]<<std::endl;
+	 *	 else std::cout << "No veto is requested" <<std::endl;
+	 * End Sanity Checks
+	 */
     };
     float weight(pat::JetCollection jets);
     float weightExclusive(pat::JetCollection jetsTags);
@@ -71,14 +88,21 @@ class BTagWeight
     BTagCalibrationReader * readerCent;
     BTagCalibrationReader * readerExc;
     BTagCalibrationReader * readerCentExc;
+    BTagCalibrationReader * readerLight;
+    BTagCalibrationReader * readerCentLight;
+    BTagCalibrationReader * readerExcLight;
+    BTagCalibrationReader * readerCentExcLight;
   };
 
 float BTagWeight::weight(pat::JetCollection jets){
     float pMC = 1;
     float pData = 1;
+	std::cout<<"In jet loop! "<<WPT <<std::endl;
     for (auto j : jets){
 	float eff = this->MCTagEfficiency(j,WPT);
+	std::cout<<"MC efficiency: "<<eff<<"\t";
 	float sf= this->TagScaleFactor(j);
+	std::cout<<"Data/MC SF: "<<sf<<endl;
 	if(j.bDiscriminator(algo)>bTagMapCSVv2[WPT] ){
 		pMC*=eff;
 		pData*=sf*eff;
@@ -86,6 +110,7 @@ float BTagWeight::weight(pat::JetCollection jets){
 		pMC*=(1-eff);
 		pData*=(1-sf*eff);
 	}
+	std::cout<< pMC << "\t"<<pData<<", Probability: "<<pData/pMC<<endl;
     }
     return pData/pMC;
 }
@@ -148,36 +173,53 @@ float BTagWeight::TagScaleFactor(pat::Jet jet, bool LooseWP ){
 	float MaxBJetPt = 670., MaxLJetPt = 1000.;
         float JetPt = jet.pt(); bool DoubleUncertainty = false;
 	int flavour = fabs(jet.hadronFlavour());
+	cout<<"Jet Flavor: "<<flavour<<endl;
 	if(flavour == 5) flavour = BTagEntry::FLAV_B;
 	else if(flavour == 4) flavour = BTagEntry::FLAV_C;
 	else flavour = BTagEntry::FLAV_UDSG;
-
+	
 	if(flavour != BTagEntry::FLAV_UDSG){
 	   if (JetPt>MaxBJetPt)  { // use MaxLJetPt for  light jets
         	JetPt = MaxBJetPt; 
         	DoubleUncertainty = true;
       	   }
 	} else {
+ 	   cout<<"Jet is Light!"<<endl;
 	   if (JetPt>MaxLJetPt)  { // use MaxLJetPt for  light jets
                 JetPt = MaxBJetPt;
                 DoubleUncertainty = true;
            }
 	}
 	if(JetPt<MinJetPt){
-	   JetPt = MaxBJetPt;
+	   JetPt = MinJetPt;
 	   DoubleUncertainty = true;
 	}
 
-	float jet_scalefactor = reader->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt); 
-	if(LooseWP)
-		jet_scalefactor = readerExc->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
+	float jet_scalefactor = 1;
+	if((BTagEntry::JetFlavor)flavour != BTagEntry::FLAV_UDSG){
+		jet_scalefactor = reader->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt); 
+		if(LooseWP)
+			jet_scalefactor = readerExc->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
+	} else {
+		jet_scalefactor = readerLight->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
+		if(LooseWP)
+			jet_scalefactor = readerExcLight->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
+	}
+
+	cout<<"\tSF is "<<jet_scalefactor<<endl;
 
 	if(DoubleUncertainty && syst != 0){
-	        float jet_scalefactorCent = readerCent->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt); 
-		if(LooseWP)
-			jet_scalefactorCent = readerCentExc->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
+	        float jet_scalefactorCent = 1;
+		if((BTagEntry::JetFlavor)flavour != BTagEntry::FLAV_UDSG){
+			jet_scalefactorCent = readerCent->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt); 
+			if(LooseWP)
+				jet_scalefactorCent = readerCentExc->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
+		} else {
+			jet_scalefactorCent = readerCentLight->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt); 
+			if(LooseWP)
+				jet_scalefactorCent = readerCentExcLight->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
+		}
                 jet_scalefactor = 2*(jet_scalefactor - jet_scalefactorCent) + jet_scalefactorCent; 
-
 	}
 	return jet_scalefactor;
 }

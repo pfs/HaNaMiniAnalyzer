@@ -12,4 +12,5 @@
 <use name="PhysicsTools/Utilities"/>
 <use name="SimDataFormats/PileupSummaryInfo" />
 <use name="CondFormats/BTauObjects"/>
+<use name="DataFormats/MuonReco"/>
 <flags EDM_PLUGIN="1"/>

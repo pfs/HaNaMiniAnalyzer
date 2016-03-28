@@ -36,6 +36,9 @@ process.HaNaAnalyzer = cms.EDAnalyzer('HaNaMiniAnalyzer',
                                       BTagWPL = cms.double( 0.460 ),
                                       BTagWPM = cms.double( 0.800 ),
                                       BTagWPT = cms.double( 0.935 ),
+				      #Which WP to use in selection: 0,1,2 ---> L, M, T
+				      # -1 ---> no requirement
+				      BTagCuts = cms.vint32(0,-1), # supporting up to two working point, the second is for veto
 
                                       sample = cms.string( "WJets" ),
                                       useLHEW = cms.bool( False ),

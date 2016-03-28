@@ -40,6 +40,7 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 #include "../interface/Histograms.h"
 #include "../interface/BTagWeight.h"
@@ -211,6 +212,7 @@ private:
 
   double MuonLeadingPtCut, MuonSubLeadingPtCut , MuonIsoCut, MuonEtaCut ;
   double JetPtCut , JetEtaCut , BTagWPL , BTagWPM , BTagWPT ;
+  std::vector<int> BTagCuts; // atm only 2 are accepted, first for selection, second for veto
   string BTagAlgo ;
 
 
@@ -284,7 +286,12 @@ HaNaMiniAnalyzer::HaNaMiniAnalyzer(const edm::ParameterSet& iConfig):
     //**************************************************************
     //********* To be adjusted for different WP & bTagAlgo Choices *
     //**************************************************************
-    btw = new BTagWeight("CSVv2", BTagWPL, SetupDir);
+    BTagCuts = iConfig.getParameter<std::vector<int> > ( "BTagCuts" );
+    if(BTagCuts.size() > 2){
+	std::cout<<"FATAL ERROR: The current code accepts up to two WP's, one for selection one for veto"<<std::endl;
+	return;
+    } else if(BTagCuts.size() < 2) BTagCuts.push_back(-1);
+    btw = new BTagWeight("CSVv2", BTagCuts[0], SetupDir, BTagWPL, BTagWPM, BTagWPT,BTagCuts[1]);
   }
 
 }
@@ -359,8 +366,8 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   goodMus.clear();
   for (const pat::Muon &mu : *muons) {
-    if (mu.pt() < MuonSubLeadingPtCut || fabs(mu.eta()) > MuonEtaCut || !mu.isTightMuon(*PV)) continue;
 
+    if (mu.pt() < MuonSubLeadingPtCut || fabs(mu.eta()) > MuonEtaCut || !muon::isLooseMuon(mu/*,*PV*/)) continue;
     reco::MuonPFIsolation iso = mu.pfIsolationR04();
     double reliso = (iso.sumChargedHadronPt+ max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-(0.5*iso.sumPUPt)))/mu.pt();
     if( reliso > MuonIsoCut ) continue;
@@ -368,6 +375,7 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     goodMus.push_back( mu );
   }
 
+  cout<<"goodMus.size() "<<goodMus.size()<<endl;
    
   if( goodMus.size() < 2 ) return;
   if( goodMus[0].pt() < MuonLeadingPtCut ) return ;
@@ -427,11 +435,12 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   if( selectedJets.size() < 2 ) return ;
   hCutFlowTable->Fill( ++nCut , W );
-
+  cout<<"after jet before btag!"<<endl;
   if( bjetsL.size() + bjetsM.size() + bjetsT.size() < 2 ) return;
   //Apply bTag Weight
   if(!IsData)
 	W*=btw->weight(*jets);
+  cout<<"btag weight applied"<<endl;
   hCutFlowTable->Fill( ++nCut , W );
 
   iEvent.getByToken(metToken_, mets);
