@@ -26,16 +26,47 @@ else
 fi
 
 
-echo cmsRun ConfFile_cfg.py sample=$5 file=$FILEID output=$6 maxEvents=-1
-cmsRun ConfFile_cfg.py sample=$5 file=$FILEID output=$6 maxEvents=-1
+echo cmsRun ConfFile_cfg.py sample=$5 job=$FILEID output=$6 maxEvents=-1 nFilesPerJob=$8
+cmsRun ConfFile_cfg.py sample=$5 job=$FILEID output=$6 maxEvents=-1 nFilesPerJob=$8
+
 if [[ $7 == eos* ]] ;
 then
     echo is mounting eos
     mkdir eos
+  
     /afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select -b fuse mount eos
+    mountpoint eos
+    while [ $? -ne 0 ]; do
+	/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select -b fuse mount eos
+	mountpoint eos
+    done
 fi
+
 mkdir -p $7
-mv $6*$5*.root $7
+
+outfilename=`ls $6*$5*.root`
+
+ls -l $outfilename
+
+COUNTER2=0
+while [ ! -f  $7/$outfilename ]
+do
+    if [ $COUNTER2 -gt 20 ]; then
+	break
+    fi
+    cp $outfilename $7/
+    let COUNTER2=COUNTER2+1
+    echo ${COUNTER2}th Try
+    sleep 10
+done
+    
+rm $outfilename
+
+if [ ! -f  $7/$outfilename ]; then
+    echo "The file was not copied to destination after 20 tries"
+    exit 1
+fi
+
 if [[ $7 == eos* ]] ;
 then
     /afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select -b fuse umount eos

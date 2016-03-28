@@ -3,6 +3,23 @@ from os.path import isfile, join
 from das_client import *
 from subprocess import call
 import os, ntpath
+import os.path
+
+##recommended code to group a list : https://docs.python.org/2/library/itertools.html#recipes
+from itertools import izip_longest
+def grouper(iterable, n, fillvalue=None):
+    "Collect data into fixed-length chunks or blocks"
+    # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx
+    args = [iter(iterable)] * n
+    return izip_longest(fillvalue=fillvalue, *args)
+#### grouper code
+
+class JobInformation:
+    def __init__( self, sample , index , inputs , output ):
+        self.Sample = sample 
+        self.Index = index
+        self.Inputs = inputs
+        self.Output = output
 
 
 class Sample :
@@ -79,3 +96,31 @@ class Sample :
             iii += 1
             self.Files.append( prefix + str( prim_value(jjj) ) )
 
+
+    def MakeJobs( self , nFilesPerRun , prefix_out ):
+        self.Jobs = []
+        indices = range(0 , len( self.Files) )
+        job_counter = 0
+        for input_files_in_job in grouper( indices , nFilesPerRun , -1000 ):
+            inputfiles = [ self.Files[i] for i in input_files_in_job if i > -100 ]
+
+            outputfilename = ""
+            if nFilesPerRun == 1:
+                outputfilename = "%(prefix)s_%(sample)s_%(input)s.root" % {
+                    "prefix":prefix_out , 
+                    "sample":self.Name , 
+                    "input":os.path.splitext( os.path.basename( inputfiles[0] ))[0]
+                    }
+            else:
+                outputfilename = "%(prefix)s_%(sample)s_%(input)s_%(nFiles)d.root" % {
+                    "prefix":prefix_out , 
+                    "sample":self.Name , 
+                    "input":os.path.splitext( os.path.basename( inputfiles[0] ))[0],
+                    "nFiles":nFilesPerRun
+                    }
+            jjj =JobInformation( self.Name, job_counter , inputfiles , outputfilename )
+            setattr( self, "Job%d" % (job_counter) , jjj )
+            self.Jobs.append( getattr( self , "Job%d" % (job_counter) ) )
+            job_counter+=1
+            
+        return job_counter

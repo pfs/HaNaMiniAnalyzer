@@ -59,11 +59,16 @@ options.register('sample',
                  opts.VarParsing.multiplicity.singleton,
                  opts.VarParsing.varType.string,
                  'Sample to analyze')
-options.register('file',
+options.register('job',
                  0,
                  opts.VarParsing.multiplicity.singleton,
                  opts.VarParsing.varType.int ,
-                 "number of the input file in the list of sample-files")
+                 "number of the job")
+options.register('nFilesPerJob',
+                 1,
+                 opts.VarParsing.multiplicity.singleton,
+                 opts.VarParsing.varType.int ,
+                 "number of the files pre job")
 options.register('output',
                  "out",
                  opts.VarParsing.multiplicity.singleton,
@@ -80,12 +85,22 @@ for sample in samples:
     if sample.Name == options.sample :
         theSample = sample
 
+if not theSample.Name == options.sample:
+    raise NameError("The correct sample is not found %s !+ %s" % (sample.Name , options.sample) )
+
+if theSample == None:
+    raise NameError("Sample with name %s wasn't found" % (options.sample))
+
 process.HaNaAnalyzer.sample = theSample.Name
 process.HaNaAnalyzer.useLHEW = theSample.LHEWeight
 process.HaNaAnalyzer.isData = theSample.IsData
 
-process.source.fileNames.append( theSample.Files[ options.file ] )
-process.TFileService.fileName = options.output + "_" + options.sample + "_" +  os.path.splitext( os.path.basename( theSample.Files[ options.file ] ))[0] + ".root"
+if not ( options.job < theSample.MakeJobs( options.nFilesPerJob , options.output ) ):
+    raise NameError("Job %d is not in the list of the jobs of sample %s with %d files per run" % (options.job , options.sample , options.nFilesPerJob ) )
+job = theSample.Jobs[ options.job ]
+
+process.source.fileNames.extend( job.Inputs )
+process.TFileService.fileName = job.Output
 
 process.maxEvents.input = options.maxEvents
 
