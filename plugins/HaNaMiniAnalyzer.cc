@@ -346,6 +346,13 @@ HaNaMiniAnalyzer::HaNaMiniAnalyzer(const edm::ParameterSet& iConfig):
   //now do what ever initialization is needed
   usesResource("TFileService");
 
+  BTagCuts = iConfig.getParameter<std::vector<int> > ( "BTagCuts" );
+  if(BTagCuts.size() > 2){
+    std::cout<<"FATAL ERROR: The current code accepts up to two WP's, one for selection one for veto"<<std::endl;
+    return;
+  } else if(BTagCuts.size() < 2) BTagCuts.push_back(-1);
+
+
   if( !IsData ){
     oldjetToken_=consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("oldjets")) ;
     LumiWeights_ = edm::LumiReWeighting( SetupDir + "/pileUpMC.root" ,
@@ -359,11 +366,6 @@ HaNaMiniAnalyzer::HaNaMiniAnalyzer(const edm::ParameterSet& iConfig):
     //**************************************************************
     //********* To be adjusted for different WP & bTagAlgo Choices *
     //**************************************************************
-    BTagCuts = iConfig.getParameter<std::vector<int> > ( "BTagCuts" );
-    if(BTagCuts.size() > 2){
-	std::cout<<"FATAL ERROR: The current code accepts up to two WP's, one for selection one for veto"<<std::endl;
-	return;
-    } else if(BTagCuts.size() < 2) BTagCuts.push_back(-1);
     btw = new BTagWeight("CSVv2", BTagCuts[0], SetupDir, BTagWPL, BTagWPM, BTagWPT,BTagCuts[1]);
   }
 
@@ -533,8 +535,8 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if( dr0 < 0.4 || dr1 < 0.4 ) continue ;
 
     selectedJets.push_back(j);
-
-    float btagval = j.bDiscriminator( BTagAlgo );
+ 
+   float btagval = j.bDiscriminator( BTagAlgo );
     if(BTagCuts[0] == 0) {
 	if(btagval > BTagWPL) selectedBJets.push_back(j);
     } else if (BTagCuts[0] == 1) {
