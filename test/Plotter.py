@@ -1,27 +1,39 @@
-from Samples76.Samples import MiniAOD76Samples as samples
-from Haamm.HaNaMiniAnalyzer.Plotter import *
-import getpass
+#!/usr/bin/env python
+nFilesPerJob=10
 prefix = "out"
-user = getpass.getuser()
 import sys
-from os.path import isfile, join, splitext, basename
+user=""
+if len(sys.argv) > 2 :
+    user = sys.argv[2]
+else:
+    import getpass
+    user = getpass.getuser()
+OutPath = "eos/cms/store/user/%s/%s/" % (user, sys.argv[1] )
 
 from ROOT import TFile, TDirectory
+from Samples76.Samples import MiniAOD76Samples as samples
+for sample in samples:
+    sample.MakeJobs( nFilesPerJob , "%s/%s" % (OutPath , prefix) )
 
-f = TFile.Open("eos/cms/store/user/hbakhshi/Test/out_DYJets_6CA8797D-86CC-E511-B1A4-0CC47A78A3EC.root")
+f = TFile.Open(samples[0].Jobs[0].Output)
+
+from Haamm.HaNaMiniAnalyzer.Plotter import *
 dir  = f.GetDirectory("HaNaAnalyzer/CutFlowTable/")
 print dir.GetName()
-hcft = Histogram( samples , dir )
-hcftToShow = Histogram( samples , dir )
-OutPath = "eos/cms/store/user/%s/%s/" % (user, sys.argv[1] )
-for sample in samples:
-    for fi in sample.Files :
-        finame = splitext( basename( fi ))[0] + ".root"
-        outfile = join( OutPath , prefix + "_" + sample.Name + "_" + finame )
-        if outfile=="out_DYJets_6CA8797D-86CC-E511-B1A4-0CC47A78A3EC.root":
-            continue
 
-        ff = TFile.Open(outfile)
+
+hcft = Histogram( samples , f.GetDirectory("HaNaAnalyzer/CutFlowTable/") )
+hcftToShow = Histogram( samples , f.GetDirectory("HaNaAnalyzer/CutFlowTable/") )
+
+f.Close()
+
+for sample in samples:
+    print sample.Name + " : "
+    for Job in sample.Jobs :
+        finame = Job.Output
+        sys.stdout.write("\r%d of %d" % (Job.Index , len(sample.Jobs)))
+        sys.stdout.flush()
+        ff = TFile.Open(finame)
         dir  = ff.GetDirectory("HaNaAnalyzer/CutFlowTable/")
         hcft.AddFile( dir )
         hcftToShow.AddFile( dir )

@@ -1,4 +1,4 @@
-from ROOT import TDirectory, TFile, TCanvas , TH1D , THStack, TList
+from ROOT import TDirectory, TFile, TCanvas , TH1D , TH1 , THStack, TList, gROOT
 
 class Histogram:
     def __init__(self, Samples , directory):
@@ -6,6 +6,7 @@ class Histogram:
         
         dircontents = directory.GetListOfKeys()
         firsthisto = directory.Get( dircontents.At(0).GetName() )
+        #firsthisto.Print("ALL")
         self.ForLegend = {}
         self.XSections = {}
         self.AllSampleHistos = {}
@@ -14,13 +15,16 @@ class Histogram:
             if sample.IsData:
                 self.DataSName = sample.Name
 
-            h_in_dir = directory.Get( "%s_%s" % ( self.PropName , sample.Name ) )
-            if h_in_dir :
-                setattr( self , sample.Name , h_in_dir )
-            else:
-                hnew = firsthisto.Clone("%s_%s" % ( self.PropName , sample.Name ) )
-                hnew.Reset()
-                setattr( self , sample.Name , hnew )
+
+            # h_in_dir = directory.Get( "%s_%s" % ( self.PropName , sample.Name ) )
+            # if h_in_dir :
+            #     h_in_dir.reset()
+            #     setattr( self , sample.Name , h_in_dir )
+            # else:
+            gROOT.cd()
+            hnew = firsthisto.Clone("%s_%s" % ( self.PropName , sample.Name ) )
+            hnew.Reset()
+            setattr( self , sample.Name , hnew )
                 
             hhh = getattr( self , sample.Name )
             hhh.SetLineColor( sample.Color )
@@ -40,6 +44,7 @@ class Histogram:
             h_in_dir = directory.Get( "%s_%s" % ( self.PropName , sample ) )
             if h_in_dir :
                 self.AllSampleHistos[sample].Add( h_in_dir )
+                
 
     def Write(self, fout ):
         fout.mkdir( self.PropName ).cd()

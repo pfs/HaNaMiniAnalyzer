@@ -48,6 +48,11 @@ outfilename=`ls $6*$5*.root`
 
 ls -l $outfilename
 
+if [ -f  $7/$outfilename ]; then
+    echo "the file exists, is being renamed"
+    mv $7/$outfilename $7/${outfilename}_
+fi
+
 COUNTER2=0
 while [ ! -f  $7/$outfilename ]
 do
