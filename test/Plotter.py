@@ -10,7 +10,9 @@ else:
     user = getpass.getuser()
 OutPath = "eos/cms/store/user/%s/%s/" % (user, sys.argv[1] )
 
-from ROOT import TFile, TDirectory
+from ROOT import TFile, TDirectory, gDirectory, gROOT
+gROOT.SetBatch(True)
+
 from Samples76.Samples import MiniAOD76Samples as samples
 for sample in samples:
     sample.MakeJobs( nFilesPerJob , "%s/%s" % (OutPath , prefix) )
@@ -18,30 +20,38 @@ for sample in samples:
 f = TFile.Open(samples[0].Jobs[0].Output)
 
 from Haamm.HaNaMiniAnalyzer.Plotter import *
-dir  = f.GetDirectory("HaNaAnalyzer/CutFlowTable/")
-print dir.GetName()
-
-
 hcft = Histogram( samples , f.GetDirectory("HaNaAnalyzer/CutFlowTable/") )
-hcftToShow = Histogram( samples , f.GetDirectory("HaNaAnalyzer/CutFlowTable/") )
+
+f.cd("HaNaAnalyzer")
+AllProps = {}
+for dir in gDirectory.GetListOfKeys() :
+    if dir.IsFolder():
+        AllProps[ dir.GetName() ] = Histogram( samples , f.GetDirectory("HaNaAnalyzer/%s/" % (dir.GetName() )) )
 
 f.Close()
 
 for sample in samples:
-    print sample.Name + " : "
     for Job in sample.Jobs :
         finame = Job.Output
-        sys.stdout.write("\r%d of %d" % (Job.Index , len(sample.Jobs)))
+        sys.stdout.write("\r%s : %d of %d" % (sample.Name , Job.Index , len(sample.Jobs)))
         sys.stdout.flush()
         ff = TFile.Open(finame)
-        dir  = ff.GetDirectory("HaNaAnalyzer/CutFlowTable/")
+        dir = ff.GetDirectory("HaNaAnalyzer/")
         hcft.AddFile( dir )
-        hcftToShow.AddFile( dir )
+        for prop in AllProps:
+            AllProps[prop].AddFile(dir) 
         ff.Close()
+    print " "
 
 
-hcftToShow.Draw( 2.2 , hcft )
+
+
+for prop in AllProps:
+    AllProps[prop].Draw( 2200 , hcft )
 
 fout = TFile.Open("out.root", "recreate")
-hcft.Write(fout)
+
+for prop in AllProps:
+    AllProps[prop].Write(fout)
+
 fout.Close()
