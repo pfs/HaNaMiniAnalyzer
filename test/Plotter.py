@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-nFilesPerJob=10
+nFilesPerJob=20
 prefix = "out"
 import sys
+import os
 user=""
 if len(sys.argv) > 2 :
     user = sys.argv[2]
@@ -35,7 +36,12 @@ for sample in samples:
         finame = Job.Output
         sys.stdout.write("\r%s : %d of %d" % (sample.Name , Job.Index , len(sample.Jobs)))
         sys.stdout.flush()
-        ff = TFile.Open(finame)
+        ff = None
+        if os.path.isfile( finame ):
+            ff = TFile.Open(finame)
+        else:
+            print "File %d of sample %s doesn't exist, skip it" % (Job.Index , sample.Name)
+            continue
         dir = ff.GetDirectory("HaNaAnalyzer/")
         hcft.AddFile( dir )
         for prop in AllProps:

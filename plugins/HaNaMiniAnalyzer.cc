@@ -219,6 +219,7 @@ private:
   int nCut ;
   reco::Vertex * PV;
   pat::MuonCollection goodMus;
+  pat::MuonCollection goodMusOS;
   Candidate::LorentzVector oldht , newht;
   pat::JetCollection selectedJets;
   pat::JetCollection selectedBJets;
@@ -289,7 +290,8 @@ private:
   edm::EDGetTokenT<pat::JetCollection> oldjetToken_;
   edm::EDGetTokenT<pat::METCollection> metToken_;
 
-  double MuonLeadingPtCut, MuonSubLeadingPtCut , MuonIsoCut, MuonEtaCut ;
+  double MuonLeadingPtCut, MuonSubLeadingPtCut , MuonIsoCut, MuonEtaCut , DiMuLowMassCut ;
+  int DiMuCharge;
   double JetPtCut , JetEtaCut , BTagWPL , BTagWPM , BTagWPT ;
   std::vector<int> BTagCuts; // atm only 2 are accepted, first for selection, second for veto
   string BTagAlgo ;
@@ -335,6 +337,8 @@ HaNaMiniAnalyzer::HaNaMiniAnalyzer(const edm::ParameterSet& iConfig):
   MuonSubLeadingPtCut( iConfig.getParameter<double>( "MuonSubLeadingPtCut" ) ),
   MuonIsoCut( iConfig.getParameter<double>( "MuonIsoCut" ) ),
   MuonEtaCut( iConfig.getParameter<double>( "MuonEtaCut" ) ),
+  DiMuLowMassCut( iConfig.getParameter<double>( "DiMuLowMassCut" ) ),
+  DiMuCharge( iConfig.getParameter<int>( "DiMuCharge" ) ),
 
   JetPtCut( iConfig.getParameter<double>( "JetPtCut" ) ),
   JetEtaCut( iConfig.getParameter<double>( "JetEtaCut" ) ),
@@ -439,6 +443,7 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(muonToken_, muons);
 
   goodMus.clear();
+  goodMusOS.clear();
   for (const pat::Muon &mu : *muons) {
 
      /* Sanity Check for Tight ID **********************************
@@ -474,13 +479,33 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 
   hMuMult->Fill(goodMus.size(), W);
+
   if( goodMus.size() < 2 ) return;
-  if( (goodMus[0].p4()+goodMus[1].p4()).M() < 15.0 ) return;
+
+  
+  int mu0charge=0;
+  for(auto mu : goodMus){
+    if( goodMusOS.size() == 0) {
+      goodMusOS.push_back( mu );
+      mu0charge = mu.charge();
+    }
+    else if( mu.charge()*mu0charge == DiMuCharge ){
+      goodMusOS.push_back( mu );
+      break;
+    }
+  }
+  if( goodMusOS.size() != 2 )
+    return;
+  hCutFlowTable->Fill( ++nCut , W );
+
+  if( (goodMusOS[0].p4()+goodMusOS[1].p4()).M() < DiMuLowMassCut ) return;
+  hCutFlowTable->Fill( ++nCut , W );
+
   if( !IsData ){
     if( MuonIsoCut == 0.25 )
-      W *= MuonSFLoose(  goodMus[0].eta() , goodMus[0].pt() , goodMus[1].eta() , goodMus[1].pt() ); 
+      W *= MuonSFLoose(  goodMusOS[0].eta() , goodMusOS[0].pt() , goodMusOS[1].eta() , goodMusOS[1].pt() ); 
     else if( MuonIsoCut == 0.15 )
-      W *= MuonSFMedium( goodMus[0].eta() , goodMus[0].pt() , goodMus[1].eta() , goodMus[1].pt() ); 
+      W *= MuonSFMedium( goodMusOS[0].eta() , goodMusOS[0].pt() , goodMusOS[1].eta() , goodMusOS[1].pt() ); 
   }
 
   /***** Filling Histograms ******/
@@ -495,15 +520,15 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     W *= LumiWeights_.weight(PupInfo->begin()->getTrueNumInteractions());
   }
   hNPV_final->Fill(vtxMult,W);
-  hMuPt->Fill(goodMus[0].pt(), W); hMuPt->Fill(goodMus[1].pt(), W);
-  hMuEta->Fill(goodMus[0].eta(), W); hMuEta->Fill(goodMus[1].eta(), W);
-  hLeadMuPt->Fill(goodMus[0].pt(), W);
-  hLeadMuEta->Fill(goodMus[0].eta(), W);
-  hSubLeadMuPt->Fill(goodMus[1].pt(), W);
-  hSubLeadMuEta->Fill(goodMus[1].eta(), W);
-  hDiMuMass->Fill((goodMus[0].p4()+goodMus[1].p4()).M(), W);
-  hDiMuPt->Fill((goodMus[0].p4()+goodMus[1].p4()).Pt(), W);
-  hDiMuDr->Fill(reco::deltaR( goodMus[1].p4() , goodMus[0].p4() ), W);
+  hMuPt->Fill(goodMusOS[0].pt(), W); hMuPt->Fill(goodMusOS[1].pt(), W);
+  hMuEta->Fill(goodMusOS[0].eta(), W); hMuEta->Fill(goodMusOS[1].eta(), W);
+  hLeadMuPt->Fill(goodMusOS[0].pt(), W);
+  hLeadMuEta->Fill(goodMusOS[0].eta(), W);
+  hSubLeadMuPt->Fill(goodMusOS[1].pt(), W);
+  hSubLeadMuEta->Fill(goodMusOS[1].eta(), W);
+  hDiMuMass->Fill((goodMusOS[0].p4()+goodMusOS[1].p4()).M(), W);
+  hDiMuPt->Fill((goodMusOS[0].p4()+goodMusOS[1].p4()).Pt(), W);
+  hDiMuDr->Fill(reco::deltaR( goodMusOS[1].p4() , goodMusOS[0].p4() ), W);
   hCutFlowTable->Fill( ++nCut , W );
   /***** End Filling Histograms **/ 
 
@@ -536,8 +561,8 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if (j.pt() < JetPtCut) continue;
     if ( fabs(j.eta() ) > JetEtaCut ) continue;
     if ( !JetLooseID( j ) ) continue;
-    double dr0 = reco::deltaR( j.p4() , goodMus[0].p4() );
-    double dr1 = reco::deltaR( j.p4() , goodMus[1].p4() );
+    double dr0 = reco::deltaR( j.p4() , goodMusOS[0].p4() );
+    double dr1 = reco::deltaR( j.p4() , goodMusOS[1].p4() );
     if( dr0 < 0.4 || dr1 < 0.4 ) continue ;
 
     selectedJets.push_back(j);
@@ -581,10 +606,10 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   hDiBJetMass->Fill((selectedBJets[0].p4()+selectedBJets[1].p4()).M(),W);
   hDiBJetPt->Fill((selectedBJets[0].p4()+selectedBJets[1].p4()).Pt(),W);
   hDiBJetDr->Fill(reco::deltaR(selectedBJets[0].p4(),selectedBJets[1].p4()),W);
-  hFourBodyMass->Fill((goodMus[0].p4()+goodMus[1].p4()+selectedBJets[0].p4()+selectedBJets[1].p4()).M(),W);
-  hFourBodyPt->Fill((goodMus[0].p4()+goodMus[1].p4()+selectedBJets[0].p4()+selectedBJets[1].p4()).Pt(),W);
-  hDiffMassMuB->Fill(fabs((goodMus[0].p4()+goodMus[1].p4()).M()- (selectedBJets[0].p4()+selectedBJets[1].p4()).M()),W);
-  hRelDiffMassMuB->Fill(fabs((goodMus[0].p4()+goodMus[1].p4()).M()- (selectedBJets[0].p4()+selectedBJets[1].p4()).M())/(selectedBJets[0].p4()+selectedBJets[1].p4()).M(),W);
+  hFourBodyMass->Fill((goodMusOS[0].p4()+goodMusOS[1].p4()+selectedBJets[0].p4()+selectedBJets[1].p4()).M(),W);
+  hFourBodyPt->Fill((goodMusOS[0].p4()+goodMusOS[1].p4()+selectedBJets[0].p4()+selectedBJets[1].p4()).Pt(),W);
+  hDiffMassMuB->Fill(fabs((goodMusOS[0].p4()+goodMusOS[1].p4()).M()- (selectedBJets[0].p4()+selectedBJets[1].p4()).M()),W);
+  hRelDiffMassMuB->Fill(fabs((goodMusOS[0].p4()+goodMusOS[1].p4()).M()- (selectedBJets[0].p4()+selectedBJets[1].p4()).M())/(selectedBJets[0].p4()+selectedBJets[1].p4()).M(),W);
   hCutFlowTable->Fill( ++nCut , W );
 
   iEvent.getByToken(metToken_, mets);

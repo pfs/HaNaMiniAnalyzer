@@ -1,5 +1,5 @@
 from Haamm.HaNaMiniAnalyzer.Sample import *
-from ROOT import kGray, kGreen, kOrange, kRed, kBlack
+from ROOT import kGray, kGreen, kOrange, kRed, kBlack, kCyan
 
 import os
 Sample.WD = os.path.dirname(os.path.abspath(__file__))
@@ -34,4 +34,17 @@ MiniAOD76Samples.append( TbarW76 )
 QCDMuEnriched76 = Sample( "QCDMuEnriched" , "QCD" , 381304 , False , kGray , "/QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_13TeV_pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM" )
 
 MiniAOD76Samples.append(QCDMuEnriched76)
+
+ZZ76 = Sample( "ZZ" , "VV" , 15.4*2*0.071 , True , kCyan , "/ZZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM" )
+
+MiniAOD76Samples.append(ZZ76)
+
+WZ76 = Sample( "WZ" , "VV" , 44.9*0.068 , True , kCyan , "/WZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8/RunIIFall15MiniAODv1-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM" )
+
+MiniAOD76Samples.append(WZ76)
+
+WW76 = Sample( "WW" , "VV" , 118.7 , False , kCyan , "/WW_TuneCUETP8M1_13TeV-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM")
+
+MiniAOD76Samples.append(WW76)
+
 
