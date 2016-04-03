@@ -1,4 +1,4 @@
-from ROOT import TDirectory, TFile, TCanvas , TH1D , TH1 , THStack, TList, gROOT
+from ROOT import TDirectory, TFile, TCanvas , TH1D , TH1 , THStack, TList, gROOT, TLegend
 
 class Histogram:
     def __init__(self, Samples , directory):
@@ -27,13 +27,14 @@ class Histogram:
             setattr( self , sample.Name , hnew )
                 
             hhh = getattr( self , sample.Name )
-            hhh.SetLineColor( sample.Color )
+            hhh.SetLineColor( 1 )
             hhh.SetLineWidth( 2 )
             if not sample.IsData :
                 hhh.SetFillColor( sample.Color )
-                #hhh.SetFillStyle( 1001 )
+                hhh.SetFillStyle( 1001 )
             else:
-                hhh.SetFillStyle( 0 )
+                hhh.SetStats(0)
+
             self.AllSampleHistos[sample.Name] = hhh    
                 
             if( self.ForLegend.get(sample.HistoCat) ):
@@ -72,7 +73,7 @@ class Histogram:
             factor = lumi*self.XSections[sample]/ntotal
             #print "%s factor : (%.2f*%.2f)/%.0f = %.3f" % (sample , lumi , self.XSections[sample] , ntotal  , factor)
             self.AllSampleHistos[sample].Scale(factor)
-            
+
         self.Stack = THStack("%s_stack" % (self.PropName) , self.PropName )
         for finalh in self.ForLegend:
             if finalh == "Data" :
@@ -89,11 +90,20 @@ class Histogram:
                     self.FinalHistos[finalh].SetTitle( finalh )
             self.Stack.Add( self.FinalHistos[finalh] )
         
+
         self.Canvas = TCanvas("%s_C" % (self.PropName) )
-        getattr( self , self.DataSName ).Draw()
-        self.Stack.Draw("SAME")
-        #getattr( self , self.DataSName ).Draw("SAME")
-        self.Canvas.BuildLegend()
+        getattr( self , self.DataSName ).Draw("E")
+        self.Stack.Draw("HIST SAME")
+        getattr( self , self.DataSName ).Draw("E SAME")
+
+        self.Legend = TLegend(0.5,0.67,0.88,0.88,"","brNDC")
+        entry=self.Legend.AddEntry( getattr( self , self.DataSName ) , "Data" , "lp" )
+        for finalh in reversed( self.ForLegend.keys() ):
+            if finalh == "Data" :
+                continue
+            self.Legend.AddEntry( self.FinalHistos[finalh] , finalh , "f" )
+        self.Legend.Draw()
+
 
 
 

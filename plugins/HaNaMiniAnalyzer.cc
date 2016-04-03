@@ -100,6 +100,9 @@ public:
     else 
       ret = 0.926 ;
 
+    if( ptSL < 20 || ptL < 20 )
+      return ret;
+
     ret *= ( hMuSFID->GetBinContent( hMuSFID->FindBin( ptL , el ) ) * hMuSFID->GetBinContent( hMuSFID->FindBin( ptSL , esl ) ) );
     ret *= (hMuSFIso->GetBinContent(hMuSFIso->FindBin(ptL ,el ) ) * hMuSFIso->GetBinContent( hMuSFIso->FindBin( ptSL , esl ) ) );
 
@@ -119,6 +122,9 @@ public:
       ret = 0.951 ;
     else 
       ret = 0.934 ;
+
+    if( ptSL < 20 || ptL < 20 )
+      return ret;
 
     ret *= ( hMuSFID->GetBinContent( hMuSFID->FindBin( ptL , el ) ) * hMuSFID->GetBinContent( hMuSFID->FindBin( ptSL , esl ) ) );
     ret *= (hMuSFIso->GetBinContent(hMuSFIso->FindBin(ptL ,el ) ) * hMuSFIso->GetBinContent( hMuSFIso->FindBin( ptSL , esl ) ) );
@@ -469,7 +475,7 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   hMuMult->Fill(goodMus.size(), W);
   if( goodMus.size() < 2 ) return;
-
+  if( (goodMus[0].p4()+goodMus[1].p4()).M() < 15.0 ) return;
   if( !IsData ){
     if( MuonIsoCut == 0.25 )
       W *= MuonSFLoose(  goodMus[0].eta() , goodMus[0].pt() , goodMus[1].eta() , goodMus[1].pt() ); 
@@ -490,7 +496,7 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
   hNPV_final->Fill(vtxMult,W);
   hMuPt->Fill(goodMus[0].pt(), W); hMuPt->Fill(goodMus[1].pt(), W);
-  hMuEta->Fill(goodMus[0].eta(), W); hMuPt->Fill(goodMus[1].eta(), W);
+  hMuEta->Fill(goodMus[0].eta(), W); hMuEta->Fill(goodMus[1].eta(), W);
   hLeadMuPt->Fill(goodMus[0].pt(), W);
   hLeadMuEta->Fill(goodMus[0].eta(), W);
   hSubLeadMuPt->Fill(goodMus[1].pt(), W);
