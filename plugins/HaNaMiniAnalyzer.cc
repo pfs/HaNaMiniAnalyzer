@@ -205,6 +205,7 @@ public:
     hRelDiffMassMuB= new Histograms(SampleName, "RelDiffMassMuB", 20, 0, 1.);
     hMET= new Histograms(SampleName, "MET", 20, 0., 200.);
     hMETSignificance= new Histograms(SampleName, "METSignificance", 20, 0, 20.);
+    hNMuHits = new Histograms(SampleName, "nMuHits", 10, -0.5, 9.5);
   }
 
 private:
@@ -258,6 +259,7 @@ private:
   Histograms* hRelDiffMassMuB;
   Histograms* hMET;
   Histograms* hMETSignificance;
+  Histograms* hNMuHits;
 
   BTagWeight* btw; 
 
@@ -418,8 +420,8 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       passTrig |= trigResults->accept(hltindex);
   }
 
-  if( !passTrig )
-    return;
+  //if( !passTrig )
+  //  return;
   hCutFlowTable->Fill( ++nCut , W );
 
 
@@ -435,47 +437,25 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if( !PV )
       PV = &vtx ;
   }
-  if( !PV )
-    return;
-
+  
+  //if( !PV )
+  //  return;
+  const reco::Vertex& PV2= vertices->front();
   hCutFlowTable->Fill( ++nCut , W );
 
   iEvent.getByToken(muonToken_, muons);
 
   goodMus.clear();
   goodMusOS.clear();
+  pat::MuonCollection tmpgoodMus;
   for (const pat::Muon &mu : *muons) {
-
-     /* Sanity Check for Tight ID **********************************
-      * cout << mu.isPFMuon() <<"\t"<< mu.isGlobalMuon()  << "\t"<<flush;
-      * if(!(!mu.isPFMuon() || !mu.isGlobalMuon() )) {
-      * bool muID = muon::isGoodMuon(mu,muon::GlobalMuonPromptTight) && (mu.numberOfMatchedStations() > 1);
-      * if(muID) {
-      * cout<<muon::isGoodMuon(mu,muon::GlobalMuonPromptTight)<<"\t"<<flush;
-      * cout<<(mu.numberOfMatchedStations() > 1)<<"\t"<<flush;
-      * bool hits = mu.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&  mu.innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
-      * if(hits) {
-      * cout<<( mu.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5)<<"\t"<<flush;
-      * cout<< (mu.innerTrack()->hitPattern().numberOfValidPixelHits() > 0)<<"\t"<<flush;
-      * bool ip = fabs(mu.muonBestTrack()->dxy(PV->position())) < 0.2 && fabs(mu.muonBestTrack()->dz(PV->position())) < 0.5;
-      * if(ip) {
-      * cout<<(fabs(mu.muonBestTrack()->dxy(PV->position())) < 0.2)<<"\t"<<flush;
-      * cout<<(fabs(mu.muonBestTrack()->dz(PV->position())) < 0.5)<<"\t";
-      * }}}}
-      * cout << "\n========== "<<mu.pt() << "\t" << mu.eta() << "\t" << muon::isTightMuon(mu,*PV) << "\t" << flush ;
-      */
-
-
-    if (mu.pt() < MuonSubLeadingPtCut || fabs(mu.eta()) > MuonEtaCut || !muon::isLooseMuon(mu/*,*PV*/)) continue;
-    
+    if (mu.pt() < 20 || fabs(mu.eta()) > 2.4 ) continue;
+    if (!mu.isTightMuon(PV2)) continue;
+    tmpgoodMus.push_back(mu);
     reco::MuonPFIsolation iso = mu.pfIsolationR04();
-    double reliso = (iso.sumChargedHadronPt+ max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-(0.5*iso.sumPUPt)))/mu.pt();
-    if( reliso > MuonIsoCut ) continue;
-    if( (goodMus.size() == 0)) {
-	if(mu.pt() < MuonLeadingPtCut ) continue ;
-    }
+    double reliso = (iso.sumChargedHadronPt+TMath::Max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-0.5*iso.sumPUPt))/mu.pt();
+    if( reliso > 0.15 ) continue;
     goodMus.push_back( mu );
-    
   }
 
   hMuMult->Fill(goodMus.size(), W);
@@ -499,6 +479,14 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   hCutFlowTable->Fill( ++nCut , W );
 
   if( (goodMusOS[0].p4()+goodMusOS[1].p4()).M() < DiMuLowMassCut ) return;
+  hCutFlowTable->Fill( ++nCut , W );
+  
+  if( (goodMusOS[0].p4()+goodMusOS[1].p4()).M() > 76 && (goodMusOS[0].p4()+goodMusOS[1].p4()).M() < 106 ) return;
+  hCutFlowTable->Fill( ++nCut , W );
+  
+  iEvent.getByToken(metToken_, mets);
+  const pat::MET &met_ = mets->front();
+  if(met_.pt() < 40) return;
   hCutFlowTable->Fill( ++nCut , W );
 
   if( !IsData ){
@@ -551,13 +539,13 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   selectedBJets.clear();
 
   for ( pat::Jet j : *jets) {
-    if( !IsData ){
+    /*if( !IsData ){
       float pt = JER(j , Rho);
       Candidate::LorentzVector tmp(j.p4());
       tmp.SetPx( tmp.X()*pt/tmp.Pt() );
       tmp.SetPy( tmp.Y()*pt/tmp.Pt() );
       j.setP4(tmp);
-    }
+    }*/
     if (j.pt() < JetPtCut) continue;
     if ( fabs(j.eta() ) > JetEtaCut ) continue;
     if ( !JetLooseID( j ) ) continue;
@@ -612,8 +600,8 @@ HaNaMiniAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   hRelDiffMassMuB->Fill(fabs((goodMusOS[0].p4()+goodMusOS[1].p4()).M()- (selectedBJets[0].p4()+selectedBJets[1].p4()).M())/(selectedBJets[0].p4()+selectedBJets[1].p4()).M(),W);
   hCutFlowTable->Fill( ++nCut , W );
 
-  iEvent.getByToken(metToken_, mets);
-  const pat::MET &met_ = mets->front();
+  //iEvent.getByToken(metToken_, mets);
+  //const pat::MET &met_ = mets->front();
   /*printf("MET: pt %5.1f, phi %+4.2f, sumEt (%.1f). genMET %.1f. MET with JES up/down: %.1f/%.1f\n",
 	 met.pt(), met.phi(), met.sumEt(),
 	 met.genMET()->pt(),

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-nFilesPerJob=20
+nFilesPerJob=40
 prefix = "out"
 import sys
 import os

@@ -27,9 +27,9 @@ process.HaNaAnalyzer = cms.EDAnalyzer('HaNaMiniAnalyzer',
                                       
                                       MuonLeadingPtCut = cms.double(20),
                                       MuonSubLeadingPtCut = cms.double(20),
-                                      MuonIsoCut = cms.double( 0.25 ),
+                                      MuonIsoCut = cms.double( 0.15 ),
                                       MuonEtaCut = cms.double( 2.4 ),
-                                      DiMuLowMassCut = cms.double( 15 ),
+                                      DiMuLowMassCut = cms.double( 20. ),
                                       DiMuCharge = cms.int32( -1 ),
 
                                       JetPtCut = cms.double( 30 ),
@@ -40,7 +40,7 @@ process.HaNaAnalyzer = cms.EDAnalyzer('HaNaMiniAnalyzer',
                                       BTagWPT = cms.double( 0.935 ),
 				      #Which WP to use in selection: 0,1,2 ---> L, M, T
 				      # -1 ---> no requirement
-				      BTagCuts = cms.vint32(0,-1), # supporting up to two working point, the second is for veto
+				      BTagCuts = cms.vint32(1,-1), # supporting up to two working point, the second is for veto
 
                                       sample = cms.string( "WJets" ),
                                       useLHEW = cms.bool( False ),
@@ -134,3 +134,8 @@ else :
     for v in range(0 , 10 ):
         process.HaNaAnalyzer.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
         process.HaNaAnalyzer.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
+
+process.HaNaAnalyzer.sample = 'Sync'
+process.HaNaAnalyzer.useLHEW = False
+process.HaNaAnalyzer.isData = False
+process.source.fileNames = ['/store/mc/RunIIFall15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext3-v1/00000/0C5BB11A-E2C1-E511-8C02-002590A831B6.root']
