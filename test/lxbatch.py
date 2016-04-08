@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-nFilesPerJob=20
+nFilesPerJob=40
 CheckFailedJobs=True
 hname = "HaNaAnalyzer/CutFlowTable/CutFlowTable"
 prefix = "out"
