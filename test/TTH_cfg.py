@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("HaNa")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -16,56 +16,9 @@ process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring()
 )
 
-process.HaNaAnalyzer = cms.EDAnalyzer('HaNaMiniAnalyzer',
-                                      pileupSrc = cms.InputTag("slimmedAddPileupInfo"),
-                                      
-                                      vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
-                                      muons = cms.InputTag("slimmedMuons"),
-                                      jets = cms.InputTag("slimmedJets"),
-                                      oldjets = cms.InputTag("slimmedJets"),
-                                      mets = cms.InputTag("slimmedMETs"),
-                                      
-                                      MuonLeadingPtCut = cms.double(20),
-                                      MuonSubLeadingPtCut = cms.double(20),
-                                      MuonIsoCut = cms.double( 0.15 ),
-                                      MuonEtaCut = cms.double( 2.4 ),
-                                      DiMuLowMassCut = cms.double( 20. ),
-                                      DiMuCharge = cms.int32( -1 ),
-                                      MuonID = cms.int32( 3 ), #0:no id, 1:Loose , 2:Medium , 3:tight , 4 : soft
-                                      DiMuZMassWindow = cms.double( 15.0 ),
-                                      
-                                      MetCut = cms.double( 40. ),
-                                      
-                                      ApplyJER = cms.bool( False ),
-                                      JetPtCut = cms.double( 30 ),
-                                      JetEtaCut = cms.double( 2.4 ),
-                                      BTagAlgo = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
-                                      BTagWPL = cms.double( 0.460 ),
-                                      BTagWPM = cms.double( 0.800 ),
-                                      BTagWPT = cms.double( 0.935 ),
-				      #Which WP to use in selection: 0,1,2 ---> L, M, T
-				      # -1 ---> no requirement
-				      BTagCuts = cms.vint32(1,-1), # supporting up to two working point, the second is for veto
-
-                                      MinNJets = cms.uint32( 2 ),
-                                      MinNBJets = cms.uint32( 2 ),
-
-                                      sample = cms.string( "WJets" ),
-
-                                      LHE = cms.PSet (
-        
-        useLHEW = cms.bool( False ),
-        Input = cms.InputTag("externalLHEProducer")
-        ),
-                                      isData = cms.bool( False ),
-
-                                      HLT_To_Or = cms.vstring(),
-
-                                      dataPUFile = cms.string("DistrFall15_25ns"),
-                                      
-                                      SetupDir = cms.string("Setup76")
-                              )
-
+process.load("Haamm.HaNaMiniAnalyzer.TTH_cfi")
+process.load("Haamm.HaNaMiniAnalyzer.Hamb_cfi")
+#process.TTH 
 
 import FWCore.ParameterSet.VarParsing as opts
 options = opts.VarParsing ('analysis')
@@ -122,9 +75,13 @@ else:
     options.output = "out" 
     options.job = 0
 
-process.HaNaAnalyzer.sample = theSample.Name
-process.HaNaAnalyzer.LHE.useLHEW = theSample.LHEWeight
-process.HaNaAnalyzer.isData = theSample.IsData
+process.TTH.sample = theSample.Name
+process.TTH.LHE.useLHEW = theSample.LHEWeight
+process.TTH.isData = theSample.IsData
+
+process.Hamb.sample = theSample.Name
+process.Hamb.LHE.useLHEW = theSample.LHEWeight
+process.Hamb.isData = theSample.IsData
 
 if not ( options.job < theSample.MakeJobs( options.nFilesPerJob , options.output ) ):
     raise NameError("Job %d is not in the list of the jobs of sample %s with %d files per run" % (options.job , options.sample , options.nFilesPerJob ) )
@@ -137,12 +94,16 @@ process.maxEvents.input = options.maxEvents
 
 if theSample.IsData :
     import FWCore.PythonUtilities.LumiList as LumiList
-    process.source.lumisToProcess = LumiList.LumiList(filename = (process.HaNaAnalyzer.SetupDir.value() + '/JSON.txt')).getVLuminosityBlockRange()
+    process.source.lumisToProcess = LumiList.LumiList(filename = (process.TTH.SetupDir.value() + '/JSON.txt')).getVLuminosityBlockRange()
     process.GlobalTag.globaltag = '76X_dataRun2_v15'
-    process.p = cms.Path( process.HaNaAnalyzer )
+    process.p = cms.Path( process.TTH + process.Hamb )
     for v in range(0 , 10 ):
-        process.HaNaAnalyzer.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
-        process.HaNaAnalyzer.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
+        process.TTH.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
+        process.TTH.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
+
+        process.Hamb.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
+        process.Hamb.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
+
 else :
     process.GlobalTag.globaltag = '76X_dataRun2_16Dec2015_v0'
     from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import *
@@ -158,9 +119,13 @@ else :
         jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
         )
 
-    process.HaNaAnalyzer.jets = "patJetsReapplyJEC"
-    process.p = cms.Path( process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.HaNaAnalyzer )
+    process.TTH.Jets.Input = "patJetsReapplyJEC"
+    process.Hamb.Jets.Input = "patJetsReapplyJEC"
+    process.p = cms.Path( process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.TTH + process.Hamb)
     if options.sync == 0 :
         for v in range(0 , 10 ):
-            process.HaNaAnalyzer.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
-            process.HaNaAnalyzer.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
+            process.TTH.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
+            process.TTH.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
+
+            process.Hamb.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
+            process.Hamb.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )

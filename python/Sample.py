@@ -36,7 +36,8 @@ class Sample :
 
         self.Files = []
 
-        self.InitiateFilesFromListOrDAS( datasetname , appendix )
+        if not datasetname == "" :
+            self.InitiateFilesFromListOrDAS( datasetname , appendix )
 
     def AddFiles( self , directory ):
         files = [join(directory, f) for f in listdir(directory) if isfile(join(directory, f))]
