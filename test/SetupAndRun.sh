@@ -26,8 +26,8 @@ else
 fi
 
 
-echo cmsRun ConfFile_cfg.py sample=$5 job=$FILEID output=$6 maxEvents=-1 nFilesPerJob=$8
-cmsRun ConfFile_cfg.py sample=$5 job=$FILEID output=$6 maxEvents=-1 nFilesPerJob=$8
+echo cmsRun Hamb_cfg.py sample=$5 job=$FILEID output=$6 maxEvents=-1 nFilesPerJob=$8
+cmsRun Hamb_cfg.py sample=$5 job=$FILEID output=$6 maxEvents=-1 nFilesPerJob=$8
 
 if [[ $7 == eos* ]] ;
 then
