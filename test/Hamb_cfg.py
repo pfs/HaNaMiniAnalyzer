@@ -89,7 +89,7 @@ process.maxEvents.input = options.maxEvents
 
 if theSample.IsData :
     import FWCore.PythonUtilities.LumiList as LumiList
-    process.source.lumisToProcess = LumiList.LumiList(filename = (process.TTH.SetupDir.value() + '/JSON.txt')).getVLuminosityBlockRange()
+    process.source.lumisToProcess = LumiList.LumiList(filename = (process.Hamb.SetupDir.value() + '/JSON.txt')).getVLuminosityBlockRange()
     process.GlobalTag.globaltag = '76X_dataRun2_v15'
     process.p = cms.Path( process.Hamb )
     for v in range(0 , 10 ):

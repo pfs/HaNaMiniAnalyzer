@@ -21,13 +21,13 @@ for sample in samples:
 f = TFile.Open(samples[0].Jobs[0].Output)
 
 from Haamm.HaNaMiniAnalyzer.Plotter import *
-hcft = Histogram( samples , f.GetDirectory("HaNaAnalyzer/CutFlowTable/") )
+hcft = Histogram( samples , f.GetDirectory("Hamb/CutFlowTable/") )
 
-f.cd("HaNaAnalyzer")
+f.cd("Hamb")
 AllProps = {}
 for dir in gDirectory.GetListOfKeys() :
     if dir.IsFolder():
-        AllProps[ dir.GetName() ] = Histogram( samples , f.GetDirectory("HaNaAnalyzer/%s/" % (dir.GetName() )) )
+        AllProps[ dir.GetName() ] = Histogram( samples , f.GetDirectory("Hamb/%s/" % (dir.GetName() )) )
 
 f.Close()
 
@@ -42,7 +42,7 @@ for sample in samples:
         else:
             print "File %d of sample %s doesn't exist, skip it" % (Job.Index , sample.Name)
             continue
-        dir = ff.GetDirectory("HaNaAnalyzer/")
+        dir = ff.GetDirectory("Hamb/")
         hcft.AddFile( dir )
         for prop in AllProps:
             AllProps[prop].AddFile(dir) 
