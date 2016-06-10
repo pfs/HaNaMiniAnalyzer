@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 nFilesPerJob=40
-CheckFailedJobs=False
-hname = "HaNaAnalyzer/CutFlowTable/CutFlowTable"
+CheckFailedJobs=True
+hname = "Hamb/CutFlowTable/CutFlowTable"
 prefix = "out"
 
 from ROOT import TFile, TH1
