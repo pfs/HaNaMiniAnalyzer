@@ -34,6 +34,7 @@ class Histogram:
                 hhh.SetFillStyle( 1001 )
             else:
                 hhh.SetStats(0)
+		hhh.SetMarkerStyle(20)
 
             self.AllSampleHistos[sample.Name] = hhh    
                 

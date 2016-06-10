@@ -97,7 +97,7 @@ if theSample.IsData :
         process.Hamb.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
 
 else :
-    process.GlobalTag.globaltag = '76X_dataRun2_16Dec2015_v0'
+    process.GlobalTag.globaltag = '76X_dataRun2_16Dec2015_v0' #76X_mcRun2_asymptotic_RunIIFall15DR76_v1
     from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import *
     process.patJetCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
         src = cms.InputTag("slimmedJets"),

@@ -86,7 +86,8 @@ JetReader::SelectionStatus JetReader::Read( const edm::Event& iEvent , pat::DiOb
   if( selectedJets.size() < MinNJets ) return JetReader::NotEnoughJets ;
   if(  selectedBJets.size() < MinNBJets ) return JetReader::NotEnoughBJets;
   if(!IsData)
-    W = btw->weight(*handle);
+    //W = btw->weight(*handle);
+    W = 1;
   return JetReader::Pass;
 }
 
