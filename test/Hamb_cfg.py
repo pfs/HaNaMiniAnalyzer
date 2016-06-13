@@ -5,6 +5,8 @@ process = cms.Process("HaNa")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
@@ -27,7 +29,7 @@ options.register('sync',
                  opts.VarParsing.varType.int ,
                  "")
 options.register('sample',
-                 'WJetsMG',
+		 'TTbar',
                  opts.VarParsing.multiplicity.singleton,
                  opts.VarParsing.varType.string,
                  'Sample to analyze')

@@ -50,15 +50,16 @@ if CheckFailedJobs:
                     ntotal = h.GetBinContent(1)
                     if ntotal == 0:
                         if not sample.IsData : #data may be is null because of json
+                            print outfile + " : Exists with no entry"
                             ListOfFailedJobs.append( str(job))
                 else :
                     ListOfFailedJobs.append(str( job ))
                     print job
-                    #print outfile + " : Exists, without histogram"
+                    print outfile + " : Exists, without histogram"
 
             else :
                 ListOfFailedJobs.append( str(job))
-                #print outfile + " : file doesn't exist  %d"  % (counter)
+                print outfile + " : file doesn't exist  " 
 
         FailedJobs[ sample.Name ] = ListOfFailedJobs
     print FailedJobs

@@ -14,6 +14,7 @@ JetReader::JetReader( edm::ParameterSet const& iConfig, edm::ConsumesCollector &
   BTagWPT( iConfig.getParameter<double>( "BTagWPT" ) ),
   BTagAlgo( iConfig.getParameter<string>( "BTagAlgo" ) ),
   MinNBJets( iConfig.getParameter<unsigned int>( "MinNBJets" ) ),
+  MaxNBJets( iConfig.getParameter<unsigned int>( "MaxNBJets" ) ),
   rndJER(new TRandom3( 13611360 ) )
 {
   BTagCuts = iConfig.getParameter<std::vector<int> > ( "BTagCuts" );
@@ -21,10 +22,9 @@ JetReader::JetReader( edm::ParameterSet const& iConfig, edm::ConsumesCollector &
     std::cout<<"FATAL ERROR: The current code accepts up to two WP's, one for selection one for veto"<<std::endl;
     return;
   } else if(BTagCuts.size() < 2) 
-    BTagCuts.push_back(-1);
-  
+    BTagCuts.push_back(-1);  
   if( !IsData ){
-    btw = new BTagWeight("CSVv2", BTagCuts[0], SetupDir, BTagWPL, BTagWPM, BTagWPT,BTagCuts[1]);
+    btw = new BTagWeight("CSVv2", BTagCuts[0], SetupDir, MinNBJets, MaxNBJets, BTagWPL, BTagWPM, BTagWPT,BTagCuts[1]);
 
     t_Rho_ = (iC.consumes<double>( edm::InputTag( "fixedGridRhoFastjetAll" ) ) );
     resolution = JME::JetResolution( SetupDir + "/MCJetPtResolution.txt" );
@@ -87,7 +87,8 @@ JetReader::SelectionStatus JetReader::Read( const edm::Event& iEvent , pat::DiOb
   if(  selectedBJets.size() < MinNBJets ) return JetReader::NotEnoughBJets;
   if(!IsData)
     //W = btw->weight(*handle);
-    W = 1;
+    //W = 1;
+    W = btw->weight(*handle);
   return JetReader::Pass;
 }
 

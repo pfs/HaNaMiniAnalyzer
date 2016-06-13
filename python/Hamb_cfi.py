@@ -38,7 +38,8 @@ Hamb = cms.EDAnalyzer('Hamb',
                                       BTagCuts = cms.vint32(1,-1), # supporting up to two working point, the second is for veto
 
                                       MinNJets = cms.uint32( 2 ),
-                                      MinNBJets = cms.uint32( 2 )
+                                      MinNBJets = cms.uint32( 2 ),
+				      MaxNBJets = cms.uint32( 2 )
                                       ),
                      
                      sample = cms.string("WJetsMG"),

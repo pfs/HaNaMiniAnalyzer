@@ -1,6 +1,7 @@
 #include "Haamm/HaNaMiniAnalyzer/interface/BTagWeight.h"
 
-float BTagWeight::weight(pat::JetCollection jets){
+
+/*float BTagWeight::weight(pat::JetCollection jets){
     float pMC = 1;
     float pData = 1;
     for (auto j : jets){
@@ -15,7 +16,49 @@ float BTagWeight::weight(pat::JetCollection jets){
 	}
     }
     return pData/pMC;
+}*/
+
+float BTagWeight::weight(pat::JetCollection jets/*, int ntag*/){
+	//if (!filter(ntag)){
+      		//   std::cout << "nThis event should not pass the selection, what is it doing here?" << std::endl;
+        //	return 0;
+	//}
+	int njetTags = jets.size();
+	int comb = 1 << njetTags;
+	float pMC = 0;
+	float pData = 0;
+	for (int i = 0; i < comb; i++){
+		float mc = 1.;
+      		float data = 1.;
+      		int ntagged = 0;
+      		for (int j = 0; j < njetTags; j++){
+	  		bool tagged = ((i >> j) & 0x1) == 1;
+			float eff = this->MCTagEfficiency(jets[j],WPT);
+			float sf = this->TagScaleFactor(jets[j]);
+	  		if (tagged){
+	      			ntagged++;
+				mc *= eff;
+				data *= (eff*sf);
+				//mc *= jetTags[j].eff;
+				//data *= jetTags[j].eff * jetTags[j].sf;
+			} else {
+			        mc*=(1-eff);
+                		data*=(1-sf*eff);
+				//mc *= (1. - jetTags[j].eff);
+				//data *= (1. - jetTags[j].eff * jetTags[j].sf);
+            		}
+        	}
+
+      		if (filter(ntagged)){
+			//std::cout << mc << " " << data << endl;
+			pMC += mc;
+			pData += data;
+	        }
+	}
+	if (pMC == 0) return 0;
+	return pData / pMC;
 }
+
 
 
 //*************************************************************************

@@ -44,11 +44,10 @@ private :
   /* b-JET SELECTION PARAMS */
   double BTagWPL , BTagWPM , BTagWPT ;
   std::vector<int> BTagCuts; // atm only 2 are accepted, first for selection, second for veto
-
 public:
   string BTagAlgo ;
 private:
-  unsigned int MinNBJets ;
+  unsigned int MinNBJets, MaxNBJets ;
   /* b-JET SELECTION PARAMS */
 
   /* JET TOOLS */
