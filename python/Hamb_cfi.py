@@ -39,7 +39,7 @@ Hamb = cms.EDAnalyzer('Hamb',
 
                                       MinNJets = cms.uint32( 2 ),
                                       MinNBJets = cms.uint32( 2 ),
-				      MaxNBJets = cms.uint32( 2 )
+				      MaxNBJets = cms.uint32( -1 )
                                       ),
                      
                      sample = cms.string("WJetsMG"),

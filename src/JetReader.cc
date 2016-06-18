@@ -88,7 +88,7 @@ JetReader::SelectionStatus JetReader::Read( const edm::Event& iEvent , pat::DiOb
   if(!IsData)
     //W = btw->weight(*handle);
     //W = 1;
-    W = btw->weight(*handle);
+    W = btw->weight(selectedJets);
   return JetReader::Pass;
 }
 

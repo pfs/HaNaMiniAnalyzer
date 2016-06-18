@@ -82,7 +82,10 @@ class BTagWeight
 	 */
     };
     inline bool filter(int t){
-	 return (t >= minTag && t <= maxTag);
+	if(maxTag != -1)
+		return (t >= minTag && t <= maxTag);
+	else
+		return (t >= minTag);
     }
     float weight(pat::JetCollection jets);
     float weight(pat::JetCollection jets, int);
