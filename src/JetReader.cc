@@ -14,7 +14,7 @@ JetReader::JetReader( edm::ParameterSet const& iConfig, edm::ConsumesCollector &
   BTagWPT( iConfig.getParameter<double>( "BTagWPT" ) ),
   BTagAlgo( iConfig.getParameter<string>( "BTagAlgo" ) ),
   MinNBJets( iConfig.getParameter<unsigned int>( "MinNBJets" ) ),
-  MaxNBJets( iConfig.getParameter<unsigned int>( "MaxNBJets" ) ),
+  MaxNBJets( iConfig.getParameter<int>( "MaxNBJets" ) ),
   rndJER(new TRandom3( 13611360 ) )
 {
   BTagCuts = iConfig.getParameter<std::vector<int> > ( "BTagCuts" );

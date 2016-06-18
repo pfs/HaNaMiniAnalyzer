@@ -47,7 +47,8 @@ private :
 public:
   string BTagAlgo ;
 private:
-  unsigned int MinNBJets, MaxNBJets ;
+  unsigned int MinNBJets; 
+  int MaxNBJets ;
   /* b-JET SELECTION PARAMS */
 
   /* JET TOOLS */
