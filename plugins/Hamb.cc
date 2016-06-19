@@ -85,7 +85,7 @@ void Hamb::initHistograms(){
     hDiBJetMass= new Histograms(SampleName, "DiBJetMass", 30, 0., 300.);
     hDiBJetPt= new Histograms(SampleName, "DiBJetPt", 15, 0., 150.);
     hDiBJetDr= new Histograms(SampleName, "DiBJetDr", 50, 0, 5.0);
-    hFourBodyMass= new Histograms(SampleName, "FourBodyMass", 30, 0., 300.);
+    hFourBodyMass= new Histograms(SampleName, "FourBodyMass", 120, 0., 1200.);
     hFourBodyPt= new Histograms(SampleName, "FourBodyPt", 20, 0., 200.);
     hDiffMassMuB= new Histograms(SampleName, "DiffMassMuB", 15, 0., 150.);
     hRelDiffMassMuB= new Histograms(SampleName, "RelDiffMassMuB", 20, 0, 1.);
@@ -179,8 +179,8 @@ void Hamb::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   switch( jetReader->Read( iEvent , &(diMuReader->DiMuon) ) ){
   case JetReader::Pass:
-    W *= jetReader->W ;
     hCutFlowTable->Fill( ++stepEventSelection , W );
+    W *= jetReader->W ;
     hCutFlowTable->Fill( ++stepEventSelection , W );
     hJetMult->Fill(jetReader->selectedJets.size(), W);
     hBJetMult->Fill(jetReader->selectedBJets.size(), W);

@@ -108,6 +108,11 @@ DiMuonReader::SelectionStatus DiMuonReader::Read( const edm::Event& iEvent, cons
 }
 
 double DiMuonReader::MuonSFMedium( double etaL , double ptL , double etaSL , double ptSL ){
+  // To accound for boundary effects
+  if( ptSL < 20 ) ptSL = 20.01;
+  if( ptL < 20 ) ptL = 20.01;
+  if( ptSL > 120 ) ptSL = 119;
+  if( ptL > 120 ) ptL = 119;
   //AN2016_025_v7 Figure 6, Middle Row, Right for trigger
   double ret = 1.0;
 
@@ -121,9 +126,6 @@ double DiMuonReader::MuonSFMedium( double etaL , double ptL , double etaSL , dou
     ret = 0.958 ;
   else 
     ret = 0.926 ;
-
-  if( ptSL < 20 || ptL < 20 )
-    return ret;
 
   ret *= ( hMuSFID->GetBinContent( hMuSFID->FindBin( ptL , el ) ) * hMuSFID->GetBinContent( hMuSFID->FindBin( ptSL , esl ) ) );
   ret *= (hMuSFIso->GetBinContent(hMuSFIso->FindBin(ptL ,el ) ) * hMuSFIso->GetBinContent( hMuSFIso->FindBin( ptSL , esl ) ) );
