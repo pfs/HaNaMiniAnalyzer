@@ -20,7 +20,7 @@ DYJets76 = Sample( "DYJets" , "VJets" , 6025.2 , True , kGreen-2 , "/DYJetsToLL_
 MiniAOD76Samples.append( DYJets76 )
 
 DYJetsLowMass76 = Sample( "DYJetsLowMass" , "VJets" , 18610.0 , True , kGreen-2 , "/DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext3-v1/MINIAODSIM" )
-MiniAOD76Samples.append( DYJets76 )
+MiniAOD76Samples.append( DYJetsLowMass76 )
 
 TTBar76 = Sample( "TTbar" , "Top" , 831.76 , False , kOrange-3 , "/TT_TuneCUETP8M1_13TeV-powheg-pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext3-v1/MINIAODSIM" )
 MiniAOD76Samples.append( TTBar76 )
