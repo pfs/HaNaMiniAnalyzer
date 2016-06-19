@@ -7,7 +7,7 @@
 #include <Math/VectorUtil.h>
 #include "TVector2.h"
 #include "TLorentzVector.h"
-
+using namespace std;
 class TopDecayChain {
 public:
   TopDecayChain(){};
@@ -85,11 +85,21 @@ public:
 	topInttZ = InttZ(TopBar.Top);
         ltopInttZ = InttZ(TopBar.Lepton);
     }
+    cout<<"I am here"<<endl;
     ltopInttZ.Boost(-topInttZ.BoostVector());
     lZInttZ.Boost(-topInttZ.BoostVector());
-    if(optimal)
-	return ROOT::Math::VectorUtil::CosTheta(ltopInttZ,lZInttZ);
-    return ROOT::Math::VectorUtil::CosTheta(ltopInttZ,topInttZ);
+    cout<<"I am here: all boosted"<<endl;
+    cout<<"ltopInttZ: " <<ltopInttZ.Px()<<", "<<ltopInttZ.Py()<<", "<<ltopInttZ.Pz()<<endl;
+    cout<<"lZInttZ: " <<lZInttZ.Px()<<", "<<lZInttZ.Py()<<", "<<lZInttZ.Pz()<<endl;
+    double ret = -100;
+    if(optimal){
+       ret = ROOT::Math::VectorUtil::CosTheta(ltopInttZ,lZInttZ);
+       cout<< ret << endl;
+    } else {
+       ret = ROOT::Math::VectorUtil::CosTheta(ltopInttZ,topInttZ);
+       cout<< ret << endl;
+    }
+    return ret;
   }
 };
 

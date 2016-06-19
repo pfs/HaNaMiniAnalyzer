@@ -1,6 +1,6 @@
 #include "Haamm/HaNaMiniAnalyzer/interface/TtGenEvent.h"
 #include <iostream>
-
+using namespace std;
 TtZ::~TtZ(){
 
 }
@@ -21,53 +21,43 @@ TtZ::TtZ( const std::vector<reco::GenParticle>* gen  )
   int top = getLastCopy( gen , 6 );
   int topbar = getLastCopy( gen , -6 );
 
+  int z = getLastCopy( gen , 23 );
+
+
   int wm = getLastCopy( gen , -24 , -6 , true , true );
   int wp = getLastCopy( gen , 24 , 6 , true , true);
 
-  int lm = getLastCopy( gen , 11 , -24 );
-  int neutrinobar = getLastCopy( gen , -12 , -24 );
+  int lm = getLastCopy( gen , 11 , -24 , false, true);
+  int neutrinobar = getLastCopy( gen , -12 , -24, false, true );
 
-  int lp = getLastCopy( gen , -11 , 24 );
-  int neutrino = getLastCopy( gen , 12 , 24 );
-
-  if(lm < 0){
-    lm = getLastCopy( gen , 13 , -24 );
-    neutrinobar = getLastCopy( gen , -14 , -24 );
-  }
-  if(lp < 0){
-    lp = getLastCopy( gen , -13 , 24 );
-    neutrino = getLastCopy( gen , 14 , 24 );
-  }
-
+  int lp = getLastCopy( gen , -11 , 24, false , true );
+  int neutrino = getLastCopy( gen , 12 , 24, false , true );
 
   if(lm < 0){
-    lm = getLastCopy( gen , 13 , -24 , true , true);
-    neutrinobar = getLastCopy( gen , -14 , -24  , true , true);
+    lm = getLastCopy( gen , 13 , -24, false, true );
+    neutrinobar = getLastCopy( gen , -14 , -24, false , true );
   }
   if(lp < 0){
-    lp = getLastCopy( gen , -13 , 24  , true , true);
-    neutrino = getLastCopy( gen , 14 , 24  , true , true);
+    lp = getLastCopy( gen , -13 , 24, false, true );
+    neutrino = getLastCopy( gen , 14 , 24, false, true );
   }
 
-  if(lm < 0){
-    lm = getLastCopy( gen , 11 , -24 , true , true);
-    neutrinobar = getLastCopy( gen , -12 , -24  , true , true);
+  int b = getLastCopy( gen , 5 , 6 , false, true );
+
+  int bbar = getLastCopy( gen , -5 , -6 , false, true );
+
+  int lmz = getLastCopy( gen , 11 , 23 , false, true);
+  int lpz = getLastCopy( gen , -11 , 23, false , true );
+
+  if(lmz < 0){
+    lmz = getLastCopy( gen , 13 , 23, false, true );
   }
-  if(lp < 0){
-    lp = getLastCopy( gen , -11 , 24  , true , true);
-    neutrino = getLastCopy( gen , 12 , 24  , true , true);
+  if(lpz < 0){
+    lpz = getLastCopy( gen , -13 , 23, false, true );
   }
 
 
-  int b = getLastCopy( gen , 5 , 6 , true );
-  if( b < 0 )
-    b = getLastCopy( gen , 5 , 6 , true , true );
-
-  int bbar = getLastCopy( gen , -5 , -6 , true );
-  if( bbar < 0)
-    bbar = getLastCopy( gen , -5 , -6 , true , true );
-
-  if( lm < 0 || lp < 0 ){
+  if( lm < 0 || lp < 0 || lmz < 0 || lpz < 0){
     isSet = false;
     return;
   }
@@ -89,6 +79,12 @@ TtZ::TtZ( const std::vector<reco::GenParticle>* gen  )
 	  &(gen->at( lm )),
 	  &(gen->at( neutrinobar )) );
 
+  Z.Set(
+          &(gen->at( z )),
+          &(gen->at( lpz )),
+          &(gen->at( lmz ))	
+  );
+
   isSet = true;
 }
 
@@ -96,6 +92,9 @@ int TtZ::getLastCopy(const std::vector<reco::GenParticle>* gens, int pdgId , int
   int index=-1;
   for(auto genPart : *gens ){
     index ++ ;
+    //cout<<genPart.status() <<"\t"<<genPart.pdgId()<<endl;
+    //if(genPart.status() != 1 ) continue;
+
     int pdgid = genPart.pdgId();
     if( pdgid != pdgId )
       continue;

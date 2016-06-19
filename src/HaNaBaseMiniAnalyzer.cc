@@ -25,13 +25,18 @@ HaNaBaseMiniAnalyzer::HaNaBaseMiniAnalyzer(const edm::ParameterSet& iConfig):
 {
   LHEReader = NULL;
   if( !IsData ){
-    edm::ParameterSet LHE = iConfig.getParameter< edm::ParameterSet >("LHE");
-    if( LHE.getParameter< bool >( "useLHEW" ) )
-      LHEReader = new LHEEventReader( LHE , consumesCollector() );
+    if( iConfig.exists( "LHE" ) ){
+       edm::ParameterSet LHE = iConfig.getParameter< edm::ParameterSet >("LHE");
+       if( LHE.getParameter< bool >( "useLHEW" ) )
+         LHEReader = new LHEEventReader( LHE , consumesCollector() );
+    } else LHEReader = NULL;
   }  
-
-  hltReader = new HLTReader( iConfig.getParameter< edm::ParameterSet >("HLT") , consumesCollector() );
-  vertexReader = new VertexReader( iConfig.getParameter< edm::ParameterSet >("Vertex") , consumesCollector() , IsData , SetupDir );
+  if (iConfig.exists( "HLT"))
+     hltReader = new HLTReader( iConfig.getParameter< edm::ParameterSet >("HLT") , consumesCollector() );
+  else hltReader = NULL;
+  if (iConfig.exists( "Vertex"))
+     vertexReader = new VertexReader( iConfig.getParameter< edm::ParameterSet >("Vertex") , consumesCollector() , IsData , SetupDir );
+  else vertexReader = NULL;
 
   if( iConfig.exists( "DiMuon" ) ){
     diMuReader = new DiMuonReader( iConfig.getParameter< edm::ParameterSet >("DiMuon") , consumesCollector() , IsData , SetupDir );
