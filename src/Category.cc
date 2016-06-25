@@ -13,7 +13,7 @@ Category::Category( TString name, TString SampleName) : Name(name){
     hLeadMuEta = new Histograms(Name, SampleName, "LeadMuEta", 30, -3.0, 3.0);
     hSubLeadMuPt = new Histograms(Name, SampleName, "SubLeadMuPt", 30, 0., 150.);
     hSubLeadMuEta = new Histograms(Name, SampleName, "SubLeadMuEta", 30, -3.0, 3.0);
-    hDiMuMass = new Histograms(Name, SampleName, "DiMuMass", 17, 10., 180.);
+    hDiMuMass = new Histograms(Name, SampleName, "DiMuMass", 85, 10., 180.);
     hDiMuPt = new Histograms(Name, SampleName, "DiMuPt", 40, 0., 200.);
     hDiMuDr = new Histograms(Name, SampleName, "DiMuDr", 50, 0, 5.0);
     hJetPt = new Histograms(Name, SampleName, "JetPt", 30, 0., 150.);

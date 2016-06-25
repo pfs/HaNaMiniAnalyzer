@@ -11,14 +11,15 @@ Hamb = cms.EDAnalyzer('Hamb',
                                         pileupSrc = cms.InputTag("slimmedAddPileupInfo")
                                         ),
                      DiMuon = cms.PSet( Input = cms.InputTag("slimmedMuons"),
-                                        MuonLeadingPtCut = cms.double(20),
-                                        MuonSubLeadingPtCut = cms.double(20),
+                                        MuonLeadingPtCut = cms.double(24),
+                                        MuonSubLeadingPtCut = cms.double(8),
                                         MuonIsoCut = cms.double( 0.15 ),
                                         MuonEtaCut = cms.double( 2.4 ),
                                         DiMuLowMassCut = cms.double( 20. ),
                                         DiMuCharge = cms.int32( -1 ),
                                         MuonID = cms.int32( 3 ), #0:no id, 1:Loose , 2:Medium , 3:tight , 4 : soft
-                                        DiMuZMassWindow = cms.double( 15.0 )
+                                        DiMuZMassWindow = cms.double( 20.0 ),
+					isHamb = cms.bool(True)
                                         ),
 
                      MET = cms.PSet( Input = cms.InputTag("slimmedMETs"),
@@ -28,7 +29,7 @@ Hamb = cms.EDAnalyzer('Hamb',
                                      ),
                      Jets = cms.PSet( Input = cms.InputTag("slimmedJets"),
                                       ApplyJER = cms.bool( False ),
-                                      JetPtCut = cms.double( 30 ),
+                                      JetPtCut = cms.double( 15. ),
                                       JetEtaCut = cms.double( 2.4 ),
                                       BTagAlgo = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
                                       BTagWPL = cms.double( 0.460 ),

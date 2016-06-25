@@ -42,7 +42,7 @@ private :
   /* MUON SELECTION PARAMS */
   double MuonLeadingPtCut, MuonSubLeadingPtCut , MuonIsoCut, MuonEtaCut , DiMuLowMassCut, DiMuZMassWindow ;
   int MuonID , DiMuCharge;
-  bool IsData;
+  bool IsData, isHamb;
   /* MUON SELECTION PARAMS */
 };
 #endif

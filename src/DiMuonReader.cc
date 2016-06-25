@@ -13,7 +13,8 @@ DiMuonReader::DiMuonReader( edm::ParameterSet const& iConfig, edm::ConsumesColle
   DiMuZMassWindow( iConfig.getParameter<double>( "DiMuZMassWindow" ) ),
   MuonID( iConfig.getParameter<int>( "MuonID" ) ), // 0 no id, 1 loose, 2 medium, 3 tight, 4 soft
   DiMuCharge( iConfig.getParameter<int>( "DiMuCharge" ) ),
-  IsData(isData)
+  IsData(isData),
+  isHamb(iConfig.getParameter<bool>( "isHamb" ))
 {
   if( !IsData ){
     TFile* f1 = TFile::Open( TString(SetupDir + "/MuonIDSF.root") );
@@ -101,8 +102,12 @@ DiMuonReader::SelectionStatus DiMuonReader::Read( const edm::Event& iEvent, cons
   DiMuon = DiObjectProxy( goodMusOS[0] , goodMusOS[1] );
   
   if( DiMuon.totalP4().M() < DiMuLowMassCut ) return DiMuonReader::LowMassPair;
-  
-  if( DiMuon.totalP4().M() > (91.0-DiMuZMassWindow) && DiMuon.totalP4().M() < (91.0+DiMuZMassWindow) ) return DiMuonReader::UnderTheZPeak;
+
+  if(!isHamb){  
+  	if( DiMuon.totalP4().M() > (91.0-DiMuZMassWindow) && DiMuon.totalP4().M() < (91.0+DiMuZMassWindow) ) return DiMuonReader::UnderTheZPeak;
+  } else {
+  	if( DiMuon.totalP4().M() > (91.0-DiMuZMassWindow) ) return DiMuonReader::UnderTheZPeak;
+  }
   
   return DiMuonReader::Pass;
 }

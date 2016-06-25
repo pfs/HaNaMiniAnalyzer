@@ -18,7 +18,8 @@ TTll = cms.EDAnalyzer('TTll',
                                         DiMuLowMassCut = cms.double( 20. ),
                                         DiMuCharge = cms.int32( -1 ),
                                         MuonID = cms.int32( 3 ), #0:no id, 1:Loose , 2:Medium , 3:tight , 4 : soft
-                                        DiMuZMassWindow = cms.double( 15.0 )
+                                        DiMuZMassWindow = cms.double( 15.0 ),
+					isHamb = cms.bool(False)
                                         ),
 
                      MET = cms.PSet( Input = cms.InputTag("slimmedMETs"),
