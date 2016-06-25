@@ -85,24 +85,25 @@ public:
 	topInttZ = InttZ(TopBar.Top);
         ltopInttZ = InttZ(TopBar.Lepton);
     }
-    cout<<"I am here"<<endl;
     ltopInttZ.Boost(-topInttZ.BoostVector());
     lZInttZ.Boost(-topInttZ.BoostVector());
-    cout<<"I am here: all boosted"<<endl;
-    cout<<"ltopInttZ: " <<ltopInttZ.Px()<<", "<<ltopInttZ.Py()<<", "<<ltopInttZ.Pz()<<endl;
-    cout<<"lZInttZ: " <<lZInttZ.Px()<<", "<<lZInttZ.Py()<<", "<<lZInttZ.Pz()<<endl;
     double ret = -100;
     if(optimal){
        ret = ROOT::Math::VectorUtil::CosTheta(ltopInttZ,lZInttZ);
-       cout<< ret << endl;
     } else {
        ret = ROOT::Math::VectorUtil::CosTheta(ltopInttZ,topInttZ);
-       cout<< ret << endl;
     }
     return ret;
   }
 };
 
 
+/*class TZ : {
+public:
+  TZ( const TZ* ttbar , bool JustTransverse );
+  TZ( const std::vector<reco::GenParticle>* );
+  ~TZ();
+  int getLastCopy( const std::vector<reco::GenParticle>* gens, int pdgId , int parentId=0 , bool beforeFSR = false , bool noCheckLastCopy = false );
+}*/
 #endif
 

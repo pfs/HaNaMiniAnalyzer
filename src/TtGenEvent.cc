@@ -22,7 +22,10 @@ TtZ::TtZ( const std::vector<reco::GenParticle>* gen  )
   int topbar = getLastCopy( gen , -6 );
 
   int z = getLastCopy( gen , 23 );
-
+  //int mz1 = gen->at(z).mothers(0)->pdgId();
+  //int mz2 = gen->at(mz2).motherId(0);
+  
+  //cout<<mz1<<"\t"<<mz2<<endl;
 
   int wm = getLastCopy( gen , -24 , -6 , true , true );
   int wp = getLastCopy( gen , 24 , 6 , true , true);

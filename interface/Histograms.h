@@ -15,9 +15,13 @@ public:
   TH1* theHistNoW;
   TString SampleName;
   TString PropName;
+  TString SelectionLevel;
 
   Histograms( TString samplename , TString propname , int nbins , double from , double to );
   Histograms( TString samplename , TString propname , int nbins , double* bins );
+
+  Histograms( TString selLev , TString samplename , TString propname , int nbins , double from , double to );
+  Histograms( TString selLev , TString samplename , TString propname , int nbins , double* bins );
 
   void Fill( double v , double w=1.0 );
   

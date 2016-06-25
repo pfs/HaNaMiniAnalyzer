@@ -13,6 +13,7 @@ public:
   METReader( edm::ParameterSet const& iPS, edm::ConsumesCollector && iC , bool isData);
 
   double Read( const edm::Event& iEvent , pat::JetCollection* newJets = NULL );
+  double ReadMetSig (const edm::Event& iEvent);
   reco::Candidate::LorentzVector met;
   reco::Candidate::LorentzVector oldht;
   reco::Candidate::LorentzVector newht;
@@ -24,6 +25,8 @@ private :
   bool ReadOldJets ;
   edm::Handle<pat::JetCollection> oldjets;
   edm::EDGetTokenT<pat::JetCollection> oldjetToken_;
+  edm::Handle<double> metsig;
+  edm::EDGetTokenT<double> metsigToken_;//("METSignificance:METSignificance:HaNa");
 };
 
 #endif

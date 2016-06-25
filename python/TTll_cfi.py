@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-Hamb = cms.EDAnalyzer('Hamb',
+TTll = cms.EDAnalyzer('TTll',
                      LHE = cms.PSet ( useLHEW = cms.bool( False ),
                                       Input = cms.InputTag("externalLHEProducer")
                                       ),

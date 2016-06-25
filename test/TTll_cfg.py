@@ -54,7 +54,7 @@ process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring()
 )
 
-process.load("Haamm.HaNaMiniAnalyzer.Hamb_cfi")
+process.load("Haamm.HaNaMiniAnalyzer.TTll_cfi")
 #process.TTH 
 
 import FWCore.ParameterSet.VarParsing as opts
@@ -112,9 +112,9 @@ else:
     options.output = "out" 
     options.job = 0
 
-process.Hamb.sample = theSample.Name
-process.Hamb.LHE.useLHEW = theSample.LHEWeight
-process.Hamb.isData = theSample.IsData
+process.TTll.sample = theSample.Name
+process.TTll.LHE.useLHEW = theSample.LHEWeight
+process.TTll.isData = theSample.IsData
 
 if not ( options.job < theSample.MakeJobs( options.nFilesPerJob , options.output ) ):
     raise NameError("Job %d is not in the list of the jobs of sample %s with %d files per run" % (options.job , options.sample , options.nFilesPerJob ) )
@@ -127,12 +127,12 @@ process.maxEvents.input = options.maxEvents
 
 if theSample.IsData :
     import FWCore.PythonUtilities.LumiList as LumiList
-    process.source.lumisToProcess = LumiList.LumiList(filename = (process.Hamb.SetupDir.value() + '/JSON.txt')).getVLuminosityBlockRange()
+    process.source.lumisToProcess = LumiList.LumiList(filename = (process.TTll.SetupDir.value() + '/JSON.txt')).getVLuminosityBlockRange()
     process.GlobalTag.globaltag = '76X_dataRun2_v15'
-    process.p = cms.Path( process.Hamb )
+    process.p = cms.Path( process.TTll )
     for v in range(0 , 10 ):
-        process.Hamb.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
-        process.Hamb.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
+        process.TTll.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
+        process.TTll.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
 
 else :
     process.GlobalTag.globaltag = '76X_dataRun2_16Dec2015_v0' #76X_mcRun2_asymptotic_RunIIFall15DR76_v1
@@ -149,11 +149,11 @@ else :
         jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
         )
 
-    process.Hamb.Jets.Input = "patJetsReapplyJEC"
+    process.TTll.Jets.Input = "patJetsReapplyJEC"
     process.METSignificance.srcPfJets = "patJetsReapplyJEC"
-    process.p = cms.Path( process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.METSignificance + process.Hamb)
+    process.p = cms.Path( process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.METSignificance + process.TTll)
     if options.sync == 0 :
         for v in range(0 , 10 ):
-            process.Hamb.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
-            process.Hamb.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
+            process.TTll.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
+            process.TTll.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
 

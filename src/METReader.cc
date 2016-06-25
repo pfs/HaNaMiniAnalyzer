@@ -13,6 +13,9 @@ METReader::METReader( edm::ParameterSet const& iPS, edm::ConsumesCollector && iC
       oldjetToken_= iC.consumes<pat::JetCollection>(iPS.getParameter<edm::InputTag>("oldjets")) ;
       ReadOldJets = true;
     }
+  if(iPS.exists("metsig")){
+    metsigToken_ = iC.consumes<double>(iPS.getParameter<edm::InputTag>("metsig"));
+  }
 }
 
 double METReader::Read( const edm::Event& iEvent , pat::JetCollection* newJets ){
@@ -38,3 +41,11 @@ reco::Candidate::LorentzVector METReader::HT4( pat::JetCollection jets ){
   return ret;
 };
 
+double METReader::ReadMetSig (const edm::Event& iEvent){
+  iEvent.getByToken(metsigToken_, metsig);
+  //Test for METSignificance
+  double METSignificance_;
+  METSignificance_ = metsig.failedToGet() ? -999. : *metsig;
+  return METSignificance_;
+  //END
+}
