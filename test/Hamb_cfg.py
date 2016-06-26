@@ -129,7 +129,7 @@ if theSample.IsData :
     import FWCore.PythonUtilities.LumiList as LumiList
     process.source.lumisToProcess = LumiList.LumiList(filename = (process.Hamb.SetupDir.value() + '/JSON.txt')).getVLuminosityBlockRange()
     process.GlobalTag.globaltag = '76X_dataRun2_v15'
-    process.p = cms.Path( process.Hamb )
+    process.p = cms.Path( process.METSignificance + process.Hamb )
     for v in range(0 , 10 ):
         process.Hamb.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
         process.Hamb.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
