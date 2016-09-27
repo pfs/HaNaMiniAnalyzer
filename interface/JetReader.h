@@ -30,6 +30,7 @@ public:
   pat::JetCollection selectedJets;
   pat::JetCollection selectedBJets;
   double W;
+
 private :
   BTagWeight* btw; 
 

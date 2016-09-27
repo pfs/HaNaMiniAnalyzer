@@ -30,9 +30,11 @@ double METReader::Read( const edm::Event& iEvent , pat::JetCollection* newJets )
     
     met -= ( newht - oldht ); 
   }
-  
-  return (met.Pt() - MetCut);
+  //return (met.Pt() - MetCut)  
+  metphi = met.Phi();
+  return (met.Pt());
 }
+
   
 reco::Candidate::LorentzVector METReader::HT4( pat::JetCollection jets ){
   reco::Candidate::LorentzVector ret ;

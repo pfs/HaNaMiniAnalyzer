@@ -31,6 +31,9 @@ public:
   pat::DiObjectProxy DiMuon;
   double W;
 
+  std::vector<bool> goodMuId;
+  std::vector<float> goodMuIso;
+
 private :
   /* MUON SF TOOLS */
   double MuonSFMedium( double etaL , double ptL , double etaSL , double ptSL );
@@ -44,5 +47,7 @@ private :
   int MuonID , DiMuCharge;
   bool IsData, isHamb;
   /* MUON SELECTION PARAMS */
+
+
 };
 #endif

@@ -70,6 +70,7 @@ JetReader::SelectionStatus JetReader::Read( const edm::Event& iEvent , pat::DiOb
     selectedJets.push_back(j);
  
     float btagval = j.bDiscriminator( BTagAlgo );
+
     if(BTagCuts[0] == 0) {
       if(btagval > BTagWPL) selectedBJets.push_back(j);
     } else if (BTagCuts[0] == 1) {

@@ -42,7 +42,8 @@ DiMuonReader::DiMuonReader( edm::ParameterSet const& iConfig, edm::ConsumesColle
       cout << "No scale factor is availabel for Muon Iso " << MuonIsoCut << endl;
     f1->Close();
   }
-
+  goodMuIso.clear();
+  goodMuId.clear();
   cout << MuonSubLeadingPtCut << "  " << MuonEtaCut << "  " << MuonLeadingPtCut << "    " << MuonIsoCut << "    " << MuonID << endl;
 }
 
@@ -73,6 +74,19 @@ DiMuonReader::SelectionStatus DiMuonReader::Read( const edm::Event& iEvent, cons
     double reliso = (iso.sumChargedHadronPt+TMath::Max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-0.5*iso.sumPUPt))/mu.pt();
     if( reliso > MuonIsoCut) continue;
     goodMus.push_back( mu );
+
+    //Filling additional Info
+    goodMuIso.push_back(reliso);
+    if( MuonID == 1 ){
+      goodMuId.push_back(muon::isLooseMuon( mu ) );
+    } else if(MuonID == 2){
+      goodMuId.push_back(muon::isMediumMuon( mu ) );
+    } else if(MuonID == 3){
+      goodMuId.push_back(muon::isTightMuon(mu ,*PV) );
+    } else if(MuonID == 4){
+      goodMuId.push_back(muon::isSoftMuon( mu ,*PV) );
+    }
+    /////
   }
     
   if( goodMus.size() < 2 ) return DiMuonReader::LessThan2Muons ;

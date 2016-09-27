@@ -17,6 +17,7 @@ public:
   reco::Candidate::LorentzVector met;
   reco::Candidate::LorentzVector oldht;
   reco::Candidate::LorentzVector newht;
+  float metphi;
 private :
   double MetCut;
   
