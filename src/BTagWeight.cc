@@ -1,23 +1,6 @@
 #include "Haamm/HaNaMiniAnalyzer/interface/BTagWeight.h"
 
 
-/*float BTagWeight::weight(pat::JetCollection jets){
-    float pMC = 1;
-    float pData = 1;
-    for (auto j : jets){
-	float eff = this->MCTagEfficiency(j,WPT);
-	float sf= this->TagScaleFactor(j);
-	if(j.bDiscriminator(algo)>bTagMapCSVv2[WPT] ){
-		pMC*=eff;
-		pData*=sf*eff;
-	}else{
-		pMC*=(1-eff);
-		pData*=(1-sf*eff);
-	}
-    }
-    return pData/pMC;
-}*/
-
 float BTagWeight::weight(pat::JetCollection jets/*, int ntag*/){
 	//if (!filter(ntag)){
       		//   std::cout << "nThis event should not pass the selection, what is it doing here?" << std::endl;

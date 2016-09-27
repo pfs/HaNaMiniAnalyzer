@@ -1,15 +1,15 @@
-#include "Haamm/HaNaMiniAnalyzer/interface/HaNaBaseMiniAnalyzer.h"
-
+#include "Haamm/HaNaMiniAnalyzer/interface/BaseMiniAnalyzer.h"
+#include "TTree.h"
 #include <iostream>
 
 using namespace std;
 
-class TreeHamb : public HaNaBaseMiniAnalyzer{
+class TreeHamb : public BaseMiniAnalyzer{
 public:
   explicit TreeHamb(const edm::ParameterSet&);
   ~TreeHamb();
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions){ HaNaBaseMiniAnalyzer::fillDescriptions( descriptions ); }
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions){ BaseMiniAnalyzer::fillDescriptions( descriptions ); }
 
 
 
@@ -18,7 +18,7 @@ public:
 
 protected:
   virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
   unsigned int RunN;
   unsigned long long EventN;
   unsigned char nVertices;
@@ -40,10 +40,9 @@ protected:
   std::vector<bool> muId;
   std::vector<bool> muHLT;
   
-  bool MakeTree;
-
   TTree* theSelectionResultTree;
   unsigned int nHistos;
+  bool MakeTree;
 
   // ---------- methods ---------------------------
 
@@ -95,10 +94,10 @@ DEFINE_FWK_MODULE(TreeHamb);
 
 TreeHamb::~TreeHamb() {}
 TreeHamb::TreeHamb( const edm::ParameterSet& ps ) :
-  HaNaBaseMiniAnalyzer( ps ), 
+  BaseMiniAnalyzer( ps ), 
   theSelectionResultTree( NULL ),
   nHistos(1),
-  MakeTree( ps.getParameter<bool>( "StoreEventNumbers" )
+  MakeTree( ps.getParameter<bool>( "StoreEventNumbers" ))
 {
 }
 
@@ -150,12 +149,12 @@ void TreeHamb::beginJob()
     resetTreeVals();
   }
 
-  hCutFlowTable = new Histograms( SampleName , "CutFlowTable" , 10 , 0.5 , 10.5 );
+  hCutFlowTable = new Histograms( SampleName , "CutFlowTable" , 10 , 0.5 , 10.5, nHistos );
 
 }
 
 //
-void TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   resetTreeVals();
@@ -167,7 +166,7 @@ void TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   if( nHistos > 1 && SampleName == "Signal" ) {
     LHEReader->Read( iEvent );
-    W = LHEReader->ExtractWeightsInRange( 446 , 495 ); // To be checked for HiggsExo
+    //W = LHEReader->ExtractWeightsInRange( 446 , 495 ); // To be checked for HiggsExo
   }
 
   stepEventSelection = 0;
@@ -183,7 +182,7 @@ void TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 //---------- PV --------
   if( vertexReader->Read( iEvent ) < 0 )
-    return;
+    return false;
   W *= vertexReader->puWeight;
   puWeight = vertexReader->puWeight;
   nVertices = vertexReader->vtxMult;
@@ -200,7 +199,7 @@ void TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     muPt.push_back(diMuReader->goodMus[iMu].pt());
     muEta.push_back(diMuReader->goodMus[iMu].eta());
     muPhi.push_back(diMuReader->goodMus[iMu].phi());
-    muIso.push_back(diMuReader->goodMuIso[iMu);
+    muIso.push_back(diMuReader->goodMuIso[iMu]);
     muId.push_back(diMuReader->goodMuId[iMu]);
     muHLT.push_back(-1);	// To be completed
   }
@@ -235,6 +234,9 @@ void TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     jetsFlavour.push_back(jetReader->selectedJets[iJet].hadronFlavour());
   }
 
+  for(int i = 0; i < 9; i++){
+	bSelWeights[i] = jetReader->weights[i];
+  }
   switch( myJetsStat ){
   case JetReader::Pass:
     hCutFlowTable->Fill( ++stepEventSelection , W );

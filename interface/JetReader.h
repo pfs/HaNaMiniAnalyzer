@@ -30,9 +30,11 @@ public:
   pat::JetCollection selectedJets;
   pat::JetCollection selectedBJets;
   double W;
+  float weights[9];
 
 private :
-  BTagWeight* btw; 
+  BTagWeight* btw;
+  std::vector<BTagWeight*> weighters;
 
   bool IsData;
   /* JET SELECTION PARAMS */

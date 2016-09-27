@@ -25,6 +25,26 @@ JetReader::JetReader( edm::ParameterSet const& iConfig, edm::ConsumesCollector &
     BTagCuts.push_back(-1);  
   if( !IsData ){
     btw = new BTagWeight("CSVv2", BTagCuts[0], SetupDir, MinNBJets, MaxNBJets, BTagWPL, BTagWPM, BTagWPT,BTagCuts[1]);
+    //btw1L
+    weighters.push_back(new BTagWeight("CSVv2", 0 , SetupDir, 1 , -1 , BTagWPL, BTagWPM, BTagWPT,-1)); 
+    //btw1M
+    weighters.push_back(new BTagWeight("CSVv2", 1 , SetupDir, 1 , -1 , BTagWPL, BTagWPM, BTagWPT,-1));
+    //btw1T
+    weighters.push_back(new BTagWeight("CSVv2", 2 , SetupDir, 1 , -1 , BTagWPL, BTagWPM, BTagWPT,-1));
+    //btw2L
+    weighters.push_back(new BTagWeight("CSVv2", 0 , SetupDir, 2 , 2 , BTagWPL, BTagWPM, BTagWPT,-1));
+    //btw2M
+    weighters.push_back(new BTagWeight("CSVv2", 1 , SetupDir, 2 , 2 , BTagWPL, BTagWPM, BTagWPT,-1));
+    //btw2T
+    weighters.push_back(new BTagWeight("CSVv2", 2 , SetupDir, 2 , 2 , BTagWPL, BTagWPM, BTagWPT,-1));
+    //To be double checked
+    //btw1M1L
+    weighters.push_back(new BTagWeight("CSVv2", 1 , SetupDir, 1 , 1 , BTagWPL, BTagWPM, BTagWPT,0));
+    //btw1T1L
+    weighters.push_back(new BTagWeight("CSVv2", 2 , SetupDir, 1 , 1 , BTagWPL, BTagWPM, BTagWPT,0));
+    //btw1T1M
+    weighters.push_back(new BTagWeight("CSVv2", 2 , SetupDir, 1 , 1 , BTagWPL, BTagWPM, BTagWPT,1));
+
 
     t_Rho_ = (iC.consumes<double>( edm::InputTag( "fixedGridRhoFastjetAll" ) ) );
     resolution = JME::JetResolution( SetupDir + "/MCJetPtResolution.txt" );
@@ -40,6 +60,8 @@ const pat::JetCollection* JetReader::GetAllJets(){
 JetReader::SelectionStatus JetReader::Read( const edm::Event& iEvent , pat::DiObjectProxy* diLepton ){
   BaseEventReader< pat::JetCollection >::Read( iEvent );
   W = 1.0;
+  for(int iComb = 0; iComb < 9; iComb++)
+	weights[iComb] = 1.;
 
   if( (!IsData) && ApplyJER ){
     iEvent.getByToken(t_Rho_ ,rho);
@@ -86,10 +108,13 @@ JetReader::SelectionStatus JetReader::Read( const edm::Event& iEvent , pat::DiOb
     
   if( selectedJets.size() < MinNJets ) return JetReader::NotEnoughJets ;
   if(  selectedBJets.size() < MinNBJets ) return JetReader::NotEnoughBJets;
-  if(!IsData)
+  if(!IsData){
     //W = btw->weight(*handle);
     //W = 1;
-    W = btw->weight(selectedJets);
+    W *= btw->weight(selectedJets);
+    for(int iComb = 0; iComb < 9; iComb++)
+	weights[iComb] = weighters[iComb]->weight(selectedJets);
+  }
   return JetReader::Pass;
 }
 
