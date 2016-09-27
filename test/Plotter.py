@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-nFilesPerJob=40
+nFilesPerJob=15
 prefix = "out"
 import sys
 import os
@@ -26,7 +26,7 @@ hcft = Histogram( samples , f.GetDirectory("Hamb/CutFlowTable/") )
 f.cd("Hamb")
 AllProps = {}
 for dir in gDirectory.GetListOfKeys() :
-    if dir.IsFolder():
+    if dir.IsFolder() and dir.GetName() == "CutFlowTable":
         AllProps[ dir.GetName() ] = Histogram( samples , f.GetDirectory("Hamb/%s/" % (dir.GetName() )) )
 
 f.Close()

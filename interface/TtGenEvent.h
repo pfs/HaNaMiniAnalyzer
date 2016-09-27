@@ -28,6 +28,10 @@ public:
   const reco::GenParticle* b;  
   const reco::GenParticle* Lepton;
   const reco::GenParticle* Neutrino;
+  TLorentzVector TopP4(){
+	TLorentzVector ret(Top->px(),Top->py(), Top->pz(), Top->energy());
+	return ret;
+  }
 };
 
 class ZDecayChain{
@@ -41,6 +45,10 @@ public:
   const reco::GenParticle* Z;
   const reco::GenParticle* dplus;
   const reco::GenParticle* dminus;
+  TLorentzVector ZP4(){
+	TLorentzVector ret(Z->px(),Z->py(), Z->pz(), Z->energy());
+	return ret;
+  }
 };
 
 class TtZ {

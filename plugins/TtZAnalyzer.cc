@@ -17,6 +17,7 @@ public:
   // ----------member data ---------------------------
 	Histograms* hOptimalCosTheta;
 	Histograms* hHelicityCosTheta;
+	Histograms* hDiffDR;
   void initHistograms();
 protected:
   virtual void beginJob() override;
@@ -30,6 +31,7 @@ DEFINE_FWK_MODULE(TtZAnalyzer);
 void TtZAnalyzer::initHistograms(){   
 	hOptimalCosTheta = new Histograms(SampleName, "OptimalCosTheta", 20, -1., 1.);
 	hHelicityCosTheta = new Histograms(SampleName, "HelicityCosTheta", 20, -1., 1.);
+	hDiffDR = new Histograms(SampleName, "DiffDR", 50, 0., 10.);
   }
 
 
@@ -58,5 +60,5 @@ void TtZAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   double costheta = ttz.CosTheta(-1,false);
   cout<<"----- " <<costheta<<endl;
   hHelicityCosTheta->Fill(costheta);
-	
+  hDiffDR->Fill(fabs(ttz.Top.TopP4().DeltaR(ttz.Z.ZP4()) - ttz.TopBar.TopP4().DeltaR(ttz.Z.ZP4())));
 }

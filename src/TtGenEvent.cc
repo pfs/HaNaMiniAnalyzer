@@ -18,11 +18,11 @@ TtZ::TtZ( const TtZ* ttbar , bool JustTransverse  ){
 }
 TtZ::TtZ( const std::vector<reco::GenParticle>* gen  )
 {
+  //cout<< "New Event +++++++++++++++++++++++++ "<<endl;
   int top = getLastCopy( gen , 6 );
   int topbar = getLastCopy( gen , -6 );
 
   int z = getLastCopy( gen , 23 );
-  //int mz1 = gen->at(z).mothers(0)->pdgId();
   //int mz2 = gen->at(mz2).motherId(0);
   
   //cout<<mz1<<"\t"<<mz2<<endl;
@@ -101,6 +101,17 @@ int TtZ::getLastCopy(const std::vector<reco::GenParticle>* gens, int pdgId , int
     int pdgid = genPart.pdgId();
     if( pdgid != pdgId )
       continue;
+    /*if(fabs(pdgId) == 23){
+        cout<< "New Z! ============ "<<endl;
+	cout<< "\tDaughters: "<<genPart.numberOfDaughters()<<endl;
+	for(unsigned int i = 0; i < genPart.numberOfDaughters(); i++)
+		if(genPart.daughter(i) != NULL )
+			cout<<"\t"<<genPart.daughter(i)->pdgId()<<endl;
+    	cout<< "\tMothers: "<<genPart.numberOfMothers() <<endl;
+	for(unsigned int i = 0; i < genPart.numberOfDaughters(); i++)
+		if(genPart.mother(i) != NULL )
+			cout<<"\t"<<genPart.mother(i)->pdgId()<<endl;
+    }*/
     if( parentId != 0 )
       if( genPart.mother()->pdgId() != parentId )
 	continue;

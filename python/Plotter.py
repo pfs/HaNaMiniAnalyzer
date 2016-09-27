@@ -44,11 +44,19 @@ class Histogram:
 
             self.XSections[sample.Name] = sample.XSection
 
-    def AddFile(self , directory):
+    def AddFile(self , directory , catname = ""):
         ##find all relevant histograms in the file and add them to your histos
         for sample in self.AllSampleHistos:
-            h_in_dir = directory.Get( "%s/%s_%s" % ( self.PropName , self.PropName , sample ) )
+            h_name = ""
+            if catname == "":
+                h_name =  "%s/%s_%s" % ( self.PropName ,  self.PropName , sample )
+            else:
+                h_name = "%s/%s_%s_%s" % ( self.PropName , catname,  self.PropName , sample )
+            h_in_dir = directory.Get( h_name )
             if h_in_dir :
+                # print h_name
+                # print directory.GetPath()
+                # h_in_dir.Print("ALL")
                 self.AllSampleHistos[sample].Add( h_in_dir )
                 
 
@@ -71,7 +79,7 @@ class Histogram:
                 if not i > len(labels) :
                     histo.GetXaxis().SetBinLabel( i , labels[i-1] )
 
-    def Draw(self , lumi , cft , labels = None ):
+    def Draw(self , lumi , cft , labels = None, catname = "" ):
         gStyle.SetOptTitle(0)
         self.FinalHistos={}
         for sample in self.AllSampleHistos:
@@ -107,7 +115,7 @@ class Histogram:
                 self.Stack.Add( self.FinalHistos[finalh] )
         
 
-        self.Canvas = TCanvas("%s_C" % (self.PropName) )
+        self.Canvas = TCanvas("%s_%s_C" % (self.PropName, catname) )
         self.Pad1 = TPad("pad1","pad1",0,0.25,1,1)
         self.Pad1.SetBottomMargin(0.1)
         self.Pad1.Draw()
