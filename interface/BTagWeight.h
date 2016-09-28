@@ -38,17 +38,21 @@ class BTagWeight
   private:
     string algo;
     int WPT, WPL, minTag, maxTag;
-    int syst;
+    int syst, minTagL, maxTagL;
     float bTagMapCSVv2[3];
   public:
     BTagWeight(string algorithm, int WPt, string setupDir, int mintag, int maxtag, double BLCut = 0.460, double BMCut = 0.800, 
-	       double BTCut = 0.935, int WPl = -1, int systematics = 0): 
-      algo(algorithm), WPT(WPt), WPL(WPl), minTag(mintag), maxTag(maxtag), syst(systematics),readerExc(0),readerCentExc(0)
+	       double BTCut = 0.935, int WPl = -1, int systematics = 0, int mintagl = -1, int maxtagl = -1): 
+      algo(algorithm), WPT(WPt), WPL(WPl), minTag(mintag), maxTag(maxtag), syst(systematics), minTagL(mintagl), maxTagL(maxtagl), readerExc(0),readerCentExc(0)
     {
 	bTagMapCSVv2[0] = BLCut;
 	bTagMapCSVv2[1] = BMCut;
 	bTagMapCSVv2[2] = BTCut;
 	if(WPL != -1){
+		if(minTagL == -1){
+			std::cout<<"At least provide the minimum number of loose-non-tight tags you want!!"<<std::endl;
+			return;
+		}
     		if (WPL > WPT){
 		       	int tmp;
 		       	tmp = WPL;
@@ -86,6 +90,18 @@ class BTagWeight
 		return (t >= minTag && t <= maxTag);
 	else
 		return (t >= minTag);
+    }
+    inline bool filter(int tight, int looseNonTight){
+        bool OK = false;
+	if(maxTag != -1)
+		OK = (tight >= minTag && tight <= maxTag);
+	else
+		OK = (tight >= minTag);
+        if(maxTagL != -1)
+		OK = (OK && (looseNonTight >= minTagL && looseNonTight <= maxTagL));
+	else
+		OK = (OK && (looseNonTight >= minTagL));
+	return OK;
     }
     float weight(pat::JetCollection jets);
     float weight(pat::JetCollection jets, int);
