@@ -33,7 +33,6 @@ public:
   float weights[9];
 
 private :
-  BTagWeight* btw;
   std::vector<BTagWeight*> weighters;
 
   bool IsData;
@@ -49,6 +48,10 @@ private :
   std::vector<int> BTagCuts; // atm only 2 are accepted, first for selection, second for veto
 public:
   string BTagAlgo ;
+  float nNonTagged;
+  float nLooseNotMed;
+  float nMedNotTight;
+  float nTight;
 private:
   unsigned int MinNBJets; 
   int MaxNBJets ;

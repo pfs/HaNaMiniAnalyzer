@@ -44,9 +44,6 @@ float BTagWeight::weight(pat::JetCollection jets/*, int ntag*/){
 
 
 
-//*************************************************************************
-//DONT USE !!!!! METHOD INCOMPLETE ****************************************
-//*************************************************************************
 float BTagWeight::weightExclusive(pat::JetCollection jets){
 //This function takes into account cases where you have n b-tags and m vetoes, but they have different thresholds.
     if(WPL == -1){

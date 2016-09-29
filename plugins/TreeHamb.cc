@@ -26,6 +26,10 @@ protected:
   float* Weight;
   float puWeight, met , metPhi, metSig;
   float* bSelWeights;
+  float nNonTagged;
+  float nLooseNotMed;
+  float nMedNotTight;
+  float nTight;
 
   std::vector<float> jetsPt;
   std::vector<float> jetsEta;
@@ -44,6 +48,27 @@ protected:
   unsigned int nHistos;
   bool MakeTree;
 
+  struct particleinfo{
+    float pt, eta, phi , mass, b1 , b2, w; 
+    particleinfo( double pt_=-999, double eta_ =-999, double phi_=-999 , double mass_ = -999 , double b1_ = -999, double b2_ = -999, double W = 1. ){
+      pt = pt_;
+      eta= eta_;
+      phi = phi_;
+      b1 = b1_;
+      b2 = b2_;
+      w = W;
+    };
+    void set( double pt_=-999, double eta_ =-999, double phi_=-999 , double mass_ = -999 , double b1_ = -999, double b2_ = -999, double W = 1. ){
+      pt = pt_;
+      eta= eta_;
+      phi = phi_;
+      b1 = b1_;
+      b2 = b2_;
+      w = W;
+    };
+  };
+
+  particleinfo aMu, aBjetPtOrdered, higgsjetPtOrdered, aBjetBtagOrdered, higgsjetBtagOrdered;
   // ---------- methods ---------------------------
 
   void FillTree(){
@@ -81,6 +106,8 @@ protected:
     muIso.clear();
     muId.clear();
     muHLT.clear();
+    particleinfo tmp;
+    aMu = aBjetPtOrdered =  higgsjetPtOrdered = aBjetBtagOrdered = higgsjetBtagOrdered = tmp ;
 
   }
 
@@ -138,6 +165,11 @@ void TreeHamb::beginJob()
     theSelectionResultTree->Branch("jetsBtag", (&jetsBtag));
     theSelectionResultTree->Branch("jetsFlavour", (&jetsFlavour));
 
+    theSelectionResultTree->Branch("nNonTagged", &nNonTagged);
+    theSelectionResultTree->Branch("nLooseNotMed", &nLooseNotMed);
+    theSelectionResultTree->Branch("nMedNotTight", &nMedNotTight);
+    theSelectionResultTree->Branch("nTight", &nTight);
+
     theSelectionResultTree->Branch("muPt", (&muPt));
     theSelectionResultTree->Branch("muEta", (&muEta));
     theSelectionResultTree->Branch("muPhi", (&muPhi));
@@ -145,6 +177,11 @@ void TreeHamb::beginJob()
     theSelectionResultTree->Branch("muId", (&muId));
     theSelectionResultTree->Branch("muHLT", (&muHLT));
 
+    theSelectionResultTree->Branch("aMu" , &aMu , "pt:eta:phi:b1:b2:w");
+    theSelectionResultTree->Branch("aBjetPtOrdered" , &aBjetPtOrdered , "pt:eta:phi:b1:b2:w");
+    theSelectionResultTree->Branch("aBjetBtagOrdered" , &aBjetBtagOrdered , "pt:eta:phi:b1:b2:w");
+    theSelectionResultTree->Branch("higgsjetPtOrdered", &higgsjetPtOrdered , "pt:eta:phi:b1:b2:w");
+    theSelectionResultTree->Branch("higgsjetBtagOrdered", &higgsjetBtagOrdered , "pt:eta:phi:b1:b2:w");
 
     resetTreeVals();
   }
@@ -237,6 +274,17 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(int i = 0; i < 9; i++){
 	bSelWeights[i] = jetReader->weights[i];
   }
+
+  nTight = jetReader->nTight;
+  nMedNotTight = jetReader->nMedNotTight;
+  nLooseNotMed = jetReader->nLooseNotMed;
+  nNonTagged = jetReader->nNonTagged;
+
+  if(jetReader->selectedJets.size() > 1){
+	//Fill Particle Info
+	
+  }
+
   switch( myJetsStat ){
   case JetReader::Pass:
     hCutFlowTable->Fill( ++stepEventSelection , W );
