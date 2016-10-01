@@ -1,5 +1,6 @@
 #include "Haamm/HaNaMiniAnalyzer/interface/BaseMiniAnalyzer.h"
 #include "TTree.h"
+#include "TLorentzVector.h"
 #include <iostream>
 
 using namespace std;
@@ -240,6 +241,15 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     muId.push_back(diMuReader->goodMuId[iMu]);
     muHLT.push_back(-1);	// To be completed
   }
+  
+  TLorentzVector amu;
+  if(diMuReader->goodMus.size() > 1){
+  	amu.SetPxPyPzE(diMuReader->goodMus[0].px()+diMuReader->goodMus[1].px(),
+		     diMuReader->goodMus[0].py()+diMuReader->goodMus[1].py(),
+		     diMuReader->goodMus[0].pz()+diMuReader->goodMus[1].pz(),
+		     diMuReader->goodMus[0].energy()+diMuReader->goodMus[1].energy());
+  	aMu.set(amu.Pt(), amu.Eta(), amu.Phi(), amu.M());
+  }
 
   switch( myDimuStat ){
   case DiMuonReader::Pass:
@@ -261,7 +271,6 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     return false;
   }
   
-
   JetReader::SelectionStatus myJetsStat = jetReader->Read( iEvent , &(diMuReader->DiMuon) );
   for(unsigned int iJet = 0; iJet < jetReader->selectedJets.size(); iJet++){
     jetsPt.push_back(jetReader->selectedJets[iJet].pt());
@@ -281,8 +290,29 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   nNonTagged = jetReader->nNonTagged;
 
   if(jetReader->selectedJets.size() > 1){
-	//Fill Particle Info
-	
+	//di-b-jet pt-ordered
+	TLorentzVector tmp(jetReader->selectedJets[0].px()+jetReader->selectedJets[1].px(),
+			   jetReader->selectedJets[0].py()+jetReader->selectedJets[1].py(),
+			   jetReader->selectedJets[0].pz()+jetReader->selectedJets[1].pz(),
+			   jetReader->selectedJets[0].energy()+jetReader->selectedJets[1].energy());
+	aBjetPtOrdered.set(tmp.Pt(), tmp.Eta(), tmp.Phi(), tmp.M(), 
+			   jetReader->selectedJets[0].bDiscriminator(jetReader->BTagAlgo), 
+			   jetReader->selectedJets[1].bDiscriminator(jetReader->BTagAlgo));
+	//making the higgs with pt-ordered
+	tmp.SetPxPyPzE(tmp.Px()+amu.Px(), tmp.Py()+amu.Py(), tmp.Pz()+amu.Pz(), tmp.E()+amu.E());
+	higgsjetPtOrdered.set(tmp.Pt(), tmp.Eta(), tmp.Phi(), tmp.M());
+
+	//di-b-jet btag-ordered
+	tmp.SetPxPyPzE(jetReader->selectedJetsSortedByB[0].px()+jetReader->selectedJetsSortedByB[1].px(),
+			   jetReader->selectedJetsSortedByB[0].py()+jetReader->selectedJetsSortedByB[1].py(),
+			   jetReader->selectedJetsSortedByB[0].pz()+jetReader->selectedJetsSortedByB[1].pz(),
+			   jetReader->selectedJetsSortedByB[0].energy()+jetReader->selectedJetsSortedByB[1].energy());
+	aBjetBtagOrdered.set(tmp.Pt(), tmp.Eta(), tmp.Phi(), tmp.M(),
+                           jetReader->selectedJetsSortedByB[0].bDiscriminator(jetReader->BTagAlgo),
+                           jetReader->selectedJetsSortedByB[1].bDiscriminator(jetReader->BTagAlgo));
+	//making the higgs with pt-ordered
+	tmp.SetPxPyPzE(tmp.Px()+amu.Px(), tmp.Py()+amu.Py(), tmp.Pz()+amu.Pz(), tmp.E()+amu.E());
+	higgsjetBtagOrdered.set(tmp.Pt(), tmp.Eta(), tmp.Phi(), tmp.M());
   }
 
   switch( myJetsStat ){

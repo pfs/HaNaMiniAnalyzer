@@ -19,7 +19,17 @@ public:
     return (o1.pt()>o2.pt());
   }
 };
-
+template <class G>
+class btagSort{
+public:
+  btagSort(string Alg): algo(Alg){}
+  ~btagSort(){}
+  bool operator()(G o1 ,G o2 ){
+    return (o1.bDiscriminator(algo)>o2.bDiscriminator(algo));
+  }
+private:
+  string algo;
+};
 
 template<typename T >
 class BaseEventReader {

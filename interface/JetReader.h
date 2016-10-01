@@ -28,6 +28,7 @@ public:
   SelectionStatus Read( const edm::Event& iEvent , pat::DiObjectProxy* diLepton = NULL );
 
   pat::JetCollection selectedJets;
+  pat::JetCollection selectedJetsSortedByB;
   pat::JetCollection selectedBJets;
   double W;
   float weights[9];

@@ -68,6 +68,8 @@ JetReader::SelectionStatus JetReader::Read( const edm::Event& iEvent , pat::DiOb
 
   selectedJets.clear();
   selectedBJets.clear();
+  selectedJetsSortedByB.clear();
+
 
   nNonTagged = 0;
   nLooseNotMed = 0;
@@ -92,6 +94,7 @@ JetReader::SelectionStatus JetReader::Read( const edm::Event& iEvent , pat::DiOb
     }
 
     selectedJets.push_back(j);
+    selectedJetsSortedByB.push_back(j);
  
     float btagval = j.bDiscriminator( BTagAlgo );
 
@@ -112,6 +115,8 @@ JetReader::SelectionStatus JetReader::Read( const edm::Event& iEvent , pat::DiOb
   ptSort<pat::Jet> mySort; 
   std::sort(selectedJets.begin(),selectedJets.end(),mySort);
   std::sort(selectedBJets.begin(),selectedBJets.end(),mySort);
+  btagSort<pat::Jet> myBsort(BTagAlgo);
+  std::sort(selectedJetsSortedByB.begin(),selectedJetsSortedByB.end(),myBsort);
     
   if( selectedJets.size() < MinNJets ) return JetReader::NotEnoughJets ;
   if(  selectedBJets.size() < MinNBJets ) return JetReader::NotEnoughBJets;
