@@ -9,7 +9,7 @@ MiniAOD80Samples = []
 DoubleMuB80 = Sample("DoubleMuB" , 0 , False ,  "/DoubleMuon/Run2016B-PromptReco-v2/MINIAOD" )
 MiniAOD80Samples.append( DoubleMuB80 )
 
-DoubleMuC80 = Sample("DoubleMuB" , 0 , False ,  "/DoubleMuon/Run2016C-PromptReco-v2/MINIAOD" )
+DoubleMuC80 = Sample("DoubleMuC" , 0 , False ,  "/DoubleMuon/Run2016C-PromptReco-v2/MINIAOD" )
 MiniAOD80Samples.append( DoubleMuC80 )
 
 DoubleMuD80 = Sample("DoubleMuD" , 0 , False ,  "/DoubleMuon/Run2016D-PromptReco-v2/MINIAOD" )
@@ -36,7 +36,7 @@ MiniAOD80Samples.append( TW80 )
 TbarW80 = Sample("TbarW" , 35.6 , False ,  "/ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM" )
 MiniAOD80Samples.append( TbarW80 )
 
-QCDMuEnriched80 = Sample( "QCDMuEnriched" , 381304 , False , "i/QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_13TeV_pythia8/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM" )
+QCDMuEnriched80 = Sample( "QCDMuEnriched" , 381304 , False , "/QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_13TeV_pythia8/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM" )
 
 MiniAOD80Samples.append(QCDMuEnriched80)
 
