@@ -54,7 +54,8 @@ protected:
   // --------- All Info needed in the event processing ---------------
   GenEventInfoProductReader* geninfoReader;
   LHEEventReader* LHEReader;
-  HLTReader* hltReader;
+  HLTReader* hltReader_Mu17Mu8_DZ;
+  HLTReader* hltReader_Mu17Mu8;
   VertexReader* vertexReader;
   METReader* metReader;
   DiMuonReader* diMuReader;

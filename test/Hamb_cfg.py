@@ -13,42 +13,42 @@ process.load("RecoMET/METProducers.METSignificance_cfi")
 process.load("RecoMET/METProducers.METSignificanceParams_cfi")
 ##____________________________________________________________________________||
 process.load('Configuration.StandardSequences.Services_cff')
-process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
-from CondCore.DBCommon.CondDBSetup_cfi import *
+#process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
+#from CondCore.DBCommon.CondDBSetup_cfi import *
 
-process.jer = cms.ESSource("PoolDBESSource",
-      CondDBSetup,
-      toGet = cms.VPSet(
-         # Pt Resolution
-         cms.PSet(
-            record = cms.string('JetResolutionRcd'),
-            tag    = cms.string('JR_MC_PtResolution_Summer15_25nsV6_AK4PFchs'),
-            label  = cms.untracked.string('AK4PFchs_pt')
-            ),
+#process.jer = cms.ESSource("PoolDBESSource",
+#      CondDBSetup,
+#      toGet = cms.VPSet(
+#         # Pt Resolution
+#         cms.PSet(
+#            record = cms.string('JetResolutionRcd'),
+#            tag    = cms.string('JR_MC_PtResolution_Summer15_25nsV6_AK4PFchs'),
+#            label  = cms.untracked.string('AK4PFchs_pt')
+#            ),
+#
+#         # Phi Resolution
+#         cms.PSet(
+#            record = cms.string('JetResolutionRcd'),
+#            tag    = cms.string('JR_MC_PhiResolution_Summer15_25nsV6_AK4PFchs'),
+#            label  = cms.untracked.string('AK4PFchs_phi')
+#            ),
+#
+#         # Scale factors
+#         cms.PSet(
+#            record = cms.string('JetResolutionScaleFactorRcd'),
+#            tag    = cms.string('JR_DATAMCSF_Summer15_25nsV6_AK4PFchs'),
+#            label  = cms.untracked.string('AK4PFchs')
+#            ),
+#         ),
+#      connect = cms.string('sqlite:Summer15_25nsV6.db')
+#      )
 
-         # Phi Resolution
-         cms.PSet(
-            record = cms.string('JetResolutionRcd'),
-            tag    = cms.string('JR_MC_PhiResolution_Summer15_25nsV6_AK4PFchs'),
-            label  = cms.untracked.string('AK4PFchs_phi')
-            ),
-
-         # Scale factors
-         cms.PSet(
-            record = cms.string('JetResolutionScaleFactorRcd'),
-            tag    = cms.string('JR_DATAMCSF_Summer15_25nsV6_AK4PFchs'),
-            label  = cms.untracked.string('AK4PFchs')
-            ),
-         ),
-      connect = cms.string('sqlite:Summer15_25nsV6.db')
-      )
-
-process.es_prefer_jer = cms.ESPrefer('PoolDBESSource', 'jer')
+#process.es_prefer_jer = cms.ESPrefer('PoolDBESSource', 'jer')
 
 ##____________________________________________________________________________||
 process.TFileService = cms.Service("TFileService", fileName = cms.string("histo.root") )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
                             fileNames = cms.untracked.vstring()
@@ -61,6 +61,7 @@ import FWCore.ParameterSet.VarParsing as opts
 options = opts.VarParsing ('analysis')
 options.register('sync',
                  0,
+		 #1,
                  opts.VarParsing.multiplicity.singleton,
                  opts.VarParsing.varType.int ,
                  "")
@@ -107,7 +108,9 @@ if options.sync == 0 :
 else:
     from Haamm.HaNaMiniAnalyzer.Sample import *
     theSample = Sample( "Sync" , "Sync" , 100 , False , 0 , "" )
-    theSample.Files = ['/store/mc/RunIIFall15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext3-v1/00000/0C5BB11A-E2C1-E511-8C02-002590A831B6.root']
+    #theSample.Files = ['/store/mc/RunIIFall15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext3-v1/00000/0C5BB11A-E2C1-E511-8C02-002590A831B6.root']
+    #theSample.Files = ['/store/mc/RunIISpring16MiniAODv2/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/00000/001AFDCE-C33B-E611-B032-0025905D1C54.root']
+    theSample.Files = ['/store/data/Run2016C/DoubleMuon/MINIAOD/PromptReco-v2/000/275/658/00000/0498AA19-863B-E611-A9B3-02163E0138A8.root']
     options.nFilesPerJob = 1
     options.output = "out" 
     options.job = 0
@@ -115,6 +118,7 @@ else:
 process.Hamb.sample = theSample.Name
 process.Hamb.LHE.useLHEW = theSample.LHEWeight
 process.Hamb.isData = theSample.IsData
+
 
 if not ( options.job < theSample.MakeJobs( options.nFilesPerJob , options.output ) ):
     raise NameError("Job %d is not in the list of the jobs of sample %s with %d files per run" % (options.job , options.sample , options.nFilesPerJob ) )
@@ -128,14 +132,19 @@ process.maxEvents.input = options.maxEvents
 if theSample.IsData :
     import FWCore.PythonUtilities.LumiList as LumiList
     process.source.lumisToProcess = LumiList.LumiList(filename = (process.Hamb.SetupDir.value() + '/JSON.txt')).getVLuminosityBlockRange()
-    process.GlobalTag.globaltag = '76X_dataRun2_v15'
+    #process.GlobalTag.globaltag = '76X_dataRun2_v15'
+    process.GlobalTag.globaltag = '80X_dataRun2_Prompt_ICHEP16JEC_v0'
     process.p = cms.Path( process.METSignificance + process.Hamb )
+    #process.p = cms.Path( process.Hamb )
     for v in range(0 , 10 ):
-        process.Hamb.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
-        process.Hamb.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
+        process.Hamb.HLT_Mu17Mu8_DZ.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
+        process.Hamb.HLT_Mu17Mu8_DZ.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
+        process.Hamb.HLT_Mu17Mu8.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v%d' % (v) )
+        process.Hamb.HLT_Mu17Mu8.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v%d' % (v) )
 
 else :
-    process.GlobalTag.globaltag = '76X_dataRun2_16Dec2015_v0' #76X_mcRun2_asymptotic_RunIIFall15DR76_v1
+    #process.GlobalTag.globaltag = '76X_dataRun2_16Dec2015_v0' #76X_mcRun2_asymptotic_RunIIFall15DR76_v1
+    process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_miniAODv2_v1'
     from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import *
     process.patJetCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
         src = cms.InputTag("slimmedJets"),
@@ -152,8 +161,18 @@ else :
     process.Hamb.Jets.Input = "patJetsReapplyJEC"
     process.METSignificance.srcPfJets = "patJetsReapplyJEC"
     process.p = cms.Path( process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.METSignificance + process.Hamb)
+    #process.p = cms.Path( process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.Hamb)
     if options.sync == 0 :
         for v in range(0 , 10 ):
-            process.Hamb.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
-            process.Hamb.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
+            process.Hamb.HLT_Mu17Mu8_DZ.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
+            process.Hamb.HLT_Mu17Mu8_DZ.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
+            process.Hamb.HLT_Mu17Mu8.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v%d' % (v) )
+            process.Hamb.HLT_Mu17Mu8.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v%d' % (v) )
+
+process.outp1=cms.OutputModule("PoolOutputModule",
+   outputCommands = cms.untracked.vstring('keep *'), 
+   fileName = cms.untracked.string(job.Output2),
+   SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring('p')  )
+)
+process.ep = cms.EndPath( process.outp1 )
 

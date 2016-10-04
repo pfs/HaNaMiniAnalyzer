@@ -122,7 +122,13 @@ JetReader::SelectionStatus JetReader::Read( const edm::Event& iEvent , pat::DiOb
   if(  selectedBJets.size() < MinNBJets ) return JetReader::NotEnoughBJets;
   if(!IsData){
     for(int iComb = 0; iComb < 9; iComb++)
-	weights[iComb] = weighters[iComb]->weightExclusive(selectedJets);
+	if(iComb < 3 || iComb > 5){
+		//cout<<"-- "<<iComb <<", weight"<<endl;
+		weights[iComb] = weighters[iComb]->weight(selectedJets);
+	} else {
+		//cout<<"-- "<<iComb <<", weightExclusive"<<endl;
+		weights[iComb] = weighters[iComb]->weightExclusive(selectedJets);
+	}
   }
   return JetReader::Pass;
 }

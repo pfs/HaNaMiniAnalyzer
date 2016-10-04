@@ -47,7 +47,12 @@ double METReader::ReadMetSig (const edm::Event& iEvent){
   iEvent.getByToken(metsigToken_, metsig);
   //Test for METSignificance
   double METSignificance_;
+  if(metsig.failedToGet()) cout<< "Failed to get METSig"<<endl;
+  //else cout<<"MetSig is: "<<*metsig << endl;
   METSignificance_ = metsig.failedToGet() ? -999. : *metsig;
   return METSignificance_;
+  //BaseEventReader< pat::METCollection >::Read( iEvent );
+  //const pat::MET &met_ = handle->front();
+  //return met_.metSignificance();
   //END
 }

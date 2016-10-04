@@ -41,6 +41,12 @@ DiMuonReader::DiMuonReader( edm::ParameterSet const& iConfig, edm::ConsumesColle
     else
       cout << "No scale factor is availabel for Muon Iso " << MuonIsoCut << endl;
     f1->Close();
+
+    f1 = TFile::Open(TString(SetupDir + "/DiMuonHLTs.root"));
+    gROOT->cd();
+    hMuHltMu17Mu8 = (TH2*)( f1->Get("Mu17Mu8")->Clone("Mu17Mu8_") );
+    hMuHltMu17Mu8_DZ = (TH2*)( f1->Get("Mu17Mu8_DZ")->Clone("Mu17Mu8_DZ_") );
+    f1->Close();
   }
   goodMuIso.clear();
   goodMuId.clear();
@@ -172,5 +178,23 @@ double DiMuonReader::MuonSFLoose( double etaL , double ptL , double etaSL , doub
   ret *= ( hMuSFID->GetBinContent( hMuSFID->FindBin( ptL , el ) ) * hMuSFID->GetBinContent( hMuSFID->FindBin( ptSL , esl ) ) );
   ret *= (hMuSFIso->GetBinContent(hMuSFIso->FindBin(ptL ,el ) ) * hMuSFIso->GetBinContent( hMuSFIso->FindBin( ptSL , esl ) ) );
 
+  return ret;
+}
+double DiMuonReader::MuonSFHltMu17Mu8( double ptL , double ptSL ){
+  double ret = 1.0;
+  if(ptL < 20 )
+	ptL = 20.01;
+  if(ptSL < 18)
+	ptSL = 20.01;
+  ret *= (hMuHltMu17Mu8->GetBinContent(hMuHltMu17Mu8->FindBin(ptL,ptSL)));
+  return ret;
+}
+double DiMuonReader::MuonSFHltMu17Mu8_DZ( double ptL , double ptSL ){
+  double ret = 1.0;
+  if(ptL < 20 )
+        ptL = 20.01;
+  if(ptSL < 18)
+        ptSL = 20.01;
+  ret *= (hMuHltMu17Mu8_DZ->GetBinContent(hMuHltMu17Mu8_DZ->FindBin(ptL,ptSL)));
   return ret;
 }

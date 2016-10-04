@@ -38,8 +38,14 @@ private :
   /* MUON SF TOOLS */
   double MuonSFMedium( double etaL , double ptL , double etaSL , double ptSL );
   double MuonSFLoose( double etaL , double ptL , double etaSL , double ptSL );
+public:
+  double MuonSFHltMu17Mu8( double ptL , double ptSL );
+  double MuonSFHltMu17Mu8_DZ( double ptL , double ptSL );
+private:
   TH2* hMuSFID;
   TH2* hMuSFIso;
+  TH2* hMuHltMu17Mu8;
+  TH2* hMuHltMu17Mu8_DZ;
   /* MUON SF TOOLS */
 
   /* MUON SELECTION PARAMS */

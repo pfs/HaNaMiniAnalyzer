@@ -1,24 +1,27 @@
 import FWCore.ParameterSet.Config as cms
-Hamb = cms.EDAnalyzer('Hamb',
+Hamb = cms.EDFilter('TreeHamb',
                      LHE = cms.PSet ( useLHEW = cms.bool( False ),
                                       Input = cms.InputTag("externalLHEProducer")
                                       ),
 
-                     HLT = cms.PSet( Input = cms.InputTag( "TriggerResults","","HLT" ), 
+                     HLT_Mu17Mu8 = cms.PSet( Input = cms.InputTag( "TriggerResults","","HLT" ), 
+                                     HLT_To_Or = cms.vstring()
+                                     ),
+                     HLT_Mu17Mu8_DZ = cms.PSet( Input = cms.InputTag( "TriggerResults","","HLT" ), 
                                      HLT_To_Or = cms.vstring()
                                      ),
                      Vertex = cms.PSet( Input = cms.InputTag( "offlineSlimmedPrimaryVertices" ),
                                         pileupSrc = cms.InputTag("slimmedAddPileupInfo")
                                         ),
                      DiMuon = cms.PSet( Input = cms.InputTag("slimmedMuons"),
-                                        MuonLeadingPtCut = cms.double(24),
+                                        MuonLeadingPtCut = cms.double(20),
                                         MuonSubLeadingPtCut = cms.double(8),
                                         MuonIsoCut = cms.double( 0.15 ),
                                         MuonEtaCut = cms.double( 2.4 ),
-                                        DiMuLowMassCut = cms.double( 20. ),
+                                        DiMuLowMassCut = cms.double(0  ),#Remove the dimu lower bound
                                         DiMuCharge = cms.int32( -1 ),
                                         MuonID = cms.int32( 3 ), #0:no id, 1:Loose , 2:Medium , 3:tight , 4 : soft
-                                        DiMuZMassWindow = cms.double( 20.0 ),
+                                        DiMuZMassWindow = cms.double( -10000 ), #Remove the dimu upper bound
 					isHamb = cms.bool(True)
                                         ),
 
@@ -46,5 +49,6 @@ Hamb = cms.EDAnalyzer('Hamb',
                      
                      sample = cms.string("WJetsMG"),
                      isData = cms.bool( False ),
-                     SetupDir = cms.string("Setup76")
+                     SetupDir = cms.string("Setup80"),
+		     StoreEventNumbers = cms.bool( True )
                      )

@@ -35,8 +35,8 @@ BaseMiniAnalyzer::BaseMiniAnalyzer(const edm::ParameterSet& iConfig):
       geninfoReader = new GenEventInfoProductReader( genPset , consumesCollector() );
     }
   }  
-
-  hltReader = new HLTReader( iConfig.getParameter< edm::ParameterSet >("HLT") , consumesCollector() );
+  hltReader_Mu17Mu8 = new HLTReader( iConfig.getParameter< edm::ParameterSet >("HLT_Mu17Mu8") , consumesCollector() );
+  hltReader_Mu17Mu8_DZ = new HLTReader( iConfig.getParameter< edm::ParameterSet >("HLT_Mu17Mu8_DZ") , consumesCollector() );
   vertexReader = new VertexReader( iConfig.getParameter< edm::ParameterSet >("Vertex") , consumesCollector() , IsData , SetupDir );
 
   if( iConfig.exists( "DiMuon" ) ){

@@ -31,6 +31,10 @@ protected:
   float nLooseNotMed;
   float nMedNotTight;
   float nTight;
+  bool passHLT_Mu17Mu8;
+  bool passHLT_Mu17Mu8_DZ;
+  float hltWeight_Mu17Mu8;
+  float hltWeight_Mu17Mu8_DZ;
 
   std::vector<float> jetsPt;
   std::vector<float> jetsEta;
@@ -43,18 +47,31 @@ protected:
   std::vector<float> muPhi;
   std::vector<float> muIso;
   std::vector<bool> muId;
+  std::vector<bool> muCharge;
   std::vector<bool> muHLT;
   
   TTree* theSelectionResultTree;
   unsigned int nHistos;
   bool MakeTree;
-
+  unsigned int EvtNumber;
+  struct hltWeights{
+    float mu17mu8, mu17mu8dz;
+    hltWeights(double mu17mu8_ = 1.0, double mu17mu8dz_ =1.0){
+      mu17mu8 = mu17mu8_;
+      mu17mu8dz = mu17mu8dz_;
+    };
+    void set(double mu17mu8_ = 1.0, double mu17mu8dz_ =1.0){
+      mu17mu8 = mu17mu8_;
+      mu17mu8dz = mu17mu8dz_;
+    };
+  };
   struct particleinfo{
     float pt, eta, phi , mass, b1 , b2, w; 
     particleinfo( double pt_=-999, double eta_ =-999, double phi_=-999 , double mass_ = -999 , double b1_ = -999, double b2_ = -999, double W = 1. ){
       pt = pt_;
       eta= eta_;
       phi = phi_;
+      mass = mass_;
       b1 = b1_;
       b2 = b2_;
       w = W;
@@ -63,6 +80,7 @@ protected:
       pt = pt_;
       eta= eta_;
       phi = phi_;
+      mass = mass_;
       b1 = b1_;
       b2 = b2_;
       w = W;
@@ -70,6 +88,7 @@ protected:
   };
 
   particleinfo aMu, aBjetPtOrdered, higgsjetPtOrdered, aBjetBtagOrdered, higgsjetBtagOrdered;
+  hltWeights hltWs;
   // ---------- methods ---------------------------
 
   void FillTree(){
@@ -95,6 +114,11 @@ protected:
       bSelWeights[i] = 0.0;
 
     puWeight = met = metPhi = metSig = -999;
+
+    passHLT_Mu17Mu8 = passHLT_Mu17Mu8_DZ = true;
+
+    hltWeight_Mu17Mu8 = hltWeight_Mu17Mu8_DZ = 1.0;
+
     jetsPt.clear();
     jetsEta.clear();
     jetsPhi.clear();
@@ -106,12 +130,13 @@ protected:
     muPhi.clear();
     muIso.clear();
     muId.clear();
+    muCharge.clear();
     muHLT.clear();
     particleinfo tmp;
     aMu = aBjetPtOrdered =  higgsjetPtOrdered = aBjetBtagOrdered = higgsjetBtagOrdered = tmp ;
-
+    hltWeights tmp2;
+    hltWs = tmp2;
   }
-
 };
 
 DEFINE_FWK_MODULE(TreeHamb);
@@ -156,9 +181,14 @@ void TreeHamb::beginJob()
     theSelectionResultTree->Branch("Weight", Weight , weightLeafList.c_str() );
     theSelectionResultTree->Branch("puWeight", &puWeight);
     theSelectionResultTree->Branch("bWs", bSelWeights , "W1L:W1M:W1T:W1L1M:W1L1T:W1M1T:W2L:W2M:W2T");
+    theSelectionResultTree->Branch("hltWeights", &hltWs , "mu17mu8:mu17mu8dz");
     theSelectionResultTree->Branch("met", &met);
     theSelectionResultTree->Branch("metPhi", &metPhi);
     theSelectionResultTree->Branch("metSig", &metSig);
+    theSelectionResultTree->Branch("passHLT_Mu17Mu8", &passHLT_Mu17Mu8);
+    theSelectionResultTree->Branch("passHLT_Mu17Mu8_DZ", &passHLT_Mu17Mu8_DZ);
+    theSelectionResultTree->Branch("hltWeight_Mu17Mu8", &hltWeight_Mu17Mu8);
+    theSelectionResultTree->Branch("hltWeight_Mu17Mu8_DZ", &hltWeight_Mu17Mu8_DZ);
 
     theSelectionResultTree->Branch("jetsPt", (&jetsPt));
     theSelectionResultTree->Branch("jetsEta", (&jetsEta));
@@ -176,25 +206,27 @@ void TreeHamb::beginJob()
     theSelectionResultTree->Branch("muPhi", (&muPhi));
     theSelectionResultTree->Branch("muIso", (&muIso));
     theSelectionResultTree->Branch("muId", (&muId));
+    theSelectionResultTree->Branch("muCharge", (&muCharge));
     theSelectionResultTree->Branch("muHLT", (&muHLT));
 
-    theSelectionResultTree->Branch("aMu" , &aMu , "pt:eta:phi:b1:b2:w");
-    theSelectionResultTree->Branch("aBjetPtOrdered" , &aBjetPtOrdered , "pt:eta:phi:b1:b2:w");
-    theSelectionResultTree->Branch("aBjetBtagOrdered" , &aBjetBtagOrdered , "pt:eta:phi:b1:b2:w");
-    theSelectionResultTree->Branch("higgsjetPtOrdered", &higgsjetPtOrdered , "pt:eta:phi:b1:b2:w");
-    theSelectionResultTree->Branch("higgsjetBtagOrdered", &higgsjetBtagOrdered , "pt:eta:phi:b1:b2:w");
+    theSelectionResultTree->Branch("aMu" , &aMu , "pt:eta:phi:mass:b1:b2:w");
+    theSelectionResultTree->Branch("aBjetPtOrdered" , &aBjetPtOrdered , "pt:eta:phi:mass:b1:b2:w");
+    theSelectionResultTree->Branch("aBjetBtagOrdered" , &aBjetBtagOrdered , "pt:eta:phi:mass:b1:b2:w");
+    theSelectionResultTree->Branch("higgsjetPtOrdered", &higgsjetPtOrdered , "pt:eta:phi:mass:b1:b2:w");
+    theSelectionResultTree->Branch("higgsjetBtagOrdered", &higgsjetBtagOrdered , "pt:eta:phi:mass:b1:b2:w");
 
     resetTreeVals();
   }
 
   hCutFlowTable = new Histograms( SampleName , "CutFlowTable" , 10 , 0.5 , 10.5, nHistos );
-
+  EvtNumber = 0;
 }
 
 //
 bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
+  EvtNumber++;
+  //cout<<"-------------- "<<EvtNumber<<endl;
   resetTreeVals();
 
   EventN = iEvent.eventAuxiliary().event() ;
@@ -214,46 +246,66 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   hCutFlowTable->Fill( ++stepEventSelection , W );
 
 //---------- HLT --------
-  if( hltReader->Read( iEvent ) < 0 )
-    return false;
+// Currently no HLT in MC
+  if(IsData){
+    passHLT_Mu17Mu8 = (!( hltReader_Mu17Mu8->Read( iEvent ) < 0 ));
+    passHLT_Mu17Mu8_DZ = (!( hltReader_Mu17Mu8_DZ->Read( iEvent ) < 0 ));
+  } 
+  
   hCutFlowTable->Fill( ++stepEventSelection , W );
 
 //---------- PV --------
-  if( vertexReader->Read( iEvent ) < 0 )
+  if( vertexReader->Read( iEvent ) < 0 ){
     return false;
+  }
   W *= vertexReader->puWeight;
   puWeight = vertexReader->puWeight;
   nVertices = vertexReader->vtxMult;
   hCutFlowTable->Fill( ++stepEventSelection , W );
 
+  //cout<<"Before met "<<endl;
   //To be checked whether corrections are needed?
   met = metReader->Read(iEvent);
   metSig = metReader->ReadMetSig(iEvent);
+  //cout<<"In tree maker, metSig: "<<metSig<<endl;
   metPhi = metReader->metphi;
 
+  //cout<<"Before dimu "<<endl;
   DiMuonReader::SelectionStatus myDimuStat = diMuReader->Read( iEvent , vertexReader->PV() );
 
+  //cout<<"After myDim "<<endl;
   for(unsigned int iMu = 0; iMu < diMuReader->goodMus.size(); iMu++){
     muPt.push_back(diMuReader->goodMus[iMu].pt());
     muEta.push_back(diMuReader->goodMus[iMu].eta());
     muPhi.push_back(diMuReader->goodMus[iMu].phi());
     muIso.push_back(diMuReader->goodMuIso[iMu]);
     muId.push_back(diMuReader->goodMuId[iMu]);
+    muCharge.push_back(diMuReader->goodMus[iMu].charge());
     muHLT.push_back(-1);	// To be completed
   }
   
+  //cout<<"before amu "<<endl;
   TLorentzVector amu;
-  if(diMuReader->goodMus.size() > 1){
-  	amu.SetPxPyPzE(diMuReader->goodMus[0].px()+diMuReader->goodMus[1].px(),
-		     diMuReader->goodMus[0].py()+diMuReader->goodMus[1].py(),
-		     diMuReader->goodMus[0].pz()+diMuReader->goodMus[1].pz(),
-		     diMuReader->goodMus[0].energy()+diMuReader->goodMus[1].energy());
+  if(diMuReader->goodMusOS.size() > 1){
+	//cout<<"It has 2 OS muons!"<<endl;
+  	amu.SetPxPyPzE(diMuReader->goodMusOS[0].px()+diMuReader->goodMusOS[1].px(),
+		     diMuReader->goodMusOS[0].py()+diMuReader->goodMusOS[1].py(),
+		     diMuReader->goodMusOS[0].pz()+diMuReader->goodMusOS[1].pz(),
+		     diMuReader->goodMusOS[0].energy()+diMuReader->goodMusOS[1].energy());
+	//cout<<"amu is set!"<<endl;
   	aMu.set(amu.Pt(), amu.Eta(), amu.Phi(), amu.M());
+	//cout<<"aMu is set!"<<endl;
+        if(!IsData)
+	   hltWs.set(diMuReader->MuonSFHltMu17Mu8(diMuReader->goodMusOS[0].pt(),diMuReader->goodMusOS[1].pt()),
+		  diMuReader->MuonSFHltMu17Mu8_DZ(diMuReader->goodMusOS[0].pt(),diMuReader->goodMusOS[1].pt()));
+	//cout<<"hltW is set"<<endl;
   }
+
+  //cout<<"before mu selection "<<endl;
 
   switch( myDimuStat ){
   case DiMuonReader::Pass:
-    W *= (diMuReader->W) ;
+    W *= (diMuReader->W) ;// No HLT!
     hCutFlowTable->Fill( ++stepEventSelection , W );
     hCutFlowTable->Fill( ++stepEventSelection , W );
     hCutFlowTable->Fill( ++stepEventSelection , W );
@@ -271,13 +323,15 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     return false;
   }
   
+  //cout<<"Before Jet "<<endl;
   JetReader::SelectionStatus myJetsStat = jetReader->Read( iEvent , &(diMuReader->DiMuon) );
   for(unsigned int iJet = 0; iJet < jetReader->selectedJets.size(); iJet++){
     jetsPt.push_back(jetReader->selectedJets[iJet].pt());
     jetsEta.push_back(jetReader->selectedJets[iJet].eta());
     jetsPhi.push_back(jetReader->selectedJets[iJet].phi());
     jetsBtag.push_back(jetReader->selectedJets[iJet].bDiscriminator(jetReader->BTagAlgo));
-    jetsFlavour.push_back(jetReader->selectedJets[iJet].hadronFlavour());
+    if(!IsData)
+	jetsFlavour.push_back(jetReader->selectedJets[iJet].hadronFlavour());
   }
 
   for(int i = 0; i < 9; i++){
@@ -295,9 +349,13 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			   jetReader->selectedJets[0].py()+jetReader->selectedJets[1].py(),
 			   jetReader->selectedJets[0].pz()+jetReader->selectedJets[1].pz(),
 			   jetReader->selectedJets[0].energy()+jetReader->selectedJets[1].energy());
+	//cout<<"tmp "<<tmp.Px()<<", "<<tmp.Py()<<", " << tmp.Pz()<<", "<<tmp.E()<<", "<<tmp.M()<<endl;
 	aBjetPtOrdered.set(tmp.Pt(), tmp.Eta(), tmp.Phi(), tmp.M(), 
 			   jetReader->selectedJets[0].bDiscriminator(jetReader->BTagAlgo), 
 			   jetReader->selectedJets[1].bDiscriminator(jetReader->BTagAlgo));
+
+	//cout<<"aBPtOrdered, "<<jetReader->BTagAlgo<<": "<< aBjetPtOrdered.pt <<" " << aBjetPtOrdered.eta << " " << aBjetPtOrdered.phi 
+	//<<" " << aBjetPtOrdered.mass<<" --- "<< aBjetPtOrdered.b1 << " "<<aBjetPtOrdered.b2 <<endl;
 	//making the higgs with pt-ordered
 	tmp.SetPxPyPzE(tmp.Px()+amu.Px(), tmp.Py()+amu.Py(), tmp.Pz()+amu.Pz(), tmp.E()+amu.E());
 	higgsjetPtOrdered.set(tmp.Pt(), tmp.Eta(), tmp.Phi(), tmp.M());

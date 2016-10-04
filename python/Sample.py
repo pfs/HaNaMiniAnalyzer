@@ -19,6 +19,15 @@ class JobInformation:
         self.Sample = sample 
         self.Index = index
         self.Inputs = inputs
+	bn = os.path.basename( output )
+        dn = os.path.dirname( output )
+        if dn == "":
+            self.Output2 = ("edm_output_" + output)
+        else :
+            self.Output2 = dn +  "/edm_output_" + bn
+
+        if dn.startswith( "/store/user/" ) :
+	    output = "eos/cms" + output
         self.Output = output
 
 
