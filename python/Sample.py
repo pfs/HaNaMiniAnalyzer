@@ -1,9 +1,30 @@
+import sys
 from os import listdir
 from os.path import isfile, join
 from das_client import *
 from subprocess import call
 import os, ntpath
 import os.path
+
+####NEVER TRY TO IMPORT ROOT MODULES IN THE PYTHON CONFIGURATION, Oherwise CMSSW fails in initiating the tree
+#kGray = 920
+#kGreen = 416
+#kOrange = 800
+#kRed = 632
+#kBlack = 1
+#kCyan = 432
+#kBlue = 600
+######################################################################
+
+def GetUserName(arg=2):
+    user=""
+    if len(sys.argv) > arg :
+        user = sys.argv[arg]
+    else:
+        import getpass
+        user = getpass.getuser()
+    return user
+
 
 ##recommended code to group a list : https://docs.python.org/2/library/itertools.html#recipes
 from itertools import izip_longest
@@ -19,7 +40,7 @@ class JobInformation:
         self.Sample = sample 
         self.Index = index
         self.Inputs = inputs
-	bn = os.path.basename( output )
+        bn = os.path.basename( output )
         dn = os.path.dirname( output )
         if dn == "":
             self.Output2 = ("edm_output_" + output)
@@ -27,23 +48,28 @@ class JobInformation:
             self.Output2 = dn +  "/edm_output_" + bn
 
         if dn.startswith( "/store/user/" ) :
-	    output = "eos/cms" + output
+            output = "eos/cms" + output
+
         self.Output = output
-
-
 class Sample :
     WD = './'
 
-    def __init__(self , name , histocat , xsection , lheW , color , datasetname , appendix = "" ):
+    def __init__(self , name , xsection , lheW , datasetname , appendix = "" , dbsInstance = "phys03"  ):
+        self.Jobs = []
         self.Name = name
-        self.HistoCat = histocat
         self.XSection = xsection
         self.IsData = (self.XSection <= 0)
         self.LHEWeight = lheW
         
-        self.Color = color
-
         self.Files = []
+
+        self.DSName = datasetname
+        self.Prefix = appendix
+
+        self.DBSInstance = dbsInstance
+        #for the samples created from the outputs of another sample, the histo files are needed to 
+        #count the total number of events without cuts
+        self.ParentSample = None
 
         if not datasetname == "" :
             self.InitiateFilesFromListOrDAS( datasetname , appendix )
@@ -77,15 +103,22 @@ class Sample :
             self.AddDASFiles( sample , prefix )
             self.WriteFileListToFile()
 
+    def MakeSampleFromOutputs(self):
+        ret = Sample( self.Name , self.XSection , self.LHEWeight , "" , dir )
+        for j in self.Jobs:
+            ret.Files.append( "%s" % ( j.Output2 ) )
+        ret.ParentSample = self
+        return ret
+
     def AddDASFiles( self , sample , prefix = "" ):
         jsondict = get_data( "https://cmsweb.cern.ch" , 
-                             "file dataset=%(sample)s instance=prod/global"  %  {'sample':sample} ,
+                             "file dataset=%(sample)s instance=prod/%(dbs)s"  %  {'sample':sample , 'dbs':self.DBSInstance} ,
                              0 , #idx
                              0 , #limit
                              0 , #verbose
                              300 , #waiting time
-                             "" ,  #ckey
-                             "" , #cert
+                             "~/.globus/userkey.pem"  ,   #ckey
+                             "~/.globus/usercert.pem" , #cert
                              )
         
         cli_msg  = jsondict.get('client_message', None)

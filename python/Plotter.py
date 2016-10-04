@@ -1,169 +1,187 @@
-from ROOT import TDirectory, TFile, TCanvas , TH1D , TH1 , THStack, TList, gROOT, TLegend, TPad, TLine, gStyle
+from ROOT import TDirectory, TFile, TCanvas , TH1D , TH1 , THStack, TList, gROOT, TLegend, TPad, TLine, gStyle, TTree , TObject , gDirectory, TEntryList
 
-class Histogram:
-    def __init__(self, Samples , directory):
-        self.PropName = directory.GetName()
+import os
+import sys
+import Sample
+from array import array
+
+from ExtendedSample import *
+from SampleType import *
+from Property import *
+
+class HistInfo:
+    def __init__(self , name , varname = None , nbins = None , _from = None , to = None ):
+        if isinstance(name, HistInfo) and type(varname) == str and nbins == None and _from == None and to == None :
+            s = name.Name
+            if len(name.Name.split("_")) > 1 :
+                s = name.Name.split("_")[-1]
+            self.Name = varname + "_" + s
+            self.VarName = name.VarName
+            
+            self.nBins = name.nBins
+            self.From = name.From
+            self.To = name.To
+
+        elif type(name) == str and type(varname) == str and type(nbins) == int and ( type(_from) or type(_from) == int ) and ( type(to) == float or type(to) == int ) :
+       
+            self.Name = name
+            self.VarName = varname
+
+            self.nBins = nbins
+            self.From = float(_from)
+            self.To = float(to)
+
+        else:
+            print "Initiate histinfo correctly, the given parameters are not allowd"
+      
+    def MakeName(self , sName , index = 0 ):
+        return "%s_%s_%d" % (sName , self.Name , index )
+
+class CutInfo:
+    def __init__(self, name , cut , weight):
+        self.Name = name
+        self.Cut = cut
+        self.Weight = weight
+
+        self.ListOfEvents = {}
+        self.ListOfHists = []
+        self.AllTH1s = {}
+
+    def AddHist(self, name , varname = None , nbins = None , _from = None , to = None ):
+        if isinstance(name , HistInfo) and varname == None and nbins == None and _from == None and to == None :
+            self.ListOfHists.append( HistInfo(name , self.Name) )
+        elif type(name) == str and type(varname) == str and type(nbins) == int and ( type(_from) == float or type(_from) == int ) and ( type(to) == float or type(to) == int ) :
+            self.ListOfHists.append( HistInfo( self.Name + "_" + name , varname , nbins , _from , to) )
+        else:
+            print "Initiate histinfo correctly, the given parameters to AddHists are not allowd(%s=%s,%s=%s,%s=%s,%s=%s,%s=%s)" % (type(name),name,type(varname),varname,type(nbins),nbins,type(_from),_from,type(to),to)
         
-        dircontents = directory.GetListOfKeys()
-        firsthisto = directory.Get( dircontents.At(0).GetName() )
-        #firsthisto.Print("ALL")
-        self.ForLegend = {}
-        self.XSections = {}
-        self.AllSampleHistos = {}
-
-        for sample in Samples:
-            if sample.IsData:
-                self.DataSName = sample.HistoCat
-
-
-            # h_in_dir = directory.Get( "%s_%s" % ( self.PropName , sample.Name ) )
-            # if h_in_dir :
-            #     h_in_dir.reset()
-            #     setattr( self , sample.Name , h_in_dir )
-            # else:
-            gROOT.cd()
-            hnew = firsthisto.Clone("%s_%s" % ( self.PropName , sample.Name ) )
-            hnew.Reset()
-            setattr( self , sample.Name , hnew )
-                
-            hhh = getattr( self , sample.Name )
-            hhh.SetLineColor( 1 )
-            hhh.SetLineWidth( 2 )
-            if not sample.IsData :
-                hhh.SetFillColor( sample.Color )
-                hhh.SetFillStyle( 1001 )
-            else:
-                hhh.SetStats(0)
-
-            self.AllSampleHistos[sample.Name] = hhh    
-                
-            if( self.ForLegend.get(sample.HistoCat) ):
-                self.ForLegend[sample.HistoCat].append( sample.Name )
-            else:
-                self.ForLegend[sample.HistoCat] = [ sample.Name ]
-
-            self.XSections[sample.Name] = sample.XSection
-
-    def AddFile(self , directory , catname = ""):
-        ##find all relevant histograms in the file and add them to your histos
-        for sample in self.AllSampleHistos:
-            h_name = ""
-            if catname == "":
-                h_name =  "%s/%s_%s" % ( self.PropName ,  self.PropName , sample )
-            else:
-                h_name = "%s/%s_%s_%s" % ( self.PropName , catname,  self.PropName , sample )
-            h_in_dir = directory.Get( h_name )
-            if h_in_dir :
-                # print h_name
-                # print directory.GetPath()
-                # h_in_dir.Print("ALL")
-                self.AllSampleHistos[sample].Add( h_in_dir )
-                
-
-    def Write(self, fout ):
-        fout.mkdir( self.PropName ).cd()
-        for sample in self.AllSampleHistos:
-            self.AllSampleHistos[sample].Write()
-        if hasattr( self, "Canvas" ):
-            self.Canvas.Write()
-            for leg in self.FinalHistos:
-                self.FinalHistos[leg].Write()
-            self.Stack.GetStack().Last().Write("SumMC")
-        fout.cd()
+    def SetWeight(self, w):
+        self.Weight = w
         
+    def Weights(self, index = 0):
+        if hasattr( self , "Weight"):
+            #print self.Weight
+            return (self.Weight  % (index) )
+        else:
+            return ("Weight.W%d" % (index) )
 
-    @staticmethod
-    def AddLabels( histo , labels ):
-        if labels :
-            for i in range(1, histo.GetNbinsX()+1 ):
-                if not i > len(labels) :
-                    histo.GetXaxis().SetBinLabel( i , labels[i-1] )
+    def LoadHistos( self , samplename , isdata , tree , indices=[0] ):
+        tree.SetEntryList( None )
+        nLoaded = tree.Draw( ">>list_%s_%s"%(samplename, self.Name) , self.Cut , "entrylist" )
+        #gDirectory.ls()
+        lst = gDirectory.Get( "list_%s_%s"%(samplename, self.Name) )
+        print "\t\tEvents from tree are loaded (%s , %s), %d" % (self.Name , self.Cut , nLoaded)
+        print "\t\tHistograms from tree are being created"
+        if nLoaded < 0:
+            print "Error in loading events with cut (%s) from dataset (%s), nLoaded = %d" % (self.Cut,samplename , nLoaded)
+        if nLoaded < 1 :
+            self.ListOfEvents[samplename] = TEntryList( "list_%s" % (samplename) , self.Cut , tree )
+        else:
+            self.ListOfEvents[samplename] = lst
 
-    def Draw(self , lumi , cft , labels = None, catname = "" ):
-        gStyle.SetOptTitle(0)
-        self.FinalHistos={}
-        for sample in self.AllSampleHistos:
-            Histogram.AddLabels( self.AllSampleHistos[sample] , labels )
-            self.AllSampleHistos[sample].SetBit(TH1.kNoTitle); 
-            if sample in self.ForLegend[ self.DataSName ] :
-                continue
-            ntotal = getattr( cft , sample ).GetBinContent( 1 )
-            if ntotal == 0:
-                print "Sample %s has no entries" % (sample)
-                continue
-            factor = lumi*self.XSections[sample]/ntotal
-            #print "%s factor : (%.2f*%.2f)/%.0f = %.3f" % (sample , lumi , self.XSections[sample] , ntotal  , factor)
-            self.AllSampleHistos[sample].Scale(factor)
+        #print self.ListOfEvents[samplename]
+        #self.ListOfEvents[samplename].Print()
+        tree.SetEntryList( self.ListOfEvents[samplename] )
+        
+        ret = {}
+        for hist in self.ListOfHists:
+            ret[hist.Name] = {}
+            for n in indices:
+                hname =  hist.MakeName(samplename , n)
+                gROOT.cd()
+                
+                tocheck = ["jPt","jEta" , "jPhi","bjPt" ]
+                for sss in tocheck:
+                    if sss in hist.Name:
+                        print "%s : %d , %.2f , %.2f" % (hist.Name , hist.nBins , hist.From , hist.To)
 
-        self.Stack = THStack("%s_stack" % (self.PropName) , self.PropName )
-        #Histogram.AddLabels( self.Stack.GetHistogram() , labels )
-        for finalh in self.ForLegend:
-            for hname in self.ForLegend[finalh]:
-                #print "Adding %s to %s" % ( hname , finalh )
-                if self.FinalHistos.get(finalh) :
-                    self.FinalHistos[finalh].Add( self.AllSampleHistos[hname] )
+                if nLoaded > 0:
+                    tree.Draw( "%s>>cloned_%s(%d,%.1f,%.1f)" % ( hist.VarName , hname , hist.nBins , hist.From , hist.To ) ,
+                                    self.Weights( n ) )
+                    setattr( self , hname , gDirectory.Get( "cloned_"+hname ).Clone( hname ) )
+                else :
+                    hcloned_empty = TH1D( "%s" % (hname) , "" ,  hist.nBins , hist.From , hist.To )
+                    setattr( self , hname , hcloned_empty )
+                hhh = getattr( self , hname )
+                print "\t\t\tHisto %s[%d] created ([%d,%.1f,%1f] and integral=%.2f, average=%.2f)" % ( hist.Name , n , hhh.GetNbinsX() , hhh.GetBinLowEdge(1) , hhh.GetBinLowEdge( hhh.GetNbinsX() ) + hhh.GetBinWidth( hhh.GetNbinsX() )  , hhh.Integral() , hhh.GetMean() )
+                hhh.SetBit(TH1.kNoTitle)
+                hhh.SetLineColor( 1 )
+                hhh.SetLineWidth( 2 )
+                if not isdata :
+                    hhh.SetFillStyle( 1001 )
                 else:
-                    self.FinalHistos[finalh] = self.AllSampleHistos[hname].Clone( "_%s_%s" % (self.PropName , finalh) )
-                    Histogram.AddLabels( self.FinalHistos[finalh] , labels )
-                    self.FinalHistos[finalh].SetBit(TH1.kNoTitle); 
-                    #self.FinalHistos[finalh].SetLineColor( 0 )
-                    self.FinalHistos[finalh].SetTitle( finalh )
+                    hhh.SetStats(0)
 
-            if finalh == self.DataSName :
-                self.DataHisto = self.FinalHistos[finalh]
-            else :
-                self.Stack.Add( self.FinalHistos[finalh] )
+                ret[hist.Name][n] = hhh
+
+        return ret
         
-
-        self.Canvas = TCanvas("%s_%s_C" % (self.PropName, catname) )
-        self.Pad1 = TPad("pad1","pad1",0,0.25,1,1)
-        self.Pad1.SetBottomMargin(0.1)
-        self.Pad1.Draw()
-        self.Pad1.cd()
-
-        self.DataHisto.Draw("E")
-        #getattr( self , self.DataSName ).Draw("E")
-        self.Stack.Draw("HIST SAME")
-        self.DataHisto.Draw("E SAME P")
-        #getattr( self , self.DataSName ).Draw("E SAME")
-
-        self.Legend = TLegend(0.7,0.6,0.9,0.9,"","brNDC")
-        entry=self.Legend.AddEntry( self.DataHisto , "Data" , "lp" )
-        for finalh in reversed( self.ForLegend.keys() ):
-            if finalh == self.DataSName :
-                continue
-            self.Legend.AddEntry( self.FinalHistos[finalh] , finalh , "f" )
-        self.Legend.Draw()
+class Plotter:
+    def __init__(self):
+        TH1.SetDefaultSumw2(True)
+        self.Samples = []
+        self.Props = {}
+        self.TreePlots = []
 
 
-        self.Canvas.cd()
-        self.Pad2 = TPad("pad2","pad2",0,0,1,0.24)
-        self.Pad2.SetTopMargin(0.1)
-        self.Pad2.SetBottomMargin(0.1)
-        self.Pad2.Draw()
-        self.Pad2.cd()
-
-        self.Ratio = self.DataHisto.Clone("Ratio_%s" % (self.PropName) )
-        self.Ratio.SetStats(0)
-        self.Ratio.Divide( self.Stack.GetStack().Last() )
+    def AddTreePlots( self , selection ):
+        self.TreePlots.append( selection )
+        
+    def AddSampleType(self , st):
+        self.Samples.append(st)
+              
+    def AddLabels(self , hist , labels ):
         if labels :
-            Histogram.AddLabels( self.Ratio , [ "" for s in labels ] ) 
-        self.Ratio.SetMarkerStyle(20)
-        self.Ratio.GetYaxis().SetRangeUser(0,2)
-        self.Ratio.GetXaxis().SetLabelSize( 0.)
-        self.Ratio.GetYaxis().SetTitle("Data / MC")
-        #self.Ratio.GetXaxis().SetTitle(xtitle) 
-        self.Ratio.GetXaxis().SetTitleSize(0.2) 
-        self.Ratio.GetXaxis().SetTitleOffset(0.25)
-        self.Ratio.GetYaxis().SetLabelSize(0.1)
-        self.Ratio.GetXaxis().SetTickLength(0.09)
-        self.Ratio.GetYaxis().SetTitleSize(0.18)
-        self.Ratio.GetYaxis().SetNdivisions(509)
-        self.Ratio.GetYaxis().SetTitleOffset(0.25)
-        self.Ratio.SetFillStyle(3001)
-        self.Ratio.Draw("ep")
+            self.Props[hist].SetLabels(labels)
 
-        self.LineOne = TLine(self.Ratio.GetXaxis().GetXmin(), 1.00, self.Ratio.GetXaxis().GetXmax(), 1.00)
-        self.LineOne.SetLineWidth(2)
-        self.LineOne.SetLineStyle(7)
-        self.LineOne.Draw()
+    def Rebin(self , hist , newbins):
+        self.Props[hist].Rebin( newbins )
+                        
+    def GetData(self, propname):
+        for st in self.Samples:
+            if st.IsData():
+                return st.AllHists[propname]
+        return None
+
+    def LoadHistos(self  , lumi , dirName = "tHq" , cftName = "CutFlowTable"):
+        for st in self.Samples :
+            print "Creating histos for : %s" % (st.Name)
+            st.LoadHistos( lumi , dirName , cftName , self.TreePlots )
+            for prop in st.AllHists:
+                if not prop in self.Props:
+                    self.Props[prop] = Property( prop , {} , None, None , [] )
+                self.Props[prop].Samples += [ s.AllHists[prop][0] for s in st.Samples ]
+                if st.IsData():
+                    self.Props[prop].Data = st.AllHists[prop]
+                elif st.IsSignal:
+                    self.Props[prop].Signal = st.AllOtherHists[prop].values()
+                else :
+                    self.Props[prop].Bkg[st.Name] = st.AllHists[prop]
+
+    def DrawAll(self , normtodata ):
+        gStyle.SetOptTitle(0)
+        for prop in self.Props :
+            self.Props[prop].Draw(normtodata)
+
+    def GetProperty(self , propname):
+        return self.Props[propname]
+    
+    def Write(self, fout , normtodata ):
+        print "Starter writing the plots to the output file..."
+        for propname in self.Props :
+            propdir = None
+            for selection in self.TreePlots:
+                for t in selection.ListOfHists:
+                    if t.Name == propname :
+                        seldirname = selection.Name
+                        seldir = fout.GetDirectory(seldirname)
+                        if not seldir:
+                            seldir = fout.mkdir( seldirname )
+                        propdirname = propname
+                        if len(propname.split("_")) > 1 :
+                            propdirname = propname.split("_")[-1]
+                        propdir = seldir.mkdir( propdirname )
+            if not propdir :
+                propdir = fout.mkdir( propname )
+            self.Props[propname].Write(propdir, normtodata)
+            fout.cd()
