@@ -4,8 +4,6 @@ export SCRAM_ARCH=$2
 scramv1 project CMSSW $3
 cd $3/src/
 eval `scramv1 runtime -sh`
-cms init
-git cms-merge-topic cms-met:76X-METSignificance-patch0
 scram b
 mkdir Haamm/
 cd Haamm
@@ -14,7 +12,6 @@ cd HaNaMiniAnalyzer/
 git checkout $4
 scram b
 cd test
-ln -s ../../../RecoMET/METProducers/test/Summer15_25nsV6.db
 if [ ! -z "$LSB_JOBINDEX" ];
 then
     echo $LSB_JOBINDEX
@@ -48,11 +45,13 @@ fi
 mkdir -p $7
 
 outfilename=`ls $6*$5*.root`
+outfilenames=`ls *$6*$5*.root`
 
-ls -l $outfilename
+ls -l $outfilenames
 
 if [ -f  $7/$outfilename ]; then
     echo "the file exists, is being renamed"
+    rm -f $7/${outfilename}_
     mv $7/$outfilename $7/${outfilename}_
 fi
 
@@ -62,13 +61,13 @@ do
     if [ $COUNTER2 -gt 20 ]; then
 	break
     fi
-    cp $outfilename $7/
+    cp $outfilenames $7/
     let COUNTER2=COUNTER2+1
     echo ${COUNTER2}th Try
     sleep 10
 done
     
-rm $outfilename
+rm $outfilenames
 
 if [ ! -f  $7/$outfilename ]; then
     echo "The file was not copied to destination after 20 tries"
