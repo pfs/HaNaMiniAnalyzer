@@ -226,7 +226,7 @@ void TreeHamb::beginJob()
 bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   EvtNumber++;
-  cout<<"-------------- "<<EvtNumber<<endl;
+  //cout<<"-------------- "<<EvtNumber<<endl;
   resetTreeVals();
 
   EventN = iEvent.eventAuxiliary().event() ;
@@ -267,7 +267,7 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //To be checked whether corrections are needed?
   met = metReader->Read(iEvent);
   metSig = metReader->ReadMetSig(iEvent);
-  cout<<"In tree maker, metSig: "<<metSig<<endl;
+  //cout<<"In tree maker, metSig: "<<metSig<<endl;
   metPhi = metReader->metphi;
 
   //cout<<"Before dimu "<<endl;

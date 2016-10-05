@@ -59,11 +59,11 @@ double METReader::ReadMetSig (const edm::Event& iEvent){
   //
   iEvent.getByToken(metsigToken_, metsig);
   //Test for METSignificance
-  double METSignificance_;
+  //double METSignificance_;
   if(metsig.failedToGet()) cout<< "Failed to get METSig"<<endl;
-  METSignificance_ = metsig.failedToGet() ? -999. : *metsig;
+  //METSignificance_ = metsig.failedToGet() ? -999. : *metsig;
   BaseEventReader< pat::METCollection >::Read( iEvent );
   const pat::MET &met_ = handle->front();
-  cout<<"Default MET: "<<met_.metSignificance() << ", METSig module: "<<METSignificance_<<endl;
+  //cout<<"Default MET: "<<met_.metSignificance() << ", METSig module: "<<METSignificance_<<endl;
   return met_.metSignificance();
 }
