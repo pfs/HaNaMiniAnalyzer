@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-nFilesPerJob=15
+nFilesPerJob=5
 CheckFailedJobs=False
 hname = "Hamb/CutFlowTable/CutFlowTable"
 prefix = "out"
@@ -15,7 +15,7 @@ if not len(sys.argv) == 3 :
     exit()
 
 OutPath = "eos/cms/store/user/%s/%s/" % (user, sys.argv[2] )
-from Samples76.Samples import MiniAOD76Samples as samples
+from Samples80.Samples import MiniAOD80Samples as samples
 for sample in samples:
     sample.MakeJobs( nFilesPerJob , "%s/%s" % (OutPath , prefix) )
 

@@ -4,12 +4,13 @@ export SCRAM_ARCH=$2
 scramv1 project CMSSW $3
 cd $3/src/
 eval `scramv1 runtime -sh`
+git cms-merge-topic cms-met:METRecipe_8020
 scram b
 mkdir Haamm/
 cd Haamm
-git clone https://github.com/nadjieh/HaNaMiniAnalyzer/
+git clone -b 80X https://github.com/nadjieh/HaNaMiniAnalyzer/
 cd HaNaMiniAnalyzer/
-git checkout $4
+#git checkout $4
 scram b
 cd test
 if [ ! -z "$LSB_JOBINDEX" ];
