@@ -8,8 +8,8 @@
 #include <iostream>
 #include <string>
 
-#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
-#include "CondFormats/BTauObjects/interface/BTagCalibrationReader.h"
+#include "BTagCalibration.h"
+#include "BTagCalibrationReader.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 using namespace std;
 

@@ -44,15 +44,26 @@ reco::Candidate::LorentzVector METReader::HT4( pat::JetCollection jets ){
 };
 
 double METReader::ReadMetSig (const edm::Event& iEvent){
-  iEvent.getByToken(metsigToken_, metsig);
+  /*iEvent.getByToken(metsigToken_, metsig);
   //Test for METSignificance
   double METSignificance_;
   if(metsig.failedToGet()) cout<< "Failed to get METSig"<<endl;
   //else cout<<"MetSig is: "<<*metsig << endl;
   METSignificance_ = metsig.failedToGet() ? -999. : *metsig;
-  return METSignificance_;
+  return METSignificance_;*/
   //BaseEventReader< pat::METCollection >::Read( iEvent );
   //const pat::MET &met_ = handle->front();
   //return met_.metSignificance();
   //END
+  //
+  //
+  iEvent.getByToken(metsigToken_, metsig);
+  //Test for METSignificance
+  double METSignificance_;
+  if(metsig.failedToGet()) cout<< "Failed to get METSig"<<endl;
+  METSignificance_ = metsig.failedToGet() ? -999. : *metsig;
+  BaseEventReader< pat::METCollection >::Read( iEvent );
+  const pat::MET &met_ = handle->front();
+  cout<<"Default MET: "<<met_.metSignificance() << ", METSig module: "<<METSignificance_<<endl;
+  return met_.metSignificance();
 }

@@ -109,8 +109,8 @@ else:
     from Haamm.HaNaMiniAnalyzer.Sample import *
     theSample = Sample( "Sync" , "Sync" , 100 , False , 0 , "" )
     #theSample.Files = ['/store/mc/RunIIFall15MiniAODv2/TT_TuneCUETP8M1_13TeV-powheg-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12_ext3-v1/00000/0C5BB11A-E2C1-E511-8C02-002590A831B6.root']
-    #theSample.Files = ['/store/mc/RunIISpring16MiniAODv2/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/00000/001AFDCE-C33B-E611-B032-0025905D1C54.root']
-    theSample.Files = ['/store/data/Run2016C/DoubleMuon/MINIAOD/PromptReco-v2/000/275/658/00000/0498AA19-863B-E611-A9B3-02163E0138A8.root']
+    theSample.Files = ['/store/mc/RunIISpring16MiniAODv2/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/00000/001AFDCE-C33B-E611-B032-0025905D1C54.root']
+    #theSample.Files = ['/store/data/Run2016C/DoubleMuon/MINIAOD/PromptReco-v2/000/275/658/00000/0498AA19-863B-E611-A9B3-02163E0138A8.root']
     options.nFilesPerJob = 1
     options.output = "out" 
     options.job = 0
@@ -129,12 +129,15 @@ process.TFileService.fileName = job.Output
 
 process.maxEvents.input = options.maxEvents
 
+from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+runMetCorAndUncFromMiniAOD(process, isData = theSample.IsData)
+
 if theSample.IsData :
     import FWCore.PythonUtilities.LumiList as LumiList
     process.source.lumisToProcess = LumiList.LumiList(filename = (process.Hamb.SetupDir.value() + '/JSON.txt')).getVLuminosityBlockRange()
     #process.GlobalTag.globaltag = '76X_dataRun2_v15'
     process.GlobalTag.globaltag = '80X_dataRun2_Prompt_ICHEP16JEC_v0'
-    process.p = cms.Path( process.METSignificance + process.Hamb )
+    process.p = cms.Path( process.fullPatMetSequence+process.METSignificance + process.Hamb )
     #process.p = cms.Path( process.Hamb )
     for v in range(0 , 10 ):
         process.Hamb.HLT_Mu17Mu8_DZ.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
@@ -160,8 +163,9 @@ else :
 
     process.Hamb.Jets.Input = "patJetsReapplyJEC"
     process.METSignificance.srcPfJets = "patJetsReapplyJEC"
-    process.p = cms.Path( process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.METSignificance + process.Hamb)
+    #process.p = cms.Path( process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.fullPatMetSequence + process.METSignificance + process.Hamb)
     #process.p = cms.Path( process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.Hamb)
+    process.p = cms.Path( process.fullPatMetSequence + process.METSignificance + process.Hamb)
     if options.sync == 0 :
         for v in range(0 , 10 ):
             process.Hamb.HLT_Mu17Mu8_DZ.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
