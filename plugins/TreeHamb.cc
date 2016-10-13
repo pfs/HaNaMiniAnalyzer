@@ -280,8 +280,9 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     muPhi.push_back(diMuReader->goodMus[iMu].phi());
     muIso.push_back(diMuReader->goodMuIso[iMu]);
     muId.push_back(diMuReader->goodMuId[iMu]);
-    muCharge.push_back(diMuReader->goodMus[iMu].charge());
-    muHLT.push_back(-1);	// To be completed
+    muCharge.push_back((diMuReader->goodMus[iMu].charge() > 0));
+    //cout<<diMuReader->goodMus[iMu].charge() <<"\t"<< muCharge[muCharge.size()-1]<<endl;
+    muHLT.push_back(0);	// To be completed
   }
   
   //cout<<"before amu "<<endl;
