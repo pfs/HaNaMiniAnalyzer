@@ -37,6 +37,7 @@ protected:
   float hltWeight_Mu17Mu8_DZ;
 
   std::vector<float> jetsPt;
+  std::vector<float> jetsE;
   std::vector<float> jetsEta;
   std::vector<float> jetsPhi;
   std::vector<float> jetsBtag;
@@ -52,7 +53,7 @@ protected:
   
   TTree* theSelectionResultTree;
   unsigned int nHistos;
-  bool MakeTree;
+  bool MakeTree,forOptimization;
   unsigned int EvtNumber;
   struct hltWeights{
     float mu17mu8, mu17mu8dz;
@@ -121,6 +122,7 @@ protected:
 
     jetsPt.clear();
     jetsEta.clear();
+    jetsE.clear();
     jetsPhi.clear();
     jetsBtag.clear();
     jetsFlavour.clear();
@@ -152,6 +154,10 @@ TreeHamb::TreeHamb( const edm::ParameterSet& ps ) :
   nHistos(1),
   MakeTree( ps.getParameter<bool>( "StoreEventNumbers" ))
 {
+  if(ps.getUntrackedParameter<bool>("forOptimization"))
+	forOptimization = ps.getUntrackedParameter<bool>("forOptimization");
+  else 
+	forOptimization = false;
 }
 
 
@@ -172,27 +178,36 @@ void TreeHamb::beginJob()
     theSelectionResultTree->Branch("EventNumber", &EventN );
     theSelectionResultTree->Branch("RunNumber", &RunN );
     //theSelectionResultTree->Branch("SelectionStep", &SelectionStep );
-    theSelectionResultTree->Branch("nVertices" , &nVertices);
 
     std::string weightLeafList = "W0";
     for(unsigned int iii = 1 ; iii < nHistos ; iii++)
       weightLeafList += (":W" + std::to_string(iii) );
+    if(!forOptimization){//for optimization we use a lighter version of the tree
+        theSelectionResultTree->Branch("nVertices" , &nVertices);
+	theSelectionResultTree->Branch("Weight", Weight , weightLeafList.c_str() );
+	theSelectionResultTree->Branch("puWeight", &puWeight);
+	theSelectionResultTree->Branch("bWs", bSelWeights , "W1L:W1M:W1T:W1L1M:W1L1T:W1M1T:W2L:W2M:W2T");
+	theSelectionResultTree->Branch("hltWeights", &hltWs , "mu17mu8:mu17mu8dz");
+        theSelectionResultTree->Branch("metPhi", &metPhi);
+        theSelectionResultTree->Branch("passHLT_Mu17Mu8", &passHLT_Mu17Mu8);
+        theSelectionResultTree->Branch("passHLT_Mu17Mu8_DZ", &passHLT_Mu17Mu8_DZ);
+        theSelectionResultTree->Branch("hltWeight_Mu17Mu8", &hltWeight_Mu17Mu8);
+        theSelectionResultTree->Branch("hltWeight_Mu17Mu8_DZ", &hltWeight_Mu17Mu8_DZ);
+        theSelectionResultTree->Branch("aMu" , &aMu , "pt:eta:phi:mass:b1:b2:w");
+        theSelectionResultTree->Branch("aBjetPtOrdered" , &aBjetPtOrdered , "pt:eta:phi:mass:b1:b2:w");
+        theSelectionResultTree->Branch("aBjetBtagOrdered" , &aBjetBtagOrdered , "pt:eta:phi:mass:b1:b2:w");
+        theSelectionResultTree->Branch("higgsjetPtOrdered", &higgsjetPtOrdered , "pt:eta:phi:mass:b1:b2:w");
+        theSelectionResultTree->Branch("higgsjetBtagOrdered", &higgsjetBtagOrdered , "pt:eta:phi:mass:b1:b2:w");
+    }
 
-    theSelectionResultTree->Branch("Weight", Weight , weightLeafList.c_str() );
-    theSelectionResultTree->Branch("puWeight", &puWeight);
-    theSelectionResultTree->Branch("bWs", bSelWeights , "W1L:W1M:W1T:W1L1M:W1L1T:W1M1T:W2L:W2M:W2T");
-    theSelectionResultTree->Branch("hltWeights", &hltWs , "mu17mu8:mu17mu8dz");
     theSelectionResultTree->Branch("met", &met);
-    theSelectionResultTree->Branch("metPhi", &metPhi);
     theSelectionResultTree->Branch("metSig", &metSig);
-    theSelectionResultTree->Branch("passHLT_Mu17Mu8", &passHLT_Mu17Mu8);
-    theSelectionResultTree->Branch("passHLT_Mu17Mu8_DZ", &passHLT_Mu17Mu8_DZ);
-    theSelectionResultTree->Branch("hltWeight_Mu17Mu8", &hltWeight_Mu17Mu8);
-    theSelectionResultTree->Branch("hltWeight_Mu17Mu8_DZ", &hltWeight_Mu17Mu8_DZ);
 
     theSelectionResultTree->Branch("jetsPt", (&jetsPt));
     theSelectionResultTree->Branch("jetsEta", (&jetsEta));
+    theSelectionResultTree->Branch("jetsE", (&jetsE));
     theSelectionResultTree->Branch("jetsPhi", (&jetsPhi));
+    theSelectionResultTree->Branch("jetsE", (&jetsE));
     theSelectionResultTree->Branch("jetsBtag", (&jetsBtag));
     theSelectionResultTree->Branch("jetsFlavour", (&jetsFlavour));
 
@@ -209,11 +224,6 @@ void TreeHamb::beginJob()
     theSelectionResultTree->Branch("muCharge", (&muCharge));
     theSelectionResultTree->Branch("muHLT", (&muHLT));
 
-    theSelectionResultTree->Branch("aMu" , &aMu , "pt:eta:phi:mass:b1:b2:w");
-    theSelectionResultTree->Branch("aBjetPtOrdered" , &aBjetPtOrdered , "pt:eta:phi:mass:b1:b2:w");
-    theSelectionResultTree->Branch("aBjetBtagOrdered" , &aBjetBtagOrdered , "pt:eta:phi:mass:b1:b2:w");
-    theSelectionResultTree->Branch("higgsjetPtOrdered", &higgsjetPtOrdered , "pt:eta:phi:mass:b1:b2:w");
-    theSelectionResultTree->Branch("higgsjetBtagOrdered", &higgsjetBtagOrdered , "pt:eta:phi:mass:b1:b2:w");
 
     resetTreeVals();
   }
@@ -320,7 +330,8 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   case DiMuonReader::NoPairWithChargeReq:
     hCutFlowTable->Fill( ++stepEventSelection , W );
   case DiMuonReader::LessThan2Muons:
-    FillTree();
+    //if(!forOptimization)
+    //    FillTree();
     return false;
   }
   
@@ -329,6 +340,7 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(unsigned int iJet = 0; iJet < jetReader->selectedJets.size(); iJet++){
     jetsPt.push_back(jetReader->selectedJets[iJet].pt());
     jetsEta.push_back(jetReader->selectedJets[iJet].eta());
+    jetsE.push_back(jetReader->selectedJets[iJet].energy());
     jetsPhi.push_back(jetReader->selectedJets[iJet].phi());
     jetsBtag.push_back(jetReader->selectedJets[iJet].bDiscriminator(jetReader->BTagAlgo));
     if(!IsData)
@@ -377,13 +389,14 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   switch( myJetsStat ){
   case JetReader::Pass:
     hCutFlowTable->Fill( ++stepEventSelection , W );
-    W *= jetReader->W ;
+    //W *= jetReader->W ;
     hCutFlowTable->Fill( ++stepEventSelection , W );
     break;
   case JetReader::NotEnoughBJets:
     hCutFlowTable->Fill( ++stepEventSelection , W );
+    return false;
   case JetReader::NotEnoughJets:
-    FillTree();
+    //FillTree();
     return false;
   }
   
