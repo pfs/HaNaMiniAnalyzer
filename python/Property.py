@@ -360,3 +360,25 @@ class Property:
         self.Draw(normtodata)
         self.GetCanvas(0).Write()
 
+    def ROCMaker(self, inputHist, greater = True):
+	tmp = inputHist.Clone("ROC_%s" %inputHist.GetName())
+	tmp.Sumw2()
+	for iBin in range(0, inputHist.GetXaxis().GetNBins()):
+	    n = 0
+	    nError = -1
+	    if(greater):
+	        n = inputHist.IntegralAndError(i+1,-1,nError)
+	    else:
+	        n = inputHist.IntegralAndError(0, i+1, nError)
+	    tmp.SetBinContent(i+1, n)
+	    tmp.SetBinError(i+1,nError)
+        return tmp
+
+    def SetPropertyROCs(self,greater=True):
+	self.SignalROC = []
+	for iSig in range(0, len(self.Signal)):
+	    self.SignalROC.append(self.ROCMaker(self.Signal[iSig],greater))
+	self.BkgROC = self.ROCMaker(self.GetStack(normtodata).GetStack().Last(), greater)
+        self.DataRoc = self.ROCMaker(self.Data, greater)
+
+	
