@@ -41,6 +41,10 @@ int main(int argc, char** argv) {
       hTree = new HambTree((TTree*) fdata->Get(treename));
     }
   }
+  TH1D * muPt0 = new TH1D("muPt0","muPt0",200, 0, 200);
+  TH1D * muPt1 = new TH1D("muPt1","muPt1",200, 0, 200);
+  TH1D * jetPt0 = new TH1D("jetPt0","jetPt0",200, 0, 200);
+  TH1D * jetPt1 = new TH1D("jetPt1","jetPt1",200, 0, 200);
   TH1D * aMu = new TH1D("aMu","aMu",30, 10, 80);
   TH1D * abQjorig = new TH1D("abQjorig","abQjorig",200, 0, 500);
   TH1D * hbQjorig = new TH1D("hbQjorig","hbQjorig",500, 0, 1000);
@@ -51,7 +55,11 @@ int main(int argc, char** argv) {
   for (int eventNumber = 0; eventNumber < hTree->fChain->GetEntriesFast(); eventNumber++) {
     hTree->GetEntry(eventNumber);
     if (hTree->muPt->size() <  2)  continue;
+    muPt0->Fill(hTree->muPt->at(0));
+    muPt1->Fill(hTree->muPt->at(1));
     if (hTree->jetsPt->size() <  2) continue;
+    jetPt0->Fill(hTree->jetsPt->at(0));
+    jetPt1->Fill(hTree->jetsPt->at(1));
     if (hTree->muPt->at(0) < 24 ) continue;
     if (hTree->muPt->at(1) < 8 )  continue;
     TLorentzVector m1,m2,a;
@@ -94,6 +102,10 @@ int main(int argc, char** argv) {
   }
   TFile * f = new TFile("hist_"+fname, "recreate");
   f->cd();
+  muPt0->Write();
+  muPt1->Write();
+  jetPt0->Write();
+  jetPt1->Write();
   aMu->Write();
   abQjorig->Write();
   hbQjorig->Write();  
