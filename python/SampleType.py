@@ -34,7 +34,7 @@ class SampleType:
             return False
         return self.Samples[0].IsData
 
-    def LoadHistos(self , lumi , dirName = "tHq" , cftName = "CutFlowTable" , treeHistos = []):
+    def LoadHistos(self , lumi , dirName = "Hamb" , cftName = "CutFlowTable" , treeHistos = []):
         self.AllHists = {}
         self.AllOtherHists = {}
         Indices = [0]

@@ -75,7 +75,7 @@ class ExtendedSample: #extend the sample object to store histograms
                     self.AllHists[h][index].Scale(self.XSFactor)
 
 
-    def DrawTreeHistos( self , treeselections ,  treeName = "tHq/Trees/Events" ):
+    def DrawTreeHistos( self , treeselections ,  treeName = "Hamb/Trees/Events" ):
         self.Tree = TChain( treeName )
         for Job in self.Jobs:
             self.Tree.Add( Job.Output )
@@ -92,7 +92,7 @@ class ExtendedSample: #extend the sample object to store histograms
                     self.AllHists[hist][n] = treehists[hist][n]
 
                     
-    def LoadHistos(self , dirName = "tHq" , cftName = "CutFlowTable" , loadonly = [] , indices = [0]):
+    def LoadHistos(self , dirName = "Hamb" , cftName = "CutFlowTable" , loadonly = [] , indices = [0]):
         self.LoadedIndices = indices
         self.CutFlowTableName = cftName
         self.DirName = dirName
@@ -108,6 +108,7 @@ class ExtendedSample: #extend the sample object to store histograms
                 print "File %d of sample %s doesn't exist, skip it , %s" % (Job.Index , self.Name , finame)
                 continue
             dir = ff.GetDirectory(dirName)
+            print dirName
             if not dir :
                 print "File %d of sample %s is not valid, skip it , %s" % (Job.Index , self.Name , finame)
                 continue

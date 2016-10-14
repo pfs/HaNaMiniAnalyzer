@@ -38,10 +38,11 @@ class HistInfo:
         return "%s_%s_%d" % (sName , self.Name , index )
 
 class CutInfo:
-    def __init__(self, name , cut , weight):
+    def __init__(self, name , cut , weight = 1):
         self.Name = name
         self.Cut = cut
-        self.Weight = weight
+        if(weight != 1):
+	        self.Weight = weight
 
         self.ListOfEvents = {}
         self.ListOfHists = []
@@ -143,7 +144,7 @@ class Plotter:
                 return st.AllHists[propname]
         return None
 
-    def LoadHistos(self  , lumi , dirName = "tHq" , cftName = "CutFlowTable"):
+    def LoadHistos(self  , lumi , dirName = "Hamb" , cftName = "CutFlowTable"):
         for st in self.Samples :
             print "Creating histos for : %s" % (st.Name)
             st.LoadHistos( lumi , dirName , cftName , self.TreePlots )
