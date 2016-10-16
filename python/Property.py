@@ -405,6 +405,7 @@ class Property:
         self.DataRoc = self.ROCMaker(self.Data, greater)
 
 
+<<<<<<< HEAD
     def Significance(self, signal, bkg, method=1):
     	signame = "SoB"
     	if(method == 2):
@@ -460,3 +461,6 @@ class Property:
     	for iSig in range(0, len(self.Signal)):    
 			self.ExpLimits.append(self.ExpectedLimits(self.SignalROC[iSig], self.BkgROC, self.DataRoc))
 
+=======
+    #def CalcS	
+>>>>>>> 690ef02f2d4c5f698c375e0a35dab588d9f50841
