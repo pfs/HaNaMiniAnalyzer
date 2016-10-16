@@ -10,12 +10,13 @@ import string
 import TLimit
 
 class Property:
-    def __init__(self , name , bkg_hists , data_hist , signal_hists , sample_hists):
+    def __init__(self , name , bkg_hists , data_hist , signal_hists , sample_hists, GRE = True):
         self.Name = name
         self.Bkg = bkg_hists
         self.Data = data_hist
         self.Signal = signal_hists
         self.Samples = sample_hists
+        self.greater = GRE
 
     @staticmethod
     def AddOFUF(h):
@@ -383,7 +384,7 @@ class Property:
 				ExpLimits[iSig].Write()        	
 		propdir.cd()		
 
-    def ROCMaker(self, inputHist, greater = True):
+    def ROCMaker(self, inputHist):
 		tmp = inputHist.Clone("ROC_%s" %inputHist.GetName())
 		tmp.Sumw2()
 		for iBin in range(0, inputHist.GetXaxis().GetNBins()):
@@ -397,15 +398,14 @@ class Property:
 	    	tmp.SetBinError(i, nError)
         return tmp
 
-    def SetPropertyROCs(self,greater=True):
+    def SetPropertyROCs(self):
 	self.SignalROC = []
 	for iSig in range(0, len(self.Signal)):
-	    self.SignalROC.append(self.ROCMaker(self.Signal[iSig],greater))
-	self.BkgROC = self.ROCMaker(self.GetStack(normtodata).GetStack().Last(), greater)
-        self.DataRoc = self.ROCMaker(self.Data, greater)
+	    self.SignalROC.append(self.ROCMaker(self.Signal[iSig]))
+	self.BkgROC = self.ROCMaker(self.GetStack(normtodata).GetStack().Last())
+        self.DataRoc = self.ROCMaker(self.Data)
 
 
-<<<<<<< HEAD
     def Significance(self, signal, bkg, method=1):
     	signame = "SoB"
     	if(method == 2):
@@ -435,6 +435,8 @@ class Property:
     	return significance
 
 	def SetSignificances(self,method = 1):
+		if not (hasattr(self,BkgROC) and hasattr(self,DataROC) and hasattr(self,SignalROC)):
+			self.SetPropertyROCs()
     	self.SigSignificance = []
     	for iSig in range(0, len(self.Signal)):
     		self.SigSignificance.append(Significance(self.SignalROC[iSig], self.BkgROC, self.method))
@@ -457,10 +459,9 @@ class Property:
 		return limits    	    
 			
     def SetExpectedLimits(self):
+   		if not (hasattr(self,BkgROC) and hasattr(self,DataROC) and hasattr(self,SignalROC)):
+			self.SetPropertyROCs()    
     	self.ExpLimits = []    
     	for iSig in range(0, len(self.Signal)):    
 			self.ExpLimits.append(self.ExpectedLimits(self.SignalROC[iSig], self.BkgROC, self.DataRoc))
 
-=======
-    #def CalcS	
->>>>>>> 690ef02f2d4c5f698c375e0a35dab588d9f50841

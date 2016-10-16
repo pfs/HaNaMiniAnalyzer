@@ -166,7 +166,20 @@ class Plotter:
 
     def GetProperty(self , propname):
         return self.Props[propname]
-    
+        
+	def CalcSignificances(self, method=1):
+		print ("Significance calculation with method %d", %method)
+    	if method > 4:
+    		print "Illigal method!"
+    		return
+    	for prop in self.Props:
+    		prop.SetSignificances(method)
+    		
+    def CalcExpLimits(self):
+		print "Limit calculation"    
+		for prop in self.Props:
+    		prop.SetExpectedLimits()
+    		
     def Write(self, fout , normtodata ):
         print "Starter writing the plots to the output file..."
         for propname in self.Props :
