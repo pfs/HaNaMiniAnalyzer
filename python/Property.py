@@ -382,4 +382,4 @@ class Property:
         self.DataRoc = self.ROCMaker(self.Data, greater)
 
 
-    def CalcS	
+    #def CalcS	
