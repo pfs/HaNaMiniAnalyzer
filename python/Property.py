@@ -381,4 +381,5 @@ class Property:
 	self.BkgROC = self.ROCMaker(self.GetStack(normtodata).GetStack().Last(), greater)
         self.DataRoc = self.ROCMaker(self.Data, greater)
 
-	
+
+    def CalcS	
