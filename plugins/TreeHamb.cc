@@ -207,7 +207,6 @@ void TreeHamb::beginJob()
     theSelectionResultTree->Branch("jetsEta", (&jetsEta));
     theSelectionResultTree->Branch("jetsE", (&jetsE));
     theSelectionResultTree->Branch("jetsPhi", (&jetsPhi));
-    theSelectionResultTree->Branch("jetsE", (&jetsE));
     theSelectionResultTree->Branch("jetsBtag", (&jetsBtag));
     theSelectionResultTree->Branch("jetsFlavour", (&jetsFlavour));
 
