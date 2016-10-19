@@ -14,7 +14,7 @@
 
 // Header file for the classes stored in the TTree if any.
 #include <vector>
-#include <vector>
+using namespace std;
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -32,7 +32,6 @@ public :
    vector<float>   *jetsEta;
    vector<float>   *jetsE;
    vector<float>   *jetsPhi;
-   vector<float>   *jetsE;
    vector<float>   *jetsBtag;
    vector<float>   *jetsFlavour;
    Float_t         nNonTagged;
@@ -56,7 +55,6 @@ public :
    TBranch        *b_jetsEta;   //!
    TBranch        *b_jetsE;   //!
    TBranch        *b_jetsPhi;   //!
-   TBranch        *b_jetsE;   //!
    TBranch        *b_jetsBtag;   //!
    TBranch        *b_jetsFlavour;   //!
    TBranch        *b_nNonTagged;   //!
@@ -139,7 +137,6 @@ void OptimTrees::Init(TTree *tree)
    // Set object pointer
    jetsPt = 0;
    jetsEta = 0;
-   jetsE = 0;
    jetsPhi = 0;
    jetsE = 0;
    jetsBtag = 0;

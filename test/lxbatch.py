@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 nFilesPerJob=5
-CheckFailedJobs=False
+CheckFailedJobs=True
 hname = "Hamb/CutFlowTable/CutFlowTable"
 prefix = "out"
 
