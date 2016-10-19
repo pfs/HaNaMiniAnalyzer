@@ -49,6 +49,7 @@ public :
    Float_t         hltWeight_Mu17Mu8_DZ;
    vector<float>   *jetsPt;
    vector<float>   *jetsEta;
+   vector<float>   *jetsE;
    vector<float>   *jetsPhi;
    vector<float>   *jetsBtag;
    vector<float>   *jetsFlavour;
@@ -116,6 +117,7 @@ public :
    TBranch        *b_hltWeight_Mu17Mu8_DZ;   //!
    TBranch        *b_jetsPt;   //!
    TBranch        *b_jetsEta;   //!
+   TBranch        *b_jetsE;   //!
    TBranch        *b_jetsPhi;   //!
    TBranch        *b_jetsBtag;   //!
    TBranch        *b_jetsFlavour;   //!
@@ -197,6 +199,7 @@ void HambTree::Init(TTree *tree)
    // Set object pointer
    jetsPt = 0;
    jetsEta = 0;
+   jetsE = 0;
    jetsPhi = 0;
    jetsBtag = 0;
    jetsFlavour = 0;
@@ -229,6 +232,7 @@ void HambTree::Init(TTree *tree)
    fChain->SetBranchAddress("hltWeight_Mu17Mu8_DZ", &hltWeight_Mu17Mu8_DZ, &b_hltWeight_Mu17Mu8_DZ);
    fChain->SetBranchAddress("jetsPt", &jetsPt, &b_jetsPt);
    fChain->SetBranchAddress("jetsEta", &jetsEta, &b_jetsEta);
+   fChain->SetBranchAddress("jetsE", &jetsE, &b_jetsE);
    fChain->SetBranchAddress("jetsPhi", &jetsPhi, &b_jetsPhi);
    fChain->SetBranchAddress("jetsBtag", &jetsBtag, &b_jetsBtag);
    fChain->SetBranchAddress("jetsFlavour", &jetsFlavour, &b_jetsFlavour);

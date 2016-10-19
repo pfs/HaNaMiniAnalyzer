@@ -8,6 +8,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"
+#include "TDirectory.h"
 #include "TLorentzVector.h"
 #include "TCanvas.h"
 #include "TH1.h"
@@ -20,14 +21,56 @@
 #define HambTree_cxx
 #include "../interface/HambTree.h"
 using namespace std;
-
+bool myfunction (int i,int j) { return (i>j); }
+template <class G>
+class btagSort{
+public:
+  btagSort(){}
+  ~btagSort(){}
+  bool operator()(G o1 ,G o2 ){
+    return (o1.second>o2.second);
+  }
+};
 /*
  * 
  */
 
+class someHists{
+public:
+	someHists(TString name): Name(name){
+	  aMu = new TH1D(name+"_aMu","aMu",30, 10, 80);
+  	  abQjorig = new TH1D(name+"_abQjorig","abQjorig",200, 0, 500);
+	  hbQjorig = new TH1D(name+"_hbQjorig","hbQjorig",500, 0, 1000);
+	  abQjReg = new TH1D(name+"_abQjReg","abQjReg",200, 0, 500);
+	  hbQjReg = new TH1D(name+"_hbQjReg","hbQjReg",500, 0, 1000);  
+	  abQjRegMed = new TH1D(name+"_abQjMed","abQjMed",200, 0, 500);
+  	  hbQjRegMed = new TH1D(name+"_hbQjRegMed","hbQjRegMed",500, 0, 1000); 
+	}
+  TString Name;
+  TH1D * aMu;
+  TH1D * abQjorig;
+  TH1D * hbQjorig;
+  TH1D * abQjReg;
+  TH1D * hbQjReg;  
+  TH1D * abQjRegMed;
+  TH1D * hbQjRegMed; 
+  void Write(TDirectory * d){
+	d->mkdir(Name)->cd();
+	aMu->Write();
+	abQjorig->Write();
+	hbQjorig->Write();
+	abQjReg->Write();
+	hbQjReg->Write();  
+	abQjRegMed->Write();
+	hbQjRegMed->Write(); 	
+	d->cd();
+  }
+
+};
+
 int main(int argc, char** argv) {
   int step = 1000;
-  TString DirFile = "eos/cms/store/user/ajafari/Oct5_8020_v2/";
+  TString DirFile = "eos_cb/user/a/ajafari/Hamb13/Oct14_8020_Opt/Trees/";
   TString fname;
   TString treename = "Hamb/Trees/Events";
   HambTree* hTree;
@@ -41,27 +84,19 @@ int main(int argc, char** argv) {
       hTree = new HambTree((TTree*) fdata->Get(treename));
     }
   }
-  TH1D * muPt0 = new TH1D("muPt0","muPt0",200, 0, 200);
-  TH1D * muPt1 = new TH1D("muPt1","muPt1",200, 0, 200);
-  TH1D * jetPt0 = new TH1D("jetPt0","jetPt0",200, 0, 200);
-  TH1D * jetPt1 = new TH1D("jetPt1","jetPt1",200, 0, 200);
-  TH1D * aMu = new TH1D("aMu","aMu",30, 10, 80);
-  TH1D * abQjorig = new TH1D("abQjorig","abQjorig",200, 0, 500);
-  TH1D * hbQjorig = new TH1D("hbQjorig","hbQjorig",500, 0, 1000);
-  TH1D * abQjReg = new TH1D("abQjReg","abQjReg",200, 0, 500);
-  TH1D * hbQjReg = new TH1D("hbQjReg","hbQjReg",500, 0, 1000);  
-  TH1D * abQjRegMed = new TH1D("abQjMed","abQjMed",200, 0, 500);
-  TH1D * hbQjRegMed = new TH1D("hbQjRegMed","hbQjRegMed",500, 0, 1000);    
+  someHists ptOrdered("ptOrdered");
+  someHists btagOrdered("btagOrdered");
   for (int eventNumber = 0; eventNumber < hTree->fChain->GetEntriesFast(); eventNumber++) {
     hTree->GetEntry(eventNumber);
+
+    //Based on optimization studies
     if (hTree->muPt->size() <  2)  continue;
-    muPt0->Fill(hTree->muPt->at(0));
-    muPt1->Fill(hTree->muPt->at(1));
     if (hTree->jetsPt->size() <  2) continue;
-    jetPt0->Fill(hTree->jetsPt->at(0));
-    jetPt1->Fill(hTree->jetsPt->at(1));
-    if (hTree->muPt->at(0) < 24 ) continue;
-    if (hTree->muPt->at(1) < 8 )  continue;
+    if (hTree->muPt->at(0) < 25 ) continue;
+    if (hTree->muPt->at(1) < 10 )  continue;
+    if (hTree->jetsPt->at(0) < 20 ) continue;
+    if (hTree->jetsPt->at(1) < 15 )  continue;
+    if (hTree->metSig > 2 )  continue;
     TLorentzVector m1,m2,a;
     m1.SetPtEtaPhiM(hTree->muPt->at(0),
                    hTree->muEta->at(0),
@@ -71,48 +106,61 @@ int main(int argc, char** argv) {
                    hTree->muPhi->at(1),0);                   
     a = m1+m2;       
     if (a.M() < 20 || a.M() > 70) continue;
-    aMu->Fill(a.M());
+    ptOrdered.aMu->Fill(a.M());
+    btagOrdered.aMu->Fill(a.M());
     std::vector<int> bQuarkJetIndecies;
-    std::vector<TLorentzVector> bQuarkJets;
+    std::vector<std::pair<TLorentzVector,float> > bQuarkJets;
+    std::vector<std::pair<TLorentzVector,float> > bQuarkJetsBtagOrderd;
     for(unsigned int iJet = 0; iJet < hTree->jetsPt->size(); iJet++){
         if(fabs(hTree->jetsFlavour->at(iJet)) == 5 ){
 	    bQuarkJetIndecies.push_back(iJet);
             TLorentzVector b;
-	    b.SetPtEtaPhiM(hTree->jetsPt->at(iJet), hTree->jetsEta->at(iJet), hTree->jetsPhi->at(iJet), 4.0);
-	    bQuarkJets.push_back(b);	    
+	    b.SetPtEtaPhiE(hTree->jetsPt->at(iJet), hTree->jetsEta->at(iJet), hTree->jetsPhi->at(iJet), hTree->jetsE->at(iJet));
+	    bQuarkJets.push_back(make_pair(b,hTree->jetsBtag->at(iJet)));	
+	    bQuarkJetsBtagOrderd.push_back(make_pair(b,hTree->jetsBtag->at(iJet)));
         }
     }
     if(bQuarkJets.size() < 2 ) continue;
-    //cout << hTree->muPt->size() <<"\t"<<hTree->jetsPt->size()<<"\t"<<a.M() <<"\t\t"<<bQuarkJets.size()<<endl;
-    float mB = (bQuarkJets[0]+bQuarkJets[1]).M();
-    float mH = ((bQuarkJets[0]+bQuarkJets[1])+a).M();
+    if(bQuarkJets.size() > 2){
+	btagSort<std::pair<TLorentzVector,float> > mybtag;
+	std::sort(bQuarkJetsBtagOrderd.begin(),bQuarkJetsBtagOrderd.end(),mybtag);
+    }
+    float mB = (bQuarkJets[0].first+bQuarkJets[1].first).M();
+    float mH = ((bQuarkJets[0].first+bQuarkJets[1].first)+a).M();
     double R = a.M()/mB;
-    abQjorig->Fill(mB);
-    hbQjorig->Fill(mH);
-    bQuarkJets[0].SetPxPyPzE(R*bQuarkJets[0].Px(),R*bQuarkJets[0].Py(),R*bQuarkJets[0].Pz(),R*bQuarkJets[0].E());
-    bQuarkJets[1].SetPxPyPzE(R*bQuarkJets[1].Px(),R*bQuarkJets[1].Py(),R*bQuarkJets[1].Pz(),R*bQuarkJets[1].E());    
-    mB = (bQuarkJets[0]+bQuarkJets[1]).M();
-    mH = ((bQuarkJets[0]+bQuarkJets[1])+a).M();
-    abQjReg->Fill(mB);
-    hbQjReg->Fill(mH);
-    if((hTree->jetsBtag->at(bQuarkJetIndecies[0]) < 0.814) || (hTree->jetsBtag->at(bQuarkJetIndecies[1]) < 0.814)) continue;
-    abQjRegMed->Fill(mB);
-    hbQjRegMed->Fill(mH);    
+    ptOrdered.abQjorig->Fill(mB);
+    ptOrdered.hbQjorig->Fill(mH);
+    float mBb = (bQuarkJetsBtagOrderd[0].first+bQuarkJetsBtagOrderd[1].first).M();
+    float mHb = ((bQuarkJetsBtagOrderd[0].first+bQuarkJetsBtagOrderd[1].first)+a).M();
+    double Rb = a.M()/mBb;
+    btagOrdered.abQjorig->Fill(mBb);
+    btagOrdered.hbQjorig->Fill(mHb);
+    bQuarkJets[0].first.SetPxPyPzE(R*bQuarkJets[0].first.Px(),R*bQuarkJets[0].first.Py(),R*bQuarkJets[0].first.Pz(),R*bQuarkJets[0].first.E());
+    bQuarkJets[1].first.SetPxPyPzE(R*bQuarkJets[1].first.Px(),R*bQuarkJets[1].first.Py(),R*bQuarkJets[1].first.Pz(),R*bQuarkJets[1].first.E());    
+    mB = (bQuarkJets[0].first+bQuarkJets[1].first).M();
+    mH = ((bQuarkJets[0].first+bQuarkJets[1].first)+a).M();
+    ptOrdered.abQjReg->Fill(mB);
+    ptOrdered.hbQjReg->Fill(mH);
+    bQuarkJetsBtagOrderd[0].first.SetPxPyPzE(Rb*bQuarkJetsBtagOrderd[0].first.Px(),Rb*bQuarkJetsBtagOrderd[0].first.Py(),Rb*bQuarkJetsBtagOrderd[0].first.Pz(),Rb*bQuarkJetsBtagOrderd[0].first.E());
+    bQuarkJetsBtagOrderd[1].first.SetPxPyPzE(Rb*bQuarkJetsBtagOrderd[1].first.Px(),Rb*bQuarkJetsBtagOrderd[1].first.Py(),Rb*bQuarkJetsBtagOrderd[1].first.Pz(),Rb*bQuarkJetsBtagOrderd[1].first.E());    
+    mBb = (bQuarkJetsBtagOrderd[0].first+bQuarkJetsBtagOrderd[1].first).M();
+    mHb = ((bQuarkJetsBtagOrderd[0].first+bQuarkJetsBtagOrderd[1].first)+a).M();
+    btagOrdered.abQjReg->Fill(mBb);
+    btagOrdered.hbQjReg->Fill(mHb);
+    if (!((hTree->jetsBtag->at(bQuarkJetIndecies[0]) < 0.814) || (hTree->jetsBtag->at(bQuarkJetIndecies[1]) < 0.814))) {
+    	ptOrdered.abQjRegMed->Fill(mB);
+    	ptOrdered.hbQjRegMed->Fill(mH);    
+    }
+    if(!((bQuarkJetsBtagOrderd[0].second < 0.814) || (bQuarkJetsBtagOrderd[1].second < 0.814))){
+    	btagOrdered.abQjRegMed->Fill(mBb);
+    	btagOrdered.hbQjRegMed->Fill(mHb);    
+    }
     //cout<< hTree->aMu_mass<<endl;
   }
   TFile * f = new TFile("hist_"+fname, "recreate");
   f->cd();
-  muPt0->Write();
-  muPt1->Write();
-  jetPt0->Write();
-  jetPt1->Write();
-  aMu->Write();
-  abQjorig->Write();
-  hbQjorig->Write();  
-  abQjReg->Write();
-  hbQjReg->Write();  
-  abQjRegMed->Write();
-  hbQjRegMed->Write();   
+  ptOrdered.Write(f);
+  btagOrdered.Write(f);
   f->Close();
   return 1;
 }
