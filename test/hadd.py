@@ -2,6 +2,8 @@
 from ROOT import gROOT
 gROOT.SetBatch(True)
 
+toAddSamples = ["DYJets" ]
+
 from Samples80.Samples import *
 samples = None
 runOnOutsOfAnotherJob = False
@@ -12,18 +14,20 @@ else :
     samples = MiniAOD80Samples
 
 for sample in samples:
-    #if sample.Name in [s.Name for s in sampleswith24juneonly]:
+    if sample.Name not in toAddSamples:
+	continue;
         #job is already created : sample.MakeJobs( 20 , "%s/%s" % (OutPath24June , prefix) )
     #    print sample.Name 
     #else:
-    sample.MakeJobs( 5 , "eos/cms/store/user/%s/%s/%s" % (GetUserName(), "Oct5_8020_v2" , "out" ) ) 
+    sample.MakeJobs( 5 , "eos/cms/store/user/%s/%s/%s" % (GetUserName(), "Oct14_8020_Opt" , "out" ) ) 
 
 from Haamm.HaNaMiniAnalyzer.ExtendedSample import *
 for sample in samples:
-    #if sample.Name in ["QCDDoubleEM76_m4080_pt30"] : #["TTbar_FGG"]
+    if sample.Name not in toAddSamples:
+	continue
     #    print "skipping " + sample.Name
     #    continue
     ss = ExtendedSample(sample)
     #export EOS_MGM_URL=root://eosuser.cern.ch
     #eosmount eos_cb
-    ss.fhadd("eos_cb/user/a/ajafari/Hamb13/Oct5_8020_v2/Trees/")
+    ss.fhadd("eos_cb/user/a/ajafari/Hamb13/Oct14_8020_Opt/Trees/")
