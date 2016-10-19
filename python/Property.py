@@ -1,20 +1,22 @@
 from ROOT import TDirectory, TFile, TCanvas , TH1D , TH1 , THStack, TList, gROOT, TLegend, TPad, TLine, gStyle, TTree , TObject , gDirectory, gPad
 from ROOT import RooFit,RooDataHist, RooHistPdf,RooAddPdf,RooFitResult, RooRealVar, RooArgSet, RooArgList
 
-from math import sqrt
+from math import sqrt,log
 import os
 import sys
 import Sample
 from array import array
 import string
+import TLimit
 
 class Property:
-    def __init__(self , name , bkg_hists , data_hist , signal_hists , sample_hists):
+    def __init__(self , name , bkg_hists , data_hist , signal_hists , sample_hists, GRE = True):
         self.Name = name
         self.Bkg = bkg_hists
         self.Data = data_hist
         self.Signal = signal_hists
         self.Samples = sample_hists
+        self.greater = GRE
 
     @staticmethod
     def AddOFUF(h):
@@ -357,29 +359,109 @@ class Property:
             ss.Write()
 
         propdir.cd()
-        self.Draw(normtodata)
+        if(self.Data is not NULL):
+	        self.Draw(normtodata)
         self.GetCanvas(0).Write()
+        
+        if(hasattr(self, SignalROC)):
+			roc = propdir.mkdir( "ROCs" )
+			roc.cd()
+			self.DataROC.Write()
+			self.BkgROC.Write()
+			for(iSig in range(0, len(SignalROC))):
+				SignalROC[iSig].Write()
+		propdir.cd()
+        if(hasattr(self, SigSignificance)):		
+        	sigdir = propdir.mkdir( "Significances" )
+        	sigdir.cd()
+			for(iSig in range(0, len(SigSignificance))):
+				SigSignificance[iSig].Write()        	
+		propdir.cd()
+        if(hasattr(self, ExpLimits)):		
+        	expdir = propdir.mkdir( "ExpLimits" )
+        	expdir.cd()
+			for(iSig in range(0, len(ExpLimits))):
+				ExpLimits[iSig].Write()        	
+		propdir.cd()		
 
-    def ROCMaker(self, inputHist, greater = True):
-	tmp = inputHist.Clone("ROC_%s" %inputHist.GetName())
-	tmp.Sumw2()
-	for iBin in range(0, inputHist.GetXaxis().GetNBins()):
-	    n = 0
-	    nError = -1
-	    if(greater):
-	        n = inputHist.IntegralAndError(i+1,-1,nError)
-	    else:
-	        n = inputHist.IntegralAndError(0, i+1, nError)
-	    tmp.SetBinContent(i+1, n)
-	    tmp.SetBinError(i+1,nError)
+    def ROCMaker(self, inputHist):
+		tmp = inputHist.Clone("ROC_%s" %inputHist.GetName())
+		tmp.Sumw2()
+		for iBin in range(0, inputHist.GetXaxis().GetNBins()):
+	    	n = 0
+	    	nError = -1
+	    	if(greater):
+	        	n = inputHist.IntegralAndError(i,-1,nError)
+		    else:
+		        n = inputHist.IntegralAndError(0, i, nError)
+	    	tmp.SetBinContent(i, n)
+	    	tmp.SetBinError(i, nError)
         return tmp
 
-    def SetPropertyROCs(self,greater=True):
+    def SetPropertyROCs(self):
 	self.SignalROC = []
 	for iSig in range(0, len(self.Signal)):
-	    self.SignalROC.append(self.ROCMaker(self.Signal[iSig],greater))
-	self.BkgROC = self.ROCMaker(self.GetStack(normtodata).GetStack().Last(), greater)
-        self.DataRoc = self.ROCMaker(self.Data, greater)
+	    self.SignalROC.append(self.ROCMaker(self.Signal[iSig]))
+	self.BkgROC = self.ROCMaker(self.GetStack(normtodata).GetStack().Last())
+        self.DataRoc = self.ROCMaker(self.Data)
 
 
-    #def CalcS	
+    def Significance(self, signal, bkg, method=1):
+    	signame = "SoB"
+    	if(method == 2):
+    		signame = "SoSqrtB"
+    	else if(method == 3):
+    		signame = "SoSqrtBdB2"
+    	else if(method == 4):
+    		signame = "LnSoSqrtSB"
+    	else:
+    		print "Significance method not defined! Null histogram is returned!!!"
+    		return
+    	significance = signal.Clone("%s_%s" %signal.GetName(), %signame)
+    	for(iBin in range(0, signal.GetXaxis().GetNbins())):
+    		u = 0
+    		if(bkg.GetBinContent(iBin) == 0):
+    			u = -1.
+    			continue
+    		if(method == 1):
+    			u = signal.GetBinContent(iBin) / bkg.GetBinContent(iBin)
+    		else if(method == 2):
+    			u = signal.GetBinContent(iBin) / sqrt(bkg.GetBinContent(iBin))
+    		else if(method == 3):
+    			u = signal.GetBinContent(iBin) / sqrt(bkg.GetBinContent(iBin) + (bkg.GetBinError(iBin)*bkg.GetBinError(iBin)))
+    		else if(method == 4)
+    			u = sqrt(2)*sqrt((signal.GetBinContent(iBin)+bkg.GetBinContent(iBin))*log(1+(signal.GetBinContent(iBin)/bkg.GetBinContent(iBin))) - signal.GetBinContent(iBin))
+    		significance.SetBinContent(iBin, u)
+    	return significance
+
+	def SetSignificances(self,method = 1):
+		if not (hasattr(self,BkgROC) and hasattr(self,DataROC) and hasattr(self,SignalROC)):
+			self.SetPropertyROCs()
+    	self.SigSignificance = []
+    	for iSig in range(0, len(self.Signal)):
+    		self.SigSignificance.append(Significance(self.SignalROC[iSig], self.BkgROC, self.method))
+    		
+    def ExpectedLimits(self, signal, bkg_, data_):
+   		sig = TH1D("sig","sig",1,0,1)
+   		bkg = TH1D("bkg","bkg",1,0,1)
+   		data = TH1D("data","data",1,0,1)
+   		limits = signal.Clone("%s_ExpLimit" %signal.GetName())
+    	for(iBin in range(0, signal.GetXaxis().GetNbins())):
+			sig.SetBinContent(1, signal.GetBinContent(iBin))
+			sig.SetBinError(1, signal.GetBinError(iBin))
+    		bkg.SetBinContent(1, bkg_.GetBinContent(iBin))
+			bkg.SetBinError(1, bkg_.GetBinError(iBin))
+			data.SetBinContent(1, data_.GetBinContent(iBin))
+			data.SetBinError(1, data_.GetBinError(iBin))
+			mydatasource = TLimitDataSource(sig,bkg,data)
+    	    myconfidence = TLimit.ComputeLimit(mydatasource,50000);
+			limits.SetBinContent(myconfidence.GetExpectedCLs_b(0))
+		return limits    	    
+			
+    def SetExpectedLimits(self):
+   		if not (hasattr(self,BkgROC) and hasattr(self,DataROC) and hasattr(self,SignalROC)):
+			self.SetPropertyROCs()    
+    	self.ExpLimits = []    
+    	for iSig in range(0, len(self.Signal)):    
+			self.ExpLimits.append(self.ExpectedLimits(self.SignalROC[iSig], self.BkgROC, self.DataRoc))
+
