@@ -36,6 +36,7 @@ class SampleType:
 
     def LoadHistos(self , lumi , dirName = "Hamb" , cftName = "CutFlowTable" , treeHistos = []):
         self.AllHists = {}
+        self.GREs = []
         self.AllOtherHists = {}
         Indices = [0]
         if self.MultiPlot:
