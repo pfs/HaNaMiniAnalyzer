@@ -14,14 +14,14 @@ Hamb = cms.EDFilter('TreeHamb',
                                         pileupSrc = cms.InputTag("slimmedAddPileupInfo")
                                         ),
                      DiMuon = cms.PSet( Input = cms.InputTag("slimmedMuons"),
-                                        MuonLeadingPtCut = cms.double(20),
-                                        MuonSubLeadingPtCut = cms.double(8),
+                                        MuonLeadingPtCut = cms.double(24),
+                                        MuonSubLeadingPtCut = cms.double(9),
                                         MuonIsoCut = cms.double( 0.15 ),
                                         MuonEtaCut = cms.double( 2.4 ),
-                                        DiMuLowMassCut = cms.double(0  ),#Remove the dimu lower bound
+                                        DiMuLowMassCut = cms.double(15  ),#Remove the dimu lower bound
                                         DiMuCharge = cms.int32( -1 ),
                                         MuonID = cms.int32( 3 ), #0:no id, 1:Loose , 2:Medium , 3:tight , 4 : soft
-                                        DiMuZMassWindow = cms.double( -10000 ), #Remove the dimu upper bound
+                                        DiMuZMassWindow = cms.double( 70 ), #Remove the dimu upper bound
 					isHamb = cms.bool(True)
                                         ),
 
@@ -50,5 +50,6 @@ Hamb = cms.EDFilter('TreeHamb',
                      sample = cms.string("WJetsMG"),
                      isData = cms.bool( False ),
                      SetupDir = cms.string("Setup80"),
-		     StoreEventNumbers = cms.bool( True )
+		     		 StoreEventNumbers = cms.bool( True )
+		     		 forOptimization = cms.untracked.bool(False)
                      )

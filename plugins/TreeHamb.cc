@@ -195,9 +195,7 @@ void TreeHamb::beginJob()
         theSelectionResultTree->Branch("hltWeight_Mu17Mu8_DZ", &hltWeight_Mu17Mu8_DZ);
         theSelectionResultTree->Branch("aMu" , &aMu , "pt:eta:phi:mass:b1:b2:w");
         theSelectionResultTree->Branch("aBjetPtOrdered" , &aBjetPtOrdered , "pt:eta:phi:mass:b1:b2:w");
-        theSelectionResultTree->Branch("aBjetBtagOrdered" , &aBjetBtagOrdered , "pt:eta:phi:mass:b1:b2:w");
         theSelectionResultTree->Branch("higgsjetPtOrdered", &higgsjetPtOrdered , "pt:eta:phi:mass:b1:b2:w");
-        theSelectionResultTree->Branch("higgsjetBtagOrdered", &higgsjetBtagOrdered , "pt:eta:phi:mass:b1:b2:w");
     }
 
     theSelectionResultTree->Branch("met", &met);
@@ -361,28 +359,15 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 			   jetReader->selectedJets[0].py()+jetReader->selectedJets[1].py(),
 			   jetReader->selectedJets[0].pz()+jetReader->selectedJets[1].pz(),
 			   jetReader->selectedJets[0].energy()+jetReader->selectedJets[1].energy());
-	//cout<<"tmp "<<tmp.Px()<<", "<<tmp.Py()<<", " << tmp.Pz()<<", "<<tmp.E()<<", "<<tmp.M()<<endl;
+
 	aBjetPtOrdered.set(tmp.Pt(), tmp.Eta(), tmp.Phi(), tmp.M(), 
 			   jetReader->selectedJets[0].bDiscriminator(jetReader->BTagAlgo), 
 			   jetReader->selectedJets[1].bDiscriminator(jetReader->BTagAlgo));
 
-	//cout<<"aBPtOrdered, "<<jetReader->BTagAlgo<<": "<< aBjetPtOrdered.pt <<" " << aBjetPtOrdered.eta << " " << aBjetPtOrdered.phi 
-	//<<" " << aBjetPtOrdered.mass<<" --- "<< aBjetPtOrdered.b1 << " "<<aBjetPtOrdered.b2 <<endl;
 	//making the higgs with pt-ordered
 	tmp.SetPxPyPzE(tmp.Px()+amu.Px(), tmp.Py()+amu.Py(), tmp.Pz()+amu.Pz(), tmp.E()+amu.E());
 	higgsjetPtOrdered.set(tmp.Pt(), tmp.Eta(), tmp.Phi(), tmp.M());
 
-	//di-b-jet btag-ordered
-	tmp.SetPxPyPzE(jetReader->selectedJetsSortedByB[0].px()+jetReader->selectedJetsSortedByB[1].px(),
-			   jetReader->selectedJetsSortedByB[0].py()+jetReader->selectedJetsSortedByB[1].py(),
-			   jetReader->selectedJetsSortedByB[0].pz()+jetReader->selectedJetsSortedByB[1].pz(),
-			   jetReader->selectedJetsSortedByB[0].energy()+jetReader->selectedJetsSortedByB[1].energy());
-	aBjetBtagOrdered.set(tmp.Pt(), tmp.Eta(), tmp.Phi(), tmp.M(),
-                           jetReader->selectedJetsSortedByB[0].bDiscriminator(jetReader->BTagAlgo),
-                           jetReader->selectedJetsSortedByB[1].bDiscriminator(jetReader->BTagAlgo));
-	//making the higgs with pt-ordered
-	tmp.SetPxPyPzE(tmp.Px()+amu.Px(), tmp.Py()+amu.Py(), tmp.Pz()+amu.Pz(), tmp.E()+amu.E());
-	higgsjetBtagOrdered.set(tmp.Pt(), tmp.Eta(), tmp.Phi(), tmp.M());
   }
 
   switch( myJetsStat ){
