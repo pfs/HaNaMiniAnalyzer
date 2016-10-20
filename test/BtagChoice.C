@@ -21,6 +21,19 @@ std::vector<TString> GetLabels(TString higgsType){
 	return labels;
 }
 
+double mHCutFinder(TH1D * h){
+	double max = h->GetMinimum();
+	double bin;
+	h->GetBinWithContent(max, bin);
+	for(int i = 0; i<h->GetXaxis()->GetNbins(); i++){
+		if(h->GetBinContent(i+1) == max){
+			bin = i+1;
+			break;
+		}
+	}
+	return h->GetXaxis()->GetBinUpEdge(bin);
+}
+
 std::vector<TH1D*> compareSignificances(TString fname, TString higgsType /* "b" or ""*/, TString SigType, TString matchTyp = ""){
 	TFile * f = TFile::Open(fname);
 	TList * cutList = f->GetListOfKeys();
@@ -43,10 +56,12 @@ std::vector<TH1D*> compareSignificances(TString fname, TString higgsType /* "b" 
 		tmp = 0;
 		for(unsigned int iBtag = 0; iBtag < labels.size(); iBtag++){
 			TString histName = labels[iBtag]+"/"+higgsType+"HiggsMDiff/Significances/"+SigType+"/"+p1+labels[iBtag]+"_"+higgsType+p2+massVals[iMass]+"_"+SigType;
-			cout<<histName<<endl;
+			//cout<<histName<<endl;
 			tmp = (TH1D*)f->Get(histName);
 			tmp->GetXaxis()->SetRangeUser(tmp->GetXaxis()->GetXmin(),tmp->GetXaxis()->GetBinLowEdge(tmp->GetXaxis()->GetNbins()-2));
 			h->SetBinContent(iBtag+1, (tmp->GetMaximum()));
+			double bin = mHCutFinder(tmp);
+			cout<<"|"<<massVals[iMass]<<"|"<<bin<<"|"<<endl;
 			h->GetXaxis()->SetBinLabel(iBtag+1 , labels[iBtag]);
 		}
 		myhists.push_back(h);
@@ -79,6 +94,8 @@ std::vector<TH1D*> compareLimits(TString fname, TString higgsType /* "b" or ""*/
 			tmp = (TH1D*)f->Get(histName);
 			tmp->GetXaxis()->SetRangeUser(tmp->GetXaxis()->GetXmin(),tmp->GetXaxis()->GetBinLowEdge(tmp->GetXaxis()->GetNbins()-2));
 			h->SetBinContent(iBtag+1, (tmp->GetMinimum()));
+			double bin = mHCutFinder(tmp);
+			cout<<"|"<<massVals[iMass]<<"|"<<bin<<"|"<<endl;			
 			h->GetXaxis()->SetBinLabel(iBtag+1 , labels[iBtag]);
 		}
 		myhists.push_back(h);
@@ -88,16 +105,16 @@ std::vector<TH1D*> compareLimits(TString fname, TString higgsType /* "b" or ""*/
 
 void BtagChoice(){
 
-	TString match = "b";
+	TString match = "";
 	TString ismatched ="";
 
 	if(match == "b") ismatched = "_MatchedJets";
-	std::vector<TH1D*> vec1 = compareSignificances("out_mH_ttdy_significance_all.root","b","SoSqrtB",match);
-	std::vector<TH1D*> vec2 = compareSignificances("out_mH_ttdy_significance_all.root","b","SoSqrtBdB2",match);
+	//std::vector<TH1D*> vec1 = compareSignificances("out_mH_ttdy_significance_all.root","b","SoSqrtB",match);
+	//std::vector<TH1D*> vec2 = compareSignificances("out_mH_ttdy_significance_all.root","b","SoSqrtBdB2",match);
 	std::vector<TH1D*> vec3 = compareSignificances("out_mH_ttdy_significance_all.root","b","LnSoSqrtSB",match);
 	
 	TFile * f = new TFile("BtagComp_Reg_Significance"+ismatched+".root","recreate");
-	f->mkdir("SoSqrtB")->cd();
+	/*f->mkdir("SoSqrtB")->cd();
 	for(unsigned int i = 0; i<vec1.size(); i++)
 		vec1[i]->Write();
 	f->cd();
@@ -106,7 +123,7 @@ void BtagChoice(){
 	for(unsigned int i = 0; i<vec2.size(); i++)
 		vec2[i]->Write();
 	f->cd();
-	
+	*/
 	f->mkdir("LnSoSqrtSB")->cd();	
 	for(unsigned int i = 0; i<vec3.size(); i++)
 		vec3[i]->Write();
@@ -114,7 +131,7 @@ void BtagChoice(){
 	f->Write();
 	f->Close();
 
-	f = new TFile("BtagComp_Reg_Limit"+ismatched+".root","recreate");	
+	TFile *f = new TFile("BtagComp_Reg_Limit"+ismatched+".root","recreate");	
 	std::vector<TH1D*> vec4 = compareLimits("out_mH_ttdy_limit_all.root","b",match);
 	f->mkdir("Limits")->cd();	
 	for(unsigned int i = 0; i<vec4.size(); i++)
