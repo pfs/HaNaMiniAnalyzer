@@ -164,8 +164,6 @@ class Plotter:
 			print "Creating histos for : %s" % (st.Name)
 			st.LoadHistos( lumi , dirName , cftName , self.TreePlots )
 			for prop in st.AllHists:
-				print "I look at this one >>>> " 
-				print prop
 				print self.FindGRE(prop)
 				if not prop in self.Props:
 					self.Props[prop] = Property( prop , {} , None, [] , [], self.FindGRE(prop))
