@@ -5,35 +5,35 @@ using namespace std;
 const TString massVals[9] = {"15","20","25","30","35","40","45","55","60"};
 const TString p1 = "ROC_";
 const TString p2 = "HiggsMDiff_Signal";
-
-std::vector<TString> GetLabels(TFile * f, TString higgsType){
-	TList * cutList = f->GetListOfKeys();
+const TString bCom[6] = {"LL","ML","TL","MM","TM","TT"};
+const TString bComB[6] = {"LLb","MLb","TLb","MMb","TMb","TTb"};
+std::vector<TString> GetLabels(TString higgsType){
 	std::vector<TString> labels;
-	for(int iBtagComb = 0; iBtagComb < cutList->GetSize(); iBtagComb++){
-		if(string(cutList->At(iBtagComb)->GetName()) == string("CutFlowTable"))
-			continue;
-		TString name = cutList->At(iBtagComb)->GetName();
-		if(name.Contains("b") && higgsType == "b"){
-			labels.push_back(cutList->At(iBtagComb)->GetName());
+	for(int iBtagComb = 0; iBtagComb < 6; iBtagComb++){
+		if(higgsType == "b"){
+			labels.push_back(bComB[iBtagComb]);
 		}
-		if(!(name.Contains("b")) && higgsType == ""){
-			labels.push_back(cutList->At(iBtagComb)->GetName());
+		if(higgsType == ""){
+			labels.push_back(bCom[iBtagComb]);
 		}
 		
 	}
 	return labels;
 }
 
-std::vector<TH1D*> compareSignificances(TString fname, TString higgsType /* "b" or ""*/, TString SigType){
+std::vector<TH1D*> compareSignificances(TString fname, TString higgsType /* "b" or ""*/, TString SigType, TString matchTyp = ""){
 	TFile * f = TFile::Open(fname);
 	TList * cutList = f->GetListOfKeys();
-	std::vector<TString> labels = GetLabels(f, higgsType);
+	std::vector<TString> labels = GetLabels(matchTyp);
+	
 	
 	TString hname = "BtagComp_";
 	if(higgsType == "")
 		hname = hname+"Orig_"+SigType;
 	else
 		hname = hname+"Reg_"+SigType;
+	if(matchTyp != "")
+		hname = hname+"_MatchedJets";
 	TString foutname = hname+".root";
 	std::vector<TH1D*> myhists;
 	TH1D * tmp = 0;
@@ -54,16 +54,18 @@ std::vector<TH1D*> compareSignificances(TString fname, TString higgsType /* "b" 
 	return myhists;
 }
 
-std::vector<TH1D*> compareLimits(TString fname, TString higgsType /* "b" or ""*/){
+std::vector<TH1D*> compareLimits(TString fname, TString higgsType /* "b" or ""*/, TString matchTyp = ""){
 	TFile * f = TFile::Open(fname);
 	TList * cutList = f->GetListOfKeys();
-	std::vector<TString> labels = GetLabels(f, higgsType);
+	std::vector<TString> labels = GetLabels(matchTyp);
 	
 	TString hname = "BtagComp_";
 	if(higgsType == "")
 		hname = hname+"Orig";
 	else
 		hname = hname+"Reg";
+	if(matchTyp != "")
+		hname = hname+"_MatchedJets";	
 	TString foutname = hname+".root";
 	std::vector<TH1D*> myhists;
 	TH1D * tmp = 0;
@@ -85,11 +87,16 @@ std::vector<TH1D*> compareLimits(TString fname, TString higgsType /* "b" or ""*/
 }
 
 void BtagChoice(){
-	std::vector<TH1D*> vec1 = compareSignificances("out_mH_ttdy_significance_all.root","","SoSqrtB");
-	std::vector<TH1D*> vec2 = compareSignificances("out_mH_ttdy_significance_all.root","","SoSqrtBdB2");
-	std::vector<TH1D*> vec3 = compareSignificances("out_mH_ttdy_significance_all.root","","LnSoSqrtSB");
+
+	TString match = "b";
+	TString ismatched ="";
+
+	if(match == "b") ismatched = "_MatchedJets";
+	std::vector<TH1D*> vec1 = compareSignificances("out_mH_ttdy_significance_all.root","b","SoSqrtB",match);
+	std::vector<TH1D*> vec2 = compareSignificances("out_mH_ttdy_significance_all.root","b","SoSqrtBdB2",match);
+	std::vector<TH1D*> vec3 = compareSignificances("out_mH_ttdy_significance_all.root","b","LnSoSqrtSB",match);
 	
-	TFile * f = new TFile("BtagComp_Orig_Significance.root","recreate");
+	TFile * f = new TFile("BtagComp_Reg_Significance"+ismatched+".root","recreate");
 	f->mkdir("SoSqrtB")->cd();
 	for(unsigned int i = 0; i<vec1.size(); i++)
 		vec1[i]->Write();
@@ -107,8 +114,8 @@ void BtagChoice(){
 	f->Write();
 	f->Close();
 
-	f = new TFile("BtagComp_Orig_Limit.root","recreate");	
-	std::vector<TH1D*> vec4 = compareLimits("out_mH_ttdy_limit_all.root","");
+	f = new TFile("BtagComp_Reg_Limit"+ismatched+".root","recreate");	
+	std::vector<TH1D*> vec4 = compareLimits("out_mH_ttdy_limit_all.root","b",match);
 	f->mkdir("Limits")->cd();	
 	for(unsigned int i = 0; i<vec4.size(); i++)
 		vec4[i]->Write();

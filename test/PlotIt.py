@@ -87,12 +87,12 @@ TM = "(jetsBtag[0] > 0.935 && jetsBtag[1] > 0.800) || (jetsBtag[0] > 0.800 && je
 TT = "(jetsBtag[0] > 0.935 && jetsBtag[1] > 0.935) || (jetsBtag[0] > 0.935 && jetsBtag[1] > 0.935)"
 
 
-LLb = "(mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.460 : false) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.460 : false)"
-MLb = "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.800:false) && ((mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.460 : false) || ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.460 : false) && ( mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.800: false))"
-TLb = "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.935 : false) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.460: false)) || ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.460: false) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.935: false))"
-MMb = "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.800 : false) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.800: false)) || ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.800: false) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.800: false))"
-TMb = "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.935 : false) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.800: false)) || ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.800: false) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.935: false))"
-TTb = "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.935 : false) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.935: false)) || ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.935: false) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.935: false))"
+LLb = "(mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.460 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.460 : 0)"
+MLb = "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.800 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.460: 0)) || ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.460: 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.800: 0))"
+TLb = "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.935 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.460: 0)) || ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.460: 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.935: 0))"
+MMb = "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.800 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.800: 0)) || ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.800: 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.800: 0))"
+TMb = "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.935 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.800: 0)) || ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.800: 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.935: 0))"
+TTb = "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.935 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.935: 0)) || ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.935: 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.935: 0))"
 
 Cuts = {"LL":LL,
 	    "ML":ML,

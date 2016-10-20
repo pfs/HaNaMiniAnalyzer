@@ -113,12 +113,12 @@ void compareLimits(TString fname, TFile * out){
 void RegEffectCheck(){
 	TFile * out = new TFile ("SoSqrtB_RegCheck.root","recreate");
 	compareSignificances("out_mH_ttdy_significance_all.root","SoSqrtB",out);
-	TFile * out2 = new TFile ("SoSqrtBdB2_RegCheck.root","recreate");
+	/*TFile * out2 = new TFile ("SoSqrtBdB2_RegCheck.root","recreate");
 	compareSignificances("out_mH_ttdy_significance_all.root","SoSqrtBdB2",out2);	
 	TFile * out3 = new TFile ("LnSoSqrtSB_RegCheck.root","recreate");
 	compareSignificances("out_mH_ttdy_significance_all.root","LnSoSqrtSB",out3);
 	TFile * outLimit = new TFile ("Limits_RegCheck.root","recreate");
-	compareLimits("out_mH_ttdy_limit_all.root",outLimit);
+	compareLimits("out_mH_ttdy_limit_all.root",outLimit);*/
 
 
 }
