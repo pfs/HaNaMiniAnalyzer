@@ -99,7 +99,7 @@ int main(int argc, char** argv) {
                    rds->muEta->at(1),
                    rds->muPhi->at(1),0);                   
             a = m1+m2;       
-            if (a.M() < 20 || a.M() > 70) continue;
+            if (a.M() < 15 || a.M() > 70) continue;
 	    //No b-flavor requested
 	    TLorentzVector bJet1,bJet2, H;
             bJet1.SetPtEtaPhiE(rds->jetsPt->at(0), rds->jetsEta->at(0), rds->jetsPhi->at(0), rds->jetsE->at(0));

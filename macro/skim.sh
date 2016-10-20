@@ -10,6 +10,8 @@
 ./skimtree mc GGH60.root
 ./skimtree mc DYBB1070.root
 ./skimtree mc DYJets.root
-./skimtree mc DYJetsLowMass
+./skimtree mc DYJetsLowMass.root
 ./skimtree mc TTbar.root
+./skimtree mc TbarW.root
+./skimtree mc TW.root
 
