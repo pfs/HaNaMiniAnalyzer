@@ -30,6 +30,8 @@ LIBS		= $(ROOTLIBS)
 
 all: hambtree clean; 
 
+skim: Skim clean;
+
 clean:
 	@echo "Cleaning..."
 	@rm -f *.o
@@ -38,6 +40,9 @@ hambtree:
 	@echo "Compiling the TreeAnalyzer .... \n"
 	$(CXX) TreeAnalyzer.C -c -o TreeAnalyzer.o -O0 $(ROOTCFLAGS) -fPIC $(HEADERS) -g
 	@echo "Linking ...... \n"
-#	g++ TreeAnalyzer.o -o analyzetree $(ROOTGLIBS) $(LIBS) -g -fPIC -O0 -I$(ROOTINC) -m64 -pthread $(HEADERS)
 	g++ TreeAnalyzer.o -g -fPIC -O0 -I$(ROOTINC) -m64 -pthread $(HEADERS) -o analyzetree $(LIBS) $(ROOTGLIBS)
-       
+Skim:
+	@echo "Compiling the Skimmer .... \n"
+	$(CXX) Skimmer.C -c -o Skimmer.o -O0 $(ROOTCFLAGS) -fPIC $(HEADERS) -g
+	@echo "Linking ...... \n"
+	g++ Skimmer.o -g -fPIC -O0 -I$(ROOTINC) -m64 -pthread $(HEADERS) -o skimtree $(LIBS) $(ROOTGLIBS)       
