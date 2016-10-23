@@ -233,7 +233,7 @@ void TreeHamb::beginJob()
 bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   EvtNumber++;
-  //cout<<"-------------- "<<EvtNumber<<endl;
+  cout<<"-------------- "<<EvtNumber<<endl;
   resetTreeVals();
 
   EventN = iEvent.eventAuxiliary().event() ;
@@ -288,11 +288,12 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     muIso.push_back(diMuReader->goodMuIso[iMu]);
     muId.push_back(diMuReader->goodMuId[iMu]);
     muCharge.push_back((diMuReader->goodMus[iMu].charge() > 0));
+    cout << "---- Muon "<<iMu<<" Charge: "<<diMuReader->goodMus[iMu].charge()<<",\tSign: "<<(diMuReader->goodMus[iMu].charge() > 0)<<endl;
     //cout<<diMuReader->goodMus[iMu].charge() <<"\t"<< muCharge[muCharge.size()-1]<<endl;
     muHLT.push_back(0);	// To be completed
   }
   
-  //cout<<"before amu "<<endl;
+  cout<<"------ OS muons: "<<diMuReader->goodMusOS.size()<<endl;
   TLorentzVector amu;
   if(diMuReader->goodMusOS.size() > 1){
 	//cout<<"It has 2 OS muons!"<<endl;
@@ -332,7 +333,7 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     return false;
   }
   
-  //cout<<"Before Jet "<<endl;
+  cout<<"Before Jet "<<endl;
   JetReader::SelectionStatus myJetsStat = jetReader->Read( iEvent , &(diMuReader->DiMuon) );
   for(unsigned int iJet = 0; iJet < jetReader->selectedJets.size(); iJet++){
     jetsPt.push_back(jetReader->selectedJets[iJet].pt());
@@ -383,7 +384,7 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //FillTree();
     return false;
   }
-  
+  cout<< "PASSED ---------------------------------"<<endl;
   FillTree();
   return true;
 }
