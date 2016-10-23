@@ -333,7 +333,7 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     return false;
   }
   
-  cout<<"Before Jet "<<endl;
+  //cout<<"Before Jet "<<endl;
   JetReader::SelectionStatus myJetsStat = jetReader->Read( iEvent , &(diMuReader->DiMuon) );
   for(unsigned int iJet = 0; iJet < jetReader->selectedJets.size(); iJet++){
     jetsPt.push_back(jetReader->selectedJets[iJet].pt());
