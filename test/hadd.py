@@ -2,7 +2,8 @@
 from ROOT import gROOT
 gROOT.SetBatch(True)
 
-toAddSamples = ["TChannel" ]
+toAddSamples = ["TChannel", "DoubleMuB", "DoubleMuC", "WJetsMG", "TTbar", "DYJets", "DYJetsLowMass", "QCDMuEnriched"]
+
 
 from Samples80.Samples import *
 samples = None
