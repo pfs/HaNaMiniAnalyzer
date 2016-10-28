@@ -125,7 +125,7 @@ if not ( options.job < theSample.MakeJobs( options.nFilesPerJob , options.output
 job = theSample.Jobs[ options.job ]
 
 process.source.fileNames.extend( job.Inputs )
-process.TFileService.fileName = 'root://eoscms.cern.ch//eos/cms/store/user/ajafari/Oct25_8020_MassProd/'+job.Output
+process.TFileService.fileName = job.Output
 
 process.maxEvents.input = options.maxEvents
 
@@ -177,7 +177,7 @@ else :
 	process.Hamb.HLT_Mu17Mu8.Input = cms.InputTag( "TriggerResults","","HLT2" )
 process.outp1=cms.OutputModule("PoolOutputModule",
    outputCommands = cms.untracked.vstring('keep *'), 
-   fileName = cms.untracked.string('root://eoscms.cern.ch//eos/cms/store/user/ajafari/Oct25_8020_MassProd/' + job.Output2),
+   fileName = cms.untracked.string(job.Output2),
    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring('p')  )
 )
 process.ep = cms.EndPath( process.outp1 )
