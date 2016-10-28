@@ -127,7 +127,7 @@ DiMuonReader::SelectionStatus DiMuonReader::Read( const edm::Event& iEvent, cons
   if(!isHamb){  
   	if( DiMuon.totalP4().M() > (91.0-DiMuZMassWindow) && DiMuon.totalP4().M() < (91.0+DiMuZMassWindow) ) return DiMuonReader::UnderTheZPeak;
   } else {
-  	if( DiMuon.totalP4().M() > (91.0-DiMuZMassWindow) ) return DiMuonReader::UnderTheZPeak;
+  	if( DiMuon.totalP4().M() > DiMuZMassWindow ) return DiMuonReader::UnderTheZPeak;
   }
   
   return DiMuonReader::Pass;
