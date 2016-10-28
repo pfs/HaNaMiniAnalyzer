@@ -1,17 +1,24 @@
-./skimtree mc GGH15.root
-./skimtree mc GGH20.root
-./skimtree mc GGH25.root
-./skimtree mc GGH30.root
-./skimtree mc GGH35.root
-./skimtree mc GGH40.root
-./skimtree mc GGH45.root
-./skimtree mc GGH50.root
-./skimtree mc GGH55.root
-./skimtree mc GGH60.root
-./skimtree mc DYBB1070.root
-./skimtree mc DYJets.root
-./skimtree mc DYJetsLowMass.root
-./skimtree mc TTbar.root
-./skimtree mc TbarW.root
-./skimtree mc TW.root
-
+./skimtree mc DoubleMuB.root forOpt no
+./skimtree mc DoubleMuC.root forOpt no
+./skimtree mc DoubleMuD.root forOpt no
+./skimtree mc DYBB1070.root forOpt no
+./skimtree mc DYJetsLowMass.root forOpt no
+./skimtree mc DYJets.root forOpt no
+./skimtree mc GGH15.root forOpt no
+./skimtree mc GGH20.root forOpt no
+./skimtree mc GGH25.root forOpt no
+./skimtree mc GGH30.root forOpt no
+./skimtree mc GGH35.root forOpt no
+./skimtree mc GGH40.root forOpt no
+./skimtree mc GGH45.root forOpt no
+./skimtree mc GGH50.root forOpt no
+./skimtree mc GGH55.root forOpt no
+./skimtree mc GGH60.root forOpt no
+./skimtree mc TbarW.root forOpt no
+./skimtree mc TChannel.root forOpt no
+./skimtree mc TTbar.root forOpt no
+./skimtree mc TW.root forOpt no
+./skimtree mc WJetsMG.root forOpt no
+./skimtree mc WW.root forOpt no
+./skimtree mc WZ.root forOpt no
+./skimtree mc ZZ.root forOpt no

@@ -38,7 +38,7 @@ class HistInfo:
 		return "%s_%s_%d" % (sName , self.Name , index )
 
 class CutInfo:
-	def __init__(self, name , cut , weight = "1"):
+	def __init__(self, name , cut , weight = "1", blind_ = False):
 		self.Name = name
 		self.Cut = cut
 		if(weight != "1"):
@@ -48,6 +48,7 @@ class CutInfo:
 		self.ListOfHists = []
 		self.AllTH1s = {}
 		self.GREs = []
+		self.blind = blind_
 
 	def AddHist(self, name , varname = None , nbins = None , _from = None , to = None, GRE = True ):
 		self.GREs.append(GRE)
@@ -79,6 +80,11 @@ class CutInfo:
 		mycut = self.Cut
 		if isdata:
 			mycut = self.dataCut
+		if self.blind:
+			if mycut == "":
+				mycut += "(higgsReg.mass > 145 || higgsReg.mass < 105)"
+			else:
+				mycut += " && (higgsReg.mass > 145 || higgsReg.mass < 105)"
 		nLoaded = tree.Draw( ">>list_%s_%s"%(samplename, self.Name) , mycut , "entrylist" )
 		lst = gDirectory.Get( "list_%s_%s"%(samplename, self.Name) )
 		print "\t\tEvents from tree are loaded (%s , %s), %d" % (self.Name , mycut , nLoaded)
@@ -120,6 +126,7 @@ class CutInfo:
 					hhh.SetFillStyle( 1001 )
 				else:
 					hhh.SetStats(0)
+					hhh.SetMarkerStyle(20)
 
 				ret[hist.Name][n] = hhh
 
