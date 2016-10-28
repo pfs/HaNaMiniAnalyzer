@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 from ROOT import gROOT, TLatex, TCanvas, TFile, gROOT, TColor
 import math
-import string
 
 gROOT.SetBatch(True)
 
@@ -24,38 +23,24 @@ def GetSample( s ):
         return s
 
 
-nTuples = "/home/nadjieh/cernbox/Hamb13/Oct19_8020_Opt/"
-print ">>>>"
+nTuples = "/home/nadjieh/cernbox/Hamb13/Oct14_8020_MassProd/Trees"
+
 from Haamm.HaNaMiniAnalyzer.SampleType import *
 from ROOT import kGray, kGreen, kOrange, kRed, kBlack, kCyan, kBlue
-#dataSamples = SampleType("Data" , kBlack , [GetSample(s) for s in MiniAOD80Samples if s.IsData] , nTuples ) # the first item must be data
+dataSamples = SampleType("Data" , kBlack , [GetSample(s) for s in MiniAOD80Samples if s.IsData] , nTuples ) # the first item must be data
 ci = TColor.GetColor("#ff6666")
-DYSamples = SampleType("DY" , ci , [ GetSample(DYJets80) , GetSample(DYJetsLowMass80)] , nTuples )
+DYSamples = SampleType("DY" , ci , [ GetSample(DYJets80) , GetSample(DYJetsLowMass80), GetSample(WJetsMG80)] , nTuples )
 ci = TColor.GetColor("#ffff66")
-TopSamples = SampleType("Top" , ci , [ GetSample(TTBar80) , GetSample(TW80), GetSample(TbarW80) ] , nTuples )
+TopSamples = SampleType("Top" , ci , [ GetSample(TTBar80) , GetSample(TChannel80) , GetSample(TW80), GetSample(TbarW80) ] , nTuples )
 ci = TColor.GetColor("#996633")
-
-signalsamples = []
-signalsamples.append(SampleType( "Signal15" , kRed+3 , [ GetSample(GGH1580) ] , nTuples , True ))
-signalsamples.append(SampleType( "Signal20" , kRed+2 , [ GetSample(GGH2080) ] , nTuples , True ))
-signalsamples.append(SampleType( "Signal25" , kRed+2 , [ GetSample(GGH2580) ] , nTuples , True ))
-signalsamples.append(SampleType( "Signal30" , kRed+2 , [ GetSample(GGH3080) ] , nTuples , True ))
-signalsamples.append(SampleType( "Signal35" , kRed+2 , [ GetSample(GGH3580) ] , nTuples , True ))
-signalsamples.append(SampleType( "Signal40" , kRed+2 , [ GetSample(GGH4080) ] , nTuples , True ))
-signalsamples.append(SampleType( "Signal45" , kRed+2 , [ GetSample(GGH4580) ] , nTuples , True ))
-signalsamples.append(SampleType( "Signal55" , kRed+2 , [ GetSample(GGH5580) ] , nTuples , True ))
-signalsamples.append(SampleType( "Signal60" , kRed+2 , [ GetSample(GGH6080) ] , nTuples , True ))
-
-
+DibosonSamples = SampleType("Diboson" , ci , [ GetSample(ZZ80) , GetSample(WZ80) , GetSample(WW80)] , nTuples )
+signalSample = SampleType( "Signal" , kRed+3 , [ GetSample(GGH4080) ] , nTuples , True )
 
 nTotals = {}
             
 from Haamm.HaNaMiniAnalyzer.Plotter import *
 plotter = Plotter()
-listofdata = [GetSample(s) for s in MiniAOD80Samples if s.IsData]
-dataSamples2 = SampleType("Data" , kBlack , [ listofdata[0] ]  , nTuples ) # the first item must be data
-allSTs = [ dataSamples2 , TopSamples, DYSamples]
-allSTs.extend(signalsamples)
+allSTs = [dataSamples ,DibosonSamples , TopSamples , DYSamples , signalSample]
 for st in allSTs :
     plotter.AddSampleType( st )
     for s in st.Samples:
@@ -66,130 +51,36 @@ for st in allSTs :
         else:
             print "total number for sample %s is not set" % s.Name
 
-amuPx = "muPt[0]*cos(muPhi[0])+muPt[1]*cos(muPhi[1])"
-amuPy = "muPt[0]*sin(muPhi[0])+muPt[1]*sin(muPhi[1])"
-amuPz = "muPt[0]*sinh(muEta[0])+muPt[1]*sinh(muEta[1])"
-amuEn = "sqrt(pow(muPt[0]*cos(muPhi[0]),2)+pow(muPt[0]*sin(muPhi[0]),2)+pow(muPt[0]*sinh(muEta[0]),2))+sqrt(pow(muPt[1]*cos(muPhi[1]),2)+pow(muPt[1]*sin(muPhi[1]),2)+pow(muPt[1]*sinh(muEta[1]),2))"
-
-amuMass = "sqrt(pow("+amuPx+",2) + pow("+amuPy+",2) + pow("+amuPz+",2) - pow("+amuEn+",2))"
-
-masscut = amuMass+" < 70 && "+amuMass+" > 15"
-mupt = masscut+" && muPt[0]>24 && muPt[1]>10"
-jetpt = mupt + "&& jetsPt[0]>20 && jetsPt[1]>15"
-metSig = jetpt+" && metSig < 2"
-trueb = metSig + " && fabs(jetsFlavour[0]) == 5 && fabs(jetsFlavour[1]) == 5"
-
-LL = "jetsBtag[0] > 0.460 && jetsBtag[1] > 0.460"
-ML = "(jetsBtag[0] > 0.800 && jetsBtag[1] > 0.460) || (jetsBtag[0] > 0.460 && jetsBtag[1] > 0.800)"
-TL = "(jetsBtag[0] > 0.935 && jetsBtag[1] > 0.460) || (jetsBtag[0] > 0.460 && jetsBtag[1] > 0.935)"
-MM = "(jetsBtag[0] > 0.800 && jetsBtag[1] > 0.800) || (jetsBtag[0] > 0.800 && jetsBtag[1] > 0.800)"
-TM = "(jetsBtag[0] > 0.935 && jetsBtag[1] > 0.800) || (jetsBtag[0] > 0.800 && jetsBtag[1] > 0.935)"
-TT = "(jetsBtag[0] > 0.935 && jetsBtag[1] > 0.935) || (jetsBtag[0] > 0.935 && jetsBtag[1] > 0.935)"
-
-
-LLb = "(mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.460 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.460 : 0)"
-MLb = "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.800 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.460: 0)) || ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.460: 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.800: 0))"
-TLb = "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.935 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.460: 0)) || ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.460: 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.935: 0))"
-MMb = "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.800 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.800: 0)) || ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.800: 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.800: 0))"
-TMb = "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.935 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.800: 0)) || ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.800: 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.935: 0))"
-TTb = "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.935 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.935: 0)) || ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.935: 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.935: 0))"
-
-Cuts = {"LL":LL,
-	    "ML":ML,
-	    "TL":TL,
-	    "MM":MM,
-	    "TM":TM,
-	    "TT":TT,
-	    "LLb":LLb,
-	    "MLb":MLb,
-	    "TLb":TLb,
-	    "MMb":MMb,
-	    "TMb":TMb,
-	    "TTb":TTb
-	    }
-
-cLL = CutInfo( "LL" , Cuts["LL"])
-cML = CutInfo( "ML" , Cuts["ML"])
-cTL = CutInfo( "TL" , Cuts["TL"])
-cMM = CutInfo( "MM" , Cuts["MM"])
-cTM = CutInfo( "TM" , Cuts["TM"])
-cTT = CutInfo( "TT" , Cuts["TL"])
-
-cLLb = CutInfo( "LLb" , Cuts["LLb"])
-cMLb = CutInfo( "MLb" , Cuts["MLb"])
-cTLb = CutInfo( "TLb" , Cuts["TLb"])
-cMMb = CutInfo( "MMb" , Cuts["MMb"])
-cTMb = CutInfo( "TMb" , Cuts["TMb"])
-cTTb = CutInfo( "TTb" , Cuts["TLb"])
+Cuts = {"Trigger":""}        
+cDiMu = CutInfo( "Trigger" , Cuts["Trigger"],"hltWeight_Mu17Mu8_DZ*bWs.W2L*Weight")
+cDiMu.AddHist( "LeadMuonPt" , "muPt[0]", 40 , 0. , 200.)
+cDiMu.AddHist( "LeadMuonEta" , "muEta[0]", 60 , -3. , 3.)
+cDiMu.AddHist( "SubLeadMuonPt" , "muPt[1]", 40 , 0. , 200.)
+cDiMu.AddHist( "SubLeadMuonEta" , "muEta[1]", 60 , -3. , 3.)
+cDiMu.AddHist( "LeadJetPt" , "jetsPt[0]", 40 , 0. , 200.)
+cDiMu.AddHist( "LeadJetEta" , "jetsEta[0]", 60 , -3. , 3.)
+cDiMu.AddHist( "SubLeadJetPt" , "jetsPt[1]", 40 , 0. , 200.)
+cDiMu.AddHist( "SubLeadJetEta" , "jetsEta[1]", 60 , -3. , 3.)
+cDiMu.AddHist( "MET" , "met", 20 , 0. , 200.)
+cDiMu.AddHist( "metsig" , "metSig", 40 , 0. , 2.)
+cDiMu.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
+cDiMu.AddHist( "aMuPt" , "aMu.pt", 50 , 0 , 200)
+cDiMu.AddHist( "aBjetMass" , "aBjetPtOrdered.mass", 100 , 15 , 515)
+cDiMu.AddHist( "aBjetPt" , "aBjetPtOrdered.pt", 100 , 0 , 500)
+cDiMu.AddHist( "hMass" , "higgsjetPtOrdered.mass", 100 , 15 , 515)
+cDiMu.AddHist( "hPt" , "higgsjetPtOrdered.pt", 100 , 0 , 500)
+plotter.AddTreePlots( cDiMu )
 
 
+# cNonIsoMu = CutInfo("nonIsoMu" , Cuts["DiMu"] + " && " + Cuts["nonIsoMu"] , "Weight.W%d * G1.w * G2.w" )
+# for h in cDiMu.ListOfHists:
+#     cNonIsoMu.AddHist( h )
+# plotter.AddTreePlots( cNonIsoMu )
 
-cLL.AddHist( "HiggsMDiff" , "fabs(mH.mass-125)", 20 , 0. , 100., False )
-cLL.AddHist( "bHiggsMDiff" , "fabs(mHb.mass-125)", 20 , 0. , 100., False )
-cML.AddHist( "HiggsMDiff" , "fabs(mH.mass-125)", 20 , 0. , 100., False )
-cML.AddHist( "bHiggsMDiff" , "fabs(mHb.mass-125)", 20 , 0. , 100., False )
-cTL.AddHist( "HiggsMDiff" , "fabs(mH.mass-125)", 20 , 0. , 100., False )
-cTL.AddHist( "bHiggsMDiff" , "fabs(mHb.mass-125)", 20 , 0. , 100., False )
-cMM.AddHist( "HiggsMDiff" , "fabs(mH.mass-125)", 20 , 0. , 100., False )
-cMM.AddHist( "bHiggsMDiff" , "fabs(mHb.mass-125)", 20 , 0. , 100., False )
-cTM.AddHist( "HiggsMDiff" , "fabs(mH.mass-125)", 20 , 0. , 100., False )
-cTM.AddHist( "bHiggsMDiff" , "fabs(mHb.mass-125)", 20 , 0. , 100., False )
-cTT.AddHist( "HiggsMDiff" , "fabs(mH.mass-125)", 20 , 0. , 100., False )
-cTT.AddHist( "bHiggsMDiff" , "fabs(mHb.mass-125)", 20 , 0. , 100., False )
+plotter.LoadHistos( 12900 )
 
-cLLb.AddHist( "HiggsMDiff" , "fabs(mH.mass-125)", 20 , 0. , 100., False )
-cLLb.AddHist( "bHiggsMDiff" , "fabs(mHb.mass-125)", 20 , 0. , 100., False )
-cMLb.AddHist( "HiggsMDiff" , "fabs(mH.mass-125)", 20 , 0. , 100., False )
-cMLb.AddHist( "bHiggsMDiff" , "fabs(mHb.mass-125)", 20 , 0. , 100., False )
-cTLb.AddHist( "HiggsMDiff" , "fabs(mH.mass-125)", 20 , 0. , 100., False )
-cTLb.AddHist( "bHiggsMDiff" , "fabs(mHb.mass-125)", 20 , 0. , 100., False )
-cMMb.AddHist( "HiggsMDiff" , "fabs(mH.mass-125)", 20 , 0. , 100., False )
-cMMb.AddHist( "bHiggsMDiff" , "fabs(mHb.mass-125)", 20 , 0. , 100., False )
-cTMb.AddHist( "HiggsMDiff" , "fabs(mH.mass-125)", 20 , 0. , 100., False )
-cTMb.AddHist( "bHiggsMDiff" , "fabs(mHb.mass-125)", 20 , 0. , 100., False )
-cTTb.AddHist( "HiggsMDiff" , "fabs(mH.mass-125)", 20 , 0. , 100., False )
-cTTb.AddHist( "bHiggsMDiff" , "fabs(mHb.mass-125)", 20 , 0. , 100., False )
+#plotter.AddLabels( "CutFlowTable" , ["All" , "HLT" , "Vertex" , ">1Pair" , "LeadingPass" , "SubLeadingPass" , "PairCuts" ] )
 
-
-
-import sys
-method = sys.argv[1]
-print "I'm going to apply %s" % (method)
-cuttoapply = sys.argv[2] 
-allcuts = []
-
-allcuts.append( cLL )
-allcuts.append( cML )
-allcuts.append( cTL )
-allcuts.append( cMM )
-allcuts.append( cTM )
-allcuts.append( cTT )
-
-allcuts.append( cLLb )
-allcuts.append( cMLb )
-allcuts.append( cTLb )
-allcuts.append( cMMb )
-allcuts.append( cTMb )
-allcuts.append( cTTb )
-
-if method == "significance":
-	for i in range(0, len(allcuts)):
-		plotter.AddTreePlots( allcuts[i] )
-	plotter.LoadHistos( 12900 )
-	plotter.CalcSignificances(2)
-	plotter.CalcSignificances(3)
-	plotter.CalcSignificances(4)
-elif method == "limit":
-	for i in range(0, len(allcuts)):
-		if cuttoapply == allcuts[i].Name :
-			plotter.AddTreePlots( allcuts[i] )
-			plotter.LoadHistos( 12900 )
-			break
-	plotter.CalcExpLimits()
-else:
-	print "not implemented"
-	exit()
-
-fout = TFile.Open("out_mH_ttdy_%s_%s.root" %(method,cuttoapply), "recreate")
+fout = TFile.Open("out_cft_normtolumi.root", "recreate")
 plotter.Write(fout, False)
 fout.Close()

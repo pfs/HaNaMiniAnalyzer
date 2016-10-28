@@ -4,7 +4,7 @@ import os
 import sys
 import Sample
 from array import array
-
+from collections import OrderedDict
 from ExtendedSample import *
 from SampleType import *
 from Property import *
@@ -38,10 +38,10 @@ class HistInfo:
 		return "%s_%s_%d" % (sName , self.Name , index )
 
 class CutInfo:
-	def __init__(self, name , cut , weight = 1):
+	def __init__(self, name , cut , weight = "1"):
 		self.Name = name
 		self.Cut = cut
-		if(weight != 1):
+		if(weight != "1"):
 			self.Weight = weight
 
 		self.ListOfEvents = {}
@@ -63,23 +63,30 @@ class CutInfo:
 		
 	def Weights(self, index = 0):
 		if hasattr( self , "Weight"):
-			#print self.Weight
-			return (self.Weight  % (index) )
+			print self.Weight
+			#return (self.Weight  % (index) )
+			return (self.Weight )			
 		else:
 			#return ("Weight.W%d" % (index) )
 			return "1"
 
 	def LoadHistos( self , samplename , isdata , tree , indices=[0] ):
 		tree.SetEntryList( None )
-		nLoaded = tree.Draw( ">>list_%s_%s"%(samplename, self.Name) , self.Cut , "entrylist" )
-
+		if self.Cut == "":
+			self.dataCut = "passHLT_Mu17Mu8_DZ"
+		else:
+			self.dataCut = self.Cut+" && passHLT_Mu17Mu8_DZ"
+		mycut = self.Cut
+		if isdata:
+			mycut = self.dataCut
+		nLoaded = tree.Draw( ">>list_%s_%s"%(samplename, self.Name) , mycut , "entrylist" )
 		lst = gDirectory.Get( "list_%s_%s"%(samplename, self.Name) )
-		print "\t\tEvents from tree are loaded (%s , %s), %d" % (self.Name , self.Cut , nLoaded)
+		print "\t\tEvents from tree are loaded (%s , %s), %d" % (self.Name , mycut , nLoaded)
 		print "\t\tHistograms from tree are being created"
 		if nLoaded < 0:
-			print "Error in loading events with cut (%s) from dataset (%s), nLoaded = %d" % (self.Cut,samplename , nLoaded)
+			print "Error in loading events with cut (%s) from dataset (%s), nLoaded = %d" % (mycut,samplename , nLoaded)
 		if nLoaded < 1 :
-			self.ListOfEvents[samplename] = TEntryList( "list_%s" % (samplename) , self.Cut , tree )
+			self.ListOfEvents[samplename] = TEntryList( "list_%s" % (samplename) , mycut , tree )
 		else:
 			self.ListOfEvents[samplename] = lst
 
@@ -166,7 +173,7 @@ class Plotter:
 			for prop in st.AllHists:
 				print self.FindGRE(prop)
 				if not prop in self.Props:
-					self.Props[prop] = Property( prop , {} , None, [] , [], self.FindGRE(prop))
+					self.Props[prop] = Property( prop , OrderedDict() , None, [] , [], self.FindGRE(prop))
 				for s in st.Samples:
 					self.Props[prop].Samples.append( s.AllHists[prop][0] ) 
 				if st.IsData():
