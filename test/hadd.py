@@ -2,7 +2,8 @@
 from ROOT import gROOT
 gROOT.SetBatch(True)
 
-toAddSamples = ["TChannel", "DoubleMuB", "DoubleMuC", "WJetsMG", "TTbar", "DYJets", "DYJetsLowMass", "QCDMuEnriched"]
+toAddSamples = ["DYJets", "DYJetsLowMass", "DoubleMuB", "DoubleMuC", "TChannel", "TTbar", "WJetsMG"]
+
 
 
 from Samples80.Samples import *
@@ -15,7 +16,7 @@ else :
     samples = MiniAOD80Samples
 
 for sample in samples:
-    if sample.Name in toAddSamples:
+    if sample.Name not in toAddSamples:
 	continue;
         #job is already created : sample.MakeJobs( 20 , "%s/%s" % (OutPath24June , prefix) )
     #    print sample.Name 
@@ -24,7 +25,7 @@ for sample in samples:
 
 from Haamm.HaNaMiniAnalyzer.ExtendedSample import *
 for sample in samples:
-    if sample.Name in toAddSamples:
+    if sample.Name not in toAddSamples:
 	continue
     #    print "skipping " + sample.Name
     #    continue
