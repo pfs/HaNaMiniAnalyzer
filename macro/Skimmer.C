@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
     TString names;
     TString treename = "Hamb/Trees/Events";
     TH1D * cutflow = 0;
-    bool forOpt = true;
+    TString Mode = "";
     bool blind = false;
     for (int f = 1; f < argc; f++) {
         std::string arg_fth(*(argv + f));
@@ -64,39 +64,41 @@ int main(int argc, char** argv) {
             int pos = out.find(".root");
             names = (out.substr(0, pos).c_str());
 	    cutflow = new TH1D(*(TH1D*) fdata->Get(string("Hamb/CutFlowTable/CutFlowTable_").c_str()+names+string("_0").c_str()));
-        } else if(arg_fth == "forOpt"){
+        } else if(arg_fth == "Mode"){
             f++;
             std::string out(*(argv + f));
-            if(!(out == "True" || out == "true" || out == "yes" || out == "Yes"))
-            	forOpt = false;       
+            Mode = out.c_str();       
         }
     }
 
 
-        TFile * fout = new TFile(names + "_withMhs.root", "recreate");
-        fout->cd();
+    TFile * fout = new TFile(names + "_withMhs.root", "recreate");
+    fout->cd();
 	TDirectory* hamb = fout->mkdir("Hamb");
 	hamb->mkdir("Trees")->cd();
 	
 	particleinfo mH, mHReg, mHb, mHbReg;
+	float amuMass;
         TTree * newTree = rds->fChain->CloneTree(0);
-        if(forOpt){
+        if(Mode == "Opt"){
 	        newTree->Branch("mH", &mH, "pt:eta:phi:mass:b1Index:b2Index");
     	    newTree->Branch("mHb", &mHb, "pt:eta:phi:mass:b1Index:b2Index");
     	    newTree->Branch("mHReg", &mHReg, "pt:eta:phi:mass:b1Index:b2Index");
     	    newTree->Branch("mHbReg", &mHbReg, "pt:eta:phi:mass:b1Index:b2Index");
-		} else {
+		} else if (Mode == "Reg") {
 	        newTree->Branch("higgs", &mH, "pt:eta:phi:mass:b1Index:b2Index");
     	    newTree->Branch("abjet", &mHb, "pt:eta:phi:mass:b1Index:b2Index");
     	    newTree->Branch("higgsReg", &mHReg, "pt:eta:phi:mass:b1Index:b2Index");
     	    newTree->Branch("abjetReg", &mHbReg, "pt:eta:phi:mass:b1Index:b2Index");		
+		} else {
+	        newTree->Branch("aMuMass", &amuMass);			
 		}
         cout << rds->fChain->GetEntriesFast() << endl;
         for (int eventNumber = 0; eventNumber < rds->fChain->GetEntriesFast(); eventNumber++) {
 	    particleinfo tmp;
 	    mH = mHReg = mHb = mHbReg = tmp;
-            rds->GetEntry(eventNumber);
-		if(forOpt){
+        rds->GetEntry(eventNumber);
+		if(Mode == "Opt"){
 		    if (rds->muPt->size() <  2)  continue;
     	        if (rds->jetsPt->size() <  2) continue;
     	        if (rds->muPt->at(0) < 25 ) continue;
@@ -158,7 +160,7 @@ int main(int argc, char** argv) {
 		    	mHbReg.set(H.Pt(), H.Eta(), H.Phi(), H.M(), 0,1);
 		    }
 		    newTree->Fill();
-		} else {
+		} else  if (Mode == "Reg"){
    	        TLorentzVector m1,m2,a;
   	        m1.SetPtEtaPhiM(rds->muPt->at(0),
    	               rds->muEta->at(0),
@@ -195,6 +197,9 @@ int main(int argc, char** argv) {
 		    mHReg.set(H.Pt(), H.Eta(), H.Phi(), H.M(), 0,1);
 		    mHbReg.set(ab.Pt(), ab.Eta(), ab.Phi(), ab.M(), 0,1);
 		    newTree->Fill();	
+		} else {
+			amuMass = rds->aMu_mass;
+		    newTree->Fill();			
 		}
 	}
     newTree->Write();
