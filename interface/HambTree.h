@@ -99,6 +99,67 @@ public :
    Float_t         higgsjetBtagOrdered_b1;
    Float_t         higgsjetBtagOrdered_b2;
    Float_t         higgsjetBtagOrdered_w;
+   
+   Float_t         mH_pt;
+   Float_t         mH_eta;
+   Float_t         mH_phi;
+   Float_t         mH_mass;
+   Float_t         mH_b1Index;
+   Float_t         mH_b2Index;
+   
+   Float_t         mHb_pt;
+   Float_t         mHb_eta;
+   Float_t         mHb_phi;
+   Float_t         mHb_mass;
+   Float_t         mHb_b1Index;
+   Float_t         mHb_b2Index;
+
+   Float_t         mHReg_pt;
+   Float_t         mHReg_eta;
+   Float_t         mHReg_phi;
+   Float_t         mHReg_mass;
+   Float_t         mHReg_b1Index;
+   Float_t         mHReg_b2Index;
+      
+   Float_t         mHbReg_pt;
+   Float_t         mHbReg_eta;
+   Float_t         mHbReg_phi;
+   Float_t         mHbReg_mass;
+   Float_t         mHbReg_b1Index;
+   Float_t         mHbReg_b2Index;
+   
+   Float_t         higgs_pt;
+   Float_t         higgs_eta;
+   Float_t         higgs_phi;
+   Float_t         higgs_mass;
+   Float_t         higgs_b1Index;
+   Float_t         higgs_b2Index;
+   
+   Float_t         abjet_pt;
+   Float_t         abjet_eta;
+   Float_t         abjet_phi;
+   Float_t         abjet_mass;
+   Float_t         abjet_b1Index;
+   Float_t         abjet_b2Index;
+
+   Float_t         higgsReg_pt;
+   Float_t         higgsReg_eta;
+   Float_t         higgsReg_phi;
+   Float_t         higgsReg_mass;
+   Float_t         higgsReg_b1Index;
+   Float_t         higgsReg_b2Index;
+   
+   Float_t         abjetReg_pt;
+   Float_t         abjetReg_eta;
+   Float_t         abjetReg_phi;
+   Float_t         abjetReg_mass;
+   Float_t         abjetReg_b1Index;
+   Float_t         abjetReg_b2Index;
+   
+   Float_t         amuMass;
+   Float_t         bW;
+   
+   
 
    // List of branches
    TBranch        *b_EventNumber;   //!
@@ -137,6 +198,16 @@ public :
    TBranch        *b_aBjetBtagOrdered;   //!
    TBranch        *b_higgsjetPtOrdered;   //!
    TBranch        *b_higgsjetBtagOrdered;   //!
+   TBranch        *b_mH;
+   TBranch        *b_mHb;   
+   TBranch        *b_mHReg;
+   TBranch        *b_mHbReg;
+   TBranch        *b_higgs;
+   TBranch        *b_abjet;
+   TBranch        *b_higgsReg;
+   TBranch        *b_abjetReg;		
+   TBranch        *b_amuMass;
+   TBranch        *b_bW;	   
 
    HambTree(TTree *tree=0, TString dirName = "/Hamb/Trees", TString treeName = "Events", TFile * f = 0);
    virtual ~HambTree();
@@ -251,7 +322,19 @@ void HambTree::Init(TTree *tree)
    fChain->SetBranchAddress("aBjetPtOrdered", &aBjetPtOrdered_pt, &b_aBjetPtOrdered);
    fChain->SetBranchAddress("aBjetBtagOrdered", &aBjetBtagOrdered_pt, &b_aBjetBtagOrdered);
    fChain->SetBranchAddress("higgsjetPtOrdered", &higgsjetPtOrdered_pt, &b_higgsjetPtOrdered);
-   fChain->SetBranchAddress("higgsjetBtagOrdered", &higgsjetBtagOrdered_pt, &b_higgsjetBtagOrdered);
+   fChain->SetBranchAddress("higgsjetBtagOrdered", &higgsjetBtagOrdered_pt, &b_higgsjetBtagOrdered); 
+   fChain->SetBranchAddress("mH", &mH_pt, &b_mH);
+   fChain->SetBranchAddress("mHb", &mHb_pt, &b_mHb);   
+   fChain->SetBranchAddress("mHReg", &mHReg_pt, &b_mHReg);
+   fChain->SetBranchAddress("mHbReg", &mHbReg_pt, &b_mHbReg);
+   fChain->SetBranchAddress("higgs", &higgs_pt, &b_higgs);
+   fChain->SetBranchAddress("abjet", &abjet_pt, &b_abjet);
+   fChain->SetBranchAddress("higgsReg", &higgsReg_pt, &b_higgsReg);
+   fChain->SetBranchAddress("abjetReg", &abjetReg_pt, &b_abjetReg);		
+   fChain->SetBranchAddress("aMuMass", &amuMass, &b_amuMass);
+   fChain->SetBranchAddress("bWeightLL", &bW, &b_bW);	
+   
+   
    Notify();
 }
 

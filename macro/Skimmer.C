@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
 	hamb->mkdir("Trees")->cd();
 	
 	particleinfo mH, mHReg, mHb, mHbReg;
-	float amuMass;
+	float amuMass, bW;
         TTree * newTree = rds->fChain->CloneTree(0);
         if(Mode == "Opt"){
 	        newTree->Branch("mH", &mH, "pt:eta:phi:mass:b1Index:b2Index");
@@ -91,7 +91,8 @@ int main(int argc, char** argv) {
     	    newTree->Branch("higgsReg", &mHReg, "pt:eta:phi:mass:b1Index:b2Index");
     	    newTree->Branch("abjetReg", &mHbReg, "pt:eta:phi:mass:b1Index:b2Index");		
 		} else {
-	        newTree->Branch("aMuMass", &amuMass);			
+	        newTree->Branch("aMuMass", &amuMass);
+	        newTree->Branch("bWeightLL", &bW);				        			
 		}
         cout << rds->fChain->GetEntriesFast() << endl;
         for (int eventNumber = 0; eventNumber < rds->fChain->GetEntriesFast(); eventNumber++) {
@@ -197,8 +198,13 @@ int main(int argc, char** argv) {
 		    mHReg.set(H.Pt(), H.Eta(), H.Phi(), H.M(), 0,1);
 		    mHbReg.set(ab.Pt(), ab.Eta(), ab.Phi(), ab.M(), 0,1);
 		    newTree->Fill();	
+		} else if(Mode == "mHcut"){
+			if(fabs(rds->higgs_mass - 125)>20)
+				continue;
+			newTree->Fill();		
 		} else {
 			amuMass = rds->aMu_mass;
+			bW = rds->bWs_W2L;
 		    newTree->Fill();			
 		}
 	}
