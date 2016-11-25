@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
     }
 
 
-    TFile * fout = new TFile(names + "_withMhs.root", "recreate");
+    TFile * fout = new TFile("out/"+names + ".root", "recreate");
     fout->cd();
 	TDirectory* hamb = fout->mkdir("Hamb");
 	hamb->mkdir("Trees")->cd();
@@ -199,7 +199,7 @@ int main(int argc, char** argv) {
 		    mHbReg.set(ab.Pt(), ab.Eta(), ab.Phi(), ab.M(), 0,1);
 		    newTree->Fill();	
 		} else if(Mode == "mHcut"){
-			if(fabs(rds->higgs_mass - 125)>20)
+			if(fabs(rds->higgsReg_mass - 125)>20)
 				continue;
 			newTree->Fill();		
 		} else {

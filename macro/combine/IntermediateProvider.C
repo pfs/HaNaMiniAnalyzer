@@ -1,5 +1,4 @@
 #include "WSProvider.h"
-#include "SignalWSProvider.h"
 using namespace std;
 /****** WITH T0 SLECTION
     meanerrors["a1"] = make_pair(0.009, make_pair(0.0001,0.0001));
