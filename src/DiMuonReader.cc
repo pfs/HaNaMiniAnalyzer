@@ -14,7 +14,8 @@ DiMuonReader::DiMuonReader( edm::ParameterSet const& iConfig, edm::ConsumesColle
   MuonID( iConfig.getParameter<int>( "MuonID" ) ), // 0 no id, 1 loose, 2 medium, 3 tight, 4 soft
   DiMuCharge( iConfig.getParameter<int>( "DiMuCharge" ) ),
   IsData(isData),
-  isHamb(iConfig.getParameter<bool>( "isHamb" ))
+  isHamb(iConfig.getParameter<bool>( "isHamb" )),
+  isSignalStudy(iConfig.getParameter<bool>( "isSignalStudy" ))
 {
   if( !IsData ){
     TFile* f1 = TFile::Open( TString(SetupDir + "/MuonIDSF.root") );
@@ -50,6 +51,11 @@ DiMuonReader::DiMuonReader( edm::ParameterSet const& iConfig, edm::ConsumesColle
   }
   goodMuIso.clear();
   goodMuId.clear();
+  goodMuIsoChargedHadronPt.clear();
+  goodMuIsoNeutralHadronEt.clear();
+  goodMuIsoPhotonEt.clear();
+  goodMuIsoPUPt.clear();
+
   cout << MuonSubLeadingPtCut << "  " << MuonEtaCut << "  " << MuonLeadingPtCut << "    " << MuonIsoCut << "    " << MuonID << endl;
 }
 
@@ -84,14 +90,31 @@ DiMuonReader::SelectionStatus DiMuonReader::Read( const edm::Event& iEvent, cons
 
     //Filling additional Info
     goodMuIso.push_back(reliso);
-    if( MuonID == 1 ){
-      goodMuId.push_back(muon::isLooseMuon( mu ) );
-    } else if(MuonID == 2){
-      goodMuId.push_back(muon::isMediumMuon( mu ) );
-    } else if(MuonID == 3){
-      goodMuId.push_back(muon::isTightMuon(mu ,*PV) );
-    } else if(MuonID == 4){
-      goodMuId.push_back(muon::isSoftMuon( mu ,*PV) );
+    goodMuIsoChargedHadronPt.push_back(iso.sumChargedHadronPt);
+    goodMuIsoNeutralHadronEt.push_back(iso.sumNeutralHadronEt);
+    goodMuIsoPhotonEt.push_back(iso.sumPhotonEt);
+    goodMuIsoPUPt.push_back(iso.sumPUPt);
+    if(!isSignalStudy){
+    	if( MuonID == 1 ){
+	      goodMuId.push_back(muon::isLooseMuon( mu ) );
+        } else if(MuonID == 2){
+	      goodMuId.push_back(muon::isMediumMuon( mu ) );
+        } else if(MuonID == 3){
+	      goodMuId.push_back(muon::isTightMuon(mu ,*PV) );
+        } else if(MuonID == 4){
+	      goodMuId.push_back(muon::isSoftMuon( mu ,*PV) );
+        }
+    } else {
+    /////
+    //REDOING MuId Fill
+    	if(muon::isTightMuon(mu ,*PV))
+		goodMuId.push_back(3);
+    	else if(muon::isMediumMuon( mu ))
+		goodMuId.push_back(2);
+    	else if(muon::isTightMuon(mu ,*PV))
+		goodMuId.push_back(1);
+    	else if(muon::isSoftMuon( mu ,*PV))
+		goodMuId.push_back(4);
     }
     /////
   }

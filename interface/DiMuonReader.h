@@ -34,6 +34,13 @@ public:
   std::vector<bool> goodMuId;
   std::vector<float> goodMuIso;
 
+  std::vector<float> goodMuIsoChargedHadronPt;
+  std::vector<float> goodMuIsoNeutralHadronEt;
+  std::vector<float> goodMuIsoPhotonEt;
+  std::vector<float> goodMuIsoPUPt;
+  inline bool SignalStudy(){
+	return isSignalStudy;
+  }
 private :
   /* MUON SF TOOLS */
   double MuonSFMedium( double etaL , double ptL , double etaSL , double ptSL );
@@ -51,7 +58,7 @@ private:
   /* MUON SELECTION PARAMS */
   double MuonLeadingPtCut, MuonSubLeadingPtCut , MuonIsoCut, MuonEtaCut , DiMuLowMassCut, DiMuZMassWindow ;
   int MuonID , DiMuCharge;
-  bool IsData, isHamb;
+  bool IsData, isHamb, isSignalStudy;
   /* MUON SELECTION PARAMS */
 
 

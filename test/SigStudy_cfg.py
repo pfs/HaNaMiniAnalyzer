@@ -122,6 +122,7 @@ process.Hamb.Jets.BTagCuts = cms.vint32(-1,-1)
 process.Hamb.DiMuon.MuonID = cms.int32(1)
 process.Hamb.DiMuon.MuonIsoCut = cms.double(1)
 process.Hamb.DiMuon.MuonLeadingPtCut = cms.double(10)
+process.Hamb.DiMuon.isSignalStudy = cms.bool(True)
 
 if not ( options.job < theSample.MakeJobs( options.nFilesPerJob , options.output ) ):
     raise NameError("Job %d is not in the list of the jobs of sample %s with %d files per run" % (options.job , options.sample , options.nFilesPerJob ) )
@@ -178,10 +179,10 @@ else :
     if theSample.DSName.count( "_reHLT_" ):
 	process.Hamb.HLT_Mu17Mu8_DZ.Input = cms.InputTag( "TriggerResults","","HLT2" )
 	process.Hamb.HLT_Mu17Mu8.Input = cms.InputTag( "TriggerResults","","HLT2" )
-process.outp1=cms.OutputModule("PoolOutputModule",
-   outputCommands = cms.untracked.vstring('keep *'), 
-   fileName = cms.untracked.string(job.Output2),
-   SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring('p')  )
-)
-process.ep = cms.EndPath( process.outp1 )
+#process.outp1=cms.OutputModule("PoolOutputModule",
+#   outputCommands = cms.untracked.vstring('keep *'), 
+#   fileName = cms.untracked.string(job.Output2),
+#   SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring('p')  )
+#)
+#process.ep = cms.EndPath( process.outp1 )
 

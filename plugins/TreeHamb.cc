@@ -50,7 +50,10 @@ protected:
   std::vector<bool> muId;
   std::vector<bool> muCharge;
   std::vector<bool> muHLT;
-  
+  std::vector<float> muIsoChargedHadronPt;
+  std::vector<float> muIsoNeutralHadronEt;
+  std::vector<float> muIsoPhotonEt;
+  std::vector<float> muPUPt;
   TTree* theSelectionResultTree;
   unsigned int nHistos;
   bool MakeTree,forOptimization;
@@ -198,6 +201,13 @@ void TreeHamb::beginJob()
         theSelectionResultTree->Branch("higgsjetPtOrdered", &higgsjetPtOrdered , "pt:eta:phi:mass:b1:b2:w");
     }
 
+    if(diMuReader->SignalStudy()){
+    	theSelectionResultTree->Branch("muIsoChargedHadronPt",(&muIsoChargedHadronPt));
+    	theSelectionResultTree->Branch("muIsoNeutralHadronEt",(&muIsoNeutralHadronEt));
+    	theSelectionResultTree->Branch("muIsoPhotonEt",(&muIsoPhotonEt));
+    	theSelectionResultTree->Branch("muPUPt",(&muPUPt));
+    }
+
     theSelectionResultTree->Branch("met", &met);
     theSelectionResultTree->Branch("metSig", &metSig);
 
@@ -287,6 +297,12 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     muPhi.push_back(diMuReader->goodMus[iMu].phi());
     muIso.push_back(diMuReader->goodMuIso[iMu]);
     muId.push_back(diMuReader->goodMuId[iMu]);
+    if(diMuReader->SignalStudy()){
+	muIsoChargedHadronPt.push_back(diMuReader->goodMuIsoChargedHadronPt[iMu]);
+    	muIsoNeutralHadronEt.push_back(diMuReader->goodMuIsoNeutralHadronEt[iMu]);
+    	muIsoPhotonEt.push_back(diMuReader->goodMuIsoPhotonEt[iMu]);
+    	muPUPt.push_back(diMuReader->goodMuIsoPUPt[iMu]);
+    }
     muCharge.push_back((diMuReader->goodMus[iMu].charge() > 0));
     //cout << "---- Muon "<<iMu<<" Charge: "<<diMuReader->goodMus[iMu].charge()<<",\tSign: "<<(diMuReader->goodMus[iMu].charge() > 0)<<endl;
     //cout<<diMuReader->goodMus[iMu].charge() <<"\t"<< muCharge[muCharge.size()-1]<<endl;
