@@ -109,7 +109,8 @@ JetReader::SelectionStatus JetReader::Read( const edm::Event& iEvent , pat::DiOb
       if(btagval > BTagWPM) selectedBJets.push_back(j);
     } else if (BTagCuts[0] == 2) {
       if(btagval > BTagWPT) selectedBJets.push_back(j);
-    }
+    } else
+	selectedBJets.push_back(j);
   }
   
   ptSort<pat::Jet> mySort; 
