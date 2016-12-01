@@ -3,12 +3,17 @@ from ROOT import TDirectory, TFile, TCanvas , TH1D , TH1 , THStack, TList, gROOT
 import os
 import sys
 import Sample
-
+import locale
+locale.setlocale( locale.LC_ALL, 'en_US.UTF-8' ) 
 from ExtendedSample import *
 
 class SampleType:
     def __init__(self , name , color , samples = [] , LoadJobDir = "" , signal = False ):
         self.Name = name 
+        if signal:
+	        self.SetMass()
+	        print self.Mass
+        
         if type(color) is int:
             self.Color = color
             self.MultiPlot = False
@@ -103,3 +108,6 @@ class SampleType:
                         
                         self.AllOtherHists[propname][i] = hhh
                         print "\t%s[%d] is created for %s : (%d, %.2f, %.2f)" % (propname , i , self.Name , hhh.GetNbinsX() , hhh.GetBinLowEdge(1) , hhh.GetBinLowEdge( hhh.GetNbinsX() ) + hhh.GetBinWidth( hhh.GetNbinsX() ) )
+    def SetMass(self):
+    	m = self.Name[len(self.Name)-2:len(self.Name)]
+    	self.Mass = locale.atof(m)

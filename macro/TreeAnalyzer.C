@@ -37,7 +37,7 @@ public:
 
 class someHists{
 public:
-	someHists(TString name): Name(name){
+	someHists(TString name, bool twod = false): Name(name), twoD(twod){
 	  aMu = new TH1D(name+"_aMu","aMu",30, 10, 80);
   	  abQjorig = new TH1D(name+"_abQjorig","abQjorig",200, 0, 500);
 	  hbQjorig = new TH1D(name+"_hbQjorig","hbQjorig",500, 0, 1000);
@@ -45,8 +45,15 @@ public:
 	  hbQjReg = new TH1D(name+"_hbQjReg","hbQjReg",500, 0, 1000);  
 	  abQjRegMed = new TH1D(name+"_abQjMed","abQjMed",200, 0, 500);
   	  hbQjRegMed = new TH1D(name+"_hbQjRegMed","hbQjRegMed",500, 0, 1000); 
+  	  if(twoD){
+  	  	hChi2 = new TH2D(name+"_Chi2", "#chi^{2}", 400,0,200,400,0,200);
+  	  	hChi2B = new TH1D(name+"_Chi2B", "#chi^{2}_{B}", 400,0,200);
+  	  	hChi2H = new TH1D(name+"_Chi2H", "#chi^{2}_{H}", 400,0,200);
+  	  	hChi2Sum = new TH1D(name+"_hChi2Sum", "#chi^{2}_{Sum}", 400,0,200);  	  	
+  	  }
 	}
   TString Name;
+  bool twoD;
   TH1D * aMu;
   TH1D * abQjorig;
   TH1D * hbQjorig;
@@ -54,6 +61,10 @@ public:
   TH1D * hbQjReg;  
   TH1D * abQjRegMed;
   TH1D * hbQjRegMed; 
+  TH2D * hChi2;
+  TH1D * hChi2B;
+  TH1D * hChi2H;
+  TH1D * hChi2Sum;  
   void Write(TDirectory * d){
 	d->mkdir(Name)->cd();
 	aMu->Write();
@@ -63,6 +74,12 @@ public:
 	hbQjReg->Write();  
 	abQjRegMed->Write();
 	hbQjRegMed->Write(); 	
+	if(twoD) {
+		hChi2->Write(); 
+		hChi2B->Write(); 
+		hChi2H->Write();
+		hChi2Sum->Write();
+	}
 	d->cd();
   }
 
@@ -70,7 +87,8 @@ public:
 
 int main(int argc, char** argv) {
   int step = 1000;
-  TString DirFile = "eos_cb/user/a/ajafari/Hamb13/Oct14_8020_Opt/Trees/";
+  //TString DirFile = "eos_cb/user/a/ajafari/Hamb13/Oct14_8020_Opt/Trees/";
+  TString DirFile = "/home/nadjieh/cernbox/Hamb13/Oct14_8020_Opt/Trees/";
   TString fname;
   TString treename = "Hamb/Trees/Events";
   HambTree* hTree;
@@ -84,7 +102,7 @@ int main(int argc, char** argv) {
       hTree = new HambTree((TTree*) fdata->Get(treename));
     }
   }
-  someHists ptOrdered("ptOrdered");
+  someHists ptOrdered("ptOrdered", true);
   someHists btagOrdered("btagOrdered");
   for (int eventNumber = 0; eventNumber < hTree->fChain->GetEntriesFast(); eventNumber++) {
     hTree->GetEntry(eventNumber);
@@ -112,13 +130,14 @@ int main(int argc, char** argv) {
     std::vector<std::pair<TLorentzVector,float> > bQuarkJets;
     std::vector<std::pair<TLorentzVector,float> > bQuarkJetsBtagOrderd;
     for(unsigned int iJet = 0; iJet < hTree->jetsPt->size(); iJet++){
-        if(fabs(hTree->jetsFlavour->at(iJet)) == 5 ){
-	    bQuarkJetIndecies.push_back(iJet);
+    	if(!(hTree->jetsBtag->at(iJet) > 0.460)) continue;
+        //if(fabs(hTree->jetsFlavour->at(iJet)) == 5 ){
+	    	bQuarkJetIndecies.push_back(iJet);
             TLorentzVector b;
-	    b.SetPtEtaPhiE(hTree->jetsPt->at(iJet), hTree->jetsEta->at(iJet), hTree->jetsPhi->at(iJet), hTree->jetsE->at(iJet));
-	    bQuarkJets.push_back(make_pair(b,hTree->jetsBtag->at(iJet)));	
-	    bQuarkJetsBtagOrderd.push_back(make_pair(b,hTree->jetsBtag->at(iJet)));
-        }
+	    	b.SetPtEtaPhiE(hTree->jetsPt->at(iJet), hTree->jetsEta->at(iJet), hTree->jetsPhi->at(iJet), hTree->jetsE->at(iJet));
+	    	bQuarkJets.push_back(make_pair(b,hTree->jetsBtag->at(iJet)));	
+	    	bQuarkJetsBtagOrderd.push_back(make_pair(b,hTree->jetsBtag->at(iJet)));
+        //}
     }
     if(bQuarkJets.size() < 2 ) continue;
     if(bQuarkJets.size() > 2){
@@ -130,6 +149,19 @@ int main(int argc, char** argv) {
     double R = a.M()/mB;
     ptOrdered.abQjorig->Fill(mB);
     ptOrdered.hbQjorig->Fill(mH);
+    
+    double dmassB = fabs(mB-a.M());
+    double dmassH = fabs(mH-125);
+    
+    double width = 0.18 + 0.175*a.M();
+    
+    double chiB = (dmassB*dmassB)/(width*width);
+    double chiH = (dmassH*dmassH)/(10.6*10.6);
+    
+    ptOrdered.hChi2->Fill(chiB,chiH);
+    ptOrdered.hChi2B->Fill(chiB);
+    ptOrdered.hChi2H->Fill(chiH);
+    ptOrdered.hChi2Sum->Fill(chiH+chiB);
     float mBb = (bQuarkJetsBtagOrderd[0].first+bQuarkJetsBtagOrderd[1].first).M();
     float mHb = ((bQuarkJetsBtagOrderd[0].first+bQuarkJetsBtagOrderd[1].first)+a).M();
     double Rb = a.M()/mBb;

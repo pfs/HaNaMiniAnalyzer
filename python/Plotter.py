@@ -205,7 +205,7 @@ class Plotter:
 
 	def CalcSignificances(self, method=1):
 		print ("Significance calculation with method %d" % method)
-		if method > 4:
+		if method > 5:
 			print "Illigal method!"
 			return
 		for prop in self.Props:

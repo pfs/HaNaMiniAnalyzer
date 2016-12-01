@@ -21,6 +21,7 @@ class Property:
 		self.isSoSqrtB = False
 		self.isSoSqrtBdB2 = False
 		self.isLnSoSqrtSB = False
+		self.isLnSoSqrtSBdB = False
 		self.SigSignificance = []
 		
 
@@ -295,9 +296,7 @@ class Property:
 			self.RatioUncert.Divide(mc)
 			for i in range(1 , self.Data.GetNbinsX()+1 ):
 				self.RatioUncert.GetXaxis().SetBinLabel(i , "")
-			#self.RatioUncert.SetMarkerStyle(20)
 			self.RatioUncert.GetYaxis().SetRangeUser(0,2)
-			#self.RatioUncert.GetXaxis().SetLabelSize( 0.)
 			self.RatioUncert.GetYaxis().SetTitle("Data / MC")
 			self.RatioUncert.GetXaxis().SetTitleSize(0.2) 
 			self.RatioUncert.GetXaxis().SetTitleOffset(0.25)
@@ -324,11 +323,8 @@ class Property:
 
 	def Draw(self, normalizetodata = False , padOrCanvas = 0 ):
 		gStyle.SetOptTitle(0)
-		#self.AddOF_UF_Bins()
 		self.GetCanvas(1, padOrCanvas)
 		self.Data.Draw("E")
-		#if normalizetodata:
-		#    print "Norm to data"
 		self.GetStack(normalizetodata).Draw("HIST SAME")
 		self.Data.Draw("E SAME P")
 		if self.Signal:
@@ -393,10 +389,15 @@ class Property:
 			if self.isLnSoSqrtSB:
 				lnsosqrtb = sigdir.mkdir("LnSoSqrtSB")
 				sigdir.cd()
+			if self.isLnSoSqrtSBdB:
+				lnsosqrtbdb = sigdir.mkdir("LnSoSqrtSBdB")
+				sigdir.cd()				
 
 			for iSig in range(0, len(self.SigSignificance)):
 				if TString(self.SigSignificance[iSig].GetName()).Contains("_SoB"):
 					sob.cd()
+				elif TString(self.SigSignificance[iSig].GetName()).Contains("_LnSoSqrtSBdB"):
+					lnsosqrtbdb.cd()
 				elif TString(self.SigSignificance[iSig].GetName()).Contains("_LnSoSqrtSB"):
 					lnsosqrtb.cd()
 				elif TString(self.SigSignificance[iSig].GetName()).Contains("_SoSqrtBdB2"):
@@ -444,7 +445,9 @@ class Property:
 			signame = "SoSqrtBdB2"
 		elif(method == 4):
 			signame = "LnSoSqrtSB"
-		elif(method > 4):
+		elif(method == 5):
+			signame = "LnSoSqrtSBdB"			
+		elif(method > 5):
 			print "Significance method not defined! Null histogram is returned!!!"
 			return
 		significance = signal.Clone("%s_%s" %(signal.GetName(),signame))
@@ -462,6 +465,17 @@ class Property:
 				u = signal.GetBinContent(iBin) / sqrt(bkg.GetBinContent(iBin) + (bkg.GetBinError(iBin)*bkg.GetBinError(iBin)))
 			elif(method == 4):
 				u = sqrt(2)*sqrt((signal.GetBinContent(iBin)+bkg.GetBinContent(iBin))*log(1+(signal.GetBinContent(iBin)/bkg.GetBinContent(iBin))) - signal.GetBinContent(iBin))
+			elif (method == 5):
+				s =  signal.GetBinContent(iBin) 
+				b = bkg.GetBinContent(iBin)
+				sigb =  bkg.GetBinError(iBin)
+				ln1 = ((s+b)*(b+(sigb*sigb)))/((b*b)+((s+b)*sigb*sigb))
+				ln2 = 1+ (sigb*sigb*s)/(b*(b+(sigb*sigb)))
+				Sum = ((s+b)*ln1) - ((b*b/(sigb*sigb))*ln2)
+				if(Sum >= 0):
+					u = sqrt(2*Sum)
+				u = -1
+				
 			significance.SetBinContent(iBin, u)
 		return significance
 
@@ -472,6 +486,7 @@ class Property:
 		elif method == 2: self.isSoSqrtB = True
 		elif method == 3: self.isSoSqrtBdB2 = True
 		elif method == 4: self.isLnSoSqrtSB = True
+		elif method == 5: self.isLnSoSqrtSBdB = True		
 		for iSig in range(0, len(self.Signal)):
 			self.SigSignificance.append(self.Significance(self.SignalROC[iSig], self.BkgROC, method))
 			

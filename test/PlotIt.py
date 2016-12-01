@@ -64,81 +64,156 @@ for st in allSTs :
             s.SetNTotal( nTotals[s.Name] )
         else:
             print "total number for sample %s is not set" % s.Name
+  
+
+            
+LL = "(higgsReg.b1Index >= 0 ? jetsBtag[higgsReg.b1Index] > 0.460 : 0) && (higgsReg.b2Index >=0 ? jetsBtag[higgsReg.b2Index] > 0.460 : 0)"
+ML = "((higgsReg.b1Index >= 0 ? jetsBtag[higgsReg.b1Index] > 0.800 : 0) && (higgsReg.b2Index >=0 ? jetsBtag[higgsReg.b2Index] > 0.460: 0)) | ((higgsReg.b1Index >=0 ? jetsBtag[higgsReg.b1Index] > 0.460: 0) && (higgsReg.b2Index >=0 ? jetsBtag[higgsReg.b2Index] > 0.800: 0))"
+TL = "((higgsReg.b1Index >= 0 ? jetsBtag[higgsReg.b1Index] > 0.935 : 0) && (higgsReg.b2Index >=0 ? jetsBtag[higgsReg.b2Index] > 0.460: 0)) | ((higgsReg.b1Index >=0 ? jetsBtag[higgsReg.b1Index] > 0.460: 0) && (higgsReg.b2Index >=0 ? jetsBtag[higgsReg.b2Index] > 0.935: 0))"
+MM = "((higgsReg.b1Index >= 0 ? jetsBtag[higgsReg.b1Index] > 0.800 : 0) && (higgsReg.b2Index >=0 ? jetsBtag[higgsReg.b2Index] > 0.800: 0)) | ((higgsReg.b1Index >=0 ? jetsBtag[higgsReg.b1Index] > 0.800: 0) && (higgsReg.b2Index >=0 ? jetsBtag[higgsReg.b2Index] > 0.800: 0))"
+TM = "((higgsReg.b1Index >= 0 ? jetsBtag[higgsReg.b1Index] > 0.935 : 0) && (higgsReg.b2Index >=0 ? jetsBtag[higgsReg.b2Index] > 0.800: 0)) | ((higgsReg.b1Index >=0 ? jetsBtag[higgsReg.b1Index] > 0.800: 0) && (higgsReg.b2Index >=0 ? jetsBtag[higgsReg.b2Index] > 0.935: 0))"
+TT = "((higgsReg.b1Index >= 0 ? jetsBtag[higgsReg.b1Index] > 0.935 : 0) && (higgsReg.b2Index >=0 ? jetsBtag[higgsReg.b2Index] > 0.935: 0)) | ((higgsReg.b1Index >=0 ? jetsBtag[higgsReg.b1Index] > 0.935: 0) && (higgsReg.b2Index >=0 ? jetsBtag[higgsReg.b2Index] > 0.935: 0))"         
+
+
+mHcut = "abs(higgs.mass - 125) < 25"
+width = "0.18 + (0.175* aMu.mass)"
+chi2B = "pow((abjet.mass-aMu.mass),2)/pow(%s,2) < 5" %(width)
+chi2H = "pow((higgs.mass-125),2)/pow(10.56,2) < 5"
+chi2Sum = "(pow((abjet.mass-aMu.mass),2)/pow(%s,2)+pow((higgs.mass-125),2)/pow(10.56,2)) < 20" %(width)
+
 
 Cuts = {"Trigger":"",
-		"MetSig":"metSig < 2",
-		"OptimCuts":"jetsPt[0]>20 && jetsPt[0]>15 && muPt[0]>25 && muPt[1]>10 && metSig < 2",
-}        
-cSignalCount = CutInfo( "SigCount" , Cuts["MetSig"],"hltWeights.mu17mu8dz*bWs.W2L*Weight",False)
-cSignalCount.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
-cSignalCount.AddHist( "LeadMuonPt" , "muPt[0]", 40 , 0. , 200.)
+		"MuPt":"muPt[0]>25 && muPt[1]>10",
+		"JetPt": "muPt[0]>25 && muPt[1]>10" + " && jetsPt[0]>20 && jetsPt[0]>15",
+		#"MetSig":"metSig < 2",
+		"OptimCuts":"jetsPt[0]>20 && jetsPt[1]>15 && muPt[0]>25 && muPt[1]>10 && metSig < 2",
+		"JetPt25":"jetsPt[0]>25 && jetsPt[1]>15 && muPt[0]>25 && muPt[1]>10 && metSig < 2",
+		"MET":"jetsPt[0]>20 && jetsPt[1]>15 && muPt[0]>25 && muPt[1]>10 && metSig < 2 && met < 30",
+		"METJet25":"jetsPt[0]>25 && jetsPt[1]>15 && muPt[0]>25 && muPt[1]>10 && metSig < 2 && met < 30",
+		"Chi2B":"jetsPt[0]>25 && jetsPt[1]>15 && muPt[0]>25 && muPt[1]>10 && metSig < 2 && met < 30 && %s" %(chi2B), 
+		"Chi2H":"jetsPt[0]>25 && jetsPt[1]>15 && muPt[0]>25 && muPt[1]>10 && metSig < 2 && met < 30 && %s" %(chi2H),
+		"Chi2Sum":"jetsPt[0]>25 && jetsPt[1]>15 && muPt[0]>25 && muPt[1]>10 && metSig < 2 && met < 30 && %s" %(chi2Sum),
+		"LL" : "%s && jetsPt[0]>25 && jetsPt[1]>15 && muPt[0]>25 && muPt[1]>10 && metSig < 2 && met < 30 && %s" %(LL, chi2Sum),
+		"ML" : "%s && jetsPt[0]>25 && jetsPt[1]>15 && muPt[0]>25 && muPt[1]>10 && metSig < 2 && met < 30 && %s" %(ML, chi2Sum),
+		"TL" : "%s && jetsPt[0]>25 && jetsPt[1]>15 && muPt[0]>25 && muPt[1]>10 && metSig < 2 && met < 30 && %s" %(TL, chi2Sum),
+		"MM" : "%s && jetsPt[0]>25 && jetsPt[1]>15 && muPt[0]>25 && muPt[1]>10 && metSig < 2 && met < 30 && %s" %(MM, chi2Sum),
+		"TM" : "%s && jetsPt[0]>25 && jetsPt[1]>15 && muPt[0]>25 && muPt[1]>10 && metSig < 2 && met < 30 && %s" %(TM, chi2Sum),
+		"TT" : "%s && jetsPt[0]>25 && jetsPt[1]>15 && muPt[0]>25 && muPt[1]>10 && metSig < 2 && met < 30 && %s" %(TT, chi2Sum),		
+}
 
-cDiMu = CutInfo( "Trigger" , Cuts["Trigger"],"hltWeights.mu17mu8dz*bWs.W2L*Weight",True)
-cDiMu.AddHist( "LeadMuonPt" , "muPt[0]", 40 , 0. , 200.)
-cDiMu.AddHist( "LeadMuonEta" , "muEta[0]", 60 , -3. , 3.)
-cDiMu.AddHist( "SubLeadMuonPt" , "muPt[1]", 40 , 0. , 200.)
-cDiMu.AddHist( "SubLeadMuonEta" , "muEta[1]", 60 , -3. , 3.)
-cDiMu.AddHist( "LeadJetPt" , "jetsPt[0]", 40 , 0. , 200.)
-cDiMu.AddHist( "LeadJetEta" , "jetsEta[0]", 60 , -3. , 3.)
-cDiMu.AddHist( "SubLeadJetPt" , "jetsPt[1]", 40 , 0. , 200.)
-cDiMu.AddHist( "SubLeadJetEta" , "jetsEta[1]", 60 , -3. , 3.)
-cDiMu.AddHist( "MET" , "met", 20 , 0. , 200.)
-cDiMu.AddHist( "metsig" , "metSig", 50 , 0. , 50.)
+dphi_ = "abs(abjetReg.phi - aMu.phi)"
+dphi = (dphi_ + ">= 3.14 ? 6.28 - "+ dphi_ + ": "+ dphi_) 
+deta = "abs(abjetReg.eta - aMu.eta)"
+DR = "sqrt(pow(%s,2) + pow(%s,2))" % (dphi , deta)
+
+lb0Px = "muPt[0]*cos(muPhi[0])+jetsPt[0]*cos(jetsPhi[0])"
+lb0Py = "muPt[0]*sin(muPhi[0])+jetsPt[0]*sin(jetsPhi[0])"
+lb0Pz = "muPt[0]*sinh(muEta[0])+jetsPt[0]*sinh(jetsEta[0])"
+mu0En = "sqrt((muPt[0]*muPt[0]) + (%s * %s))" %(lb0Pz,lb0Pz)
+lb0En = "jetsE[0] + %s" %(mu0En)
+lb0M = "sqrt(pow(%s,2)+pow(%s,2)+pow(%s,2)-pow(%s,2))" %(lb0Px, lb0Py, lb0Pz, lb0En)
+
+lb1Px = "muPt[0]*cos(muPhi[0])+jetsPt[1]*cos(jetsPhi[1])"
+lb1Py = "muPt[0]*sin(muPhi[0])+jetsPt[1]*sin(jetsPhi[1])"
+lb1Pz = "muPt[0]*sinh(muEta[0])+jetsPt[1]*sinh(jetsEta[1])"
+mu1En = "sqrt((muPt[0]*muPt[0]) + (%s * %s))" %(lb1Pz,lb1Pz)
+lb1En = "jetsE[1] + %s" %(mu1En)
+lb1M = "sqrt(pow(%s,2)+pow(%s,2)+pow(%s,2)-pow(%s,2))" %(lb1Px, lb1Py, lb1Pz, lb1En)
+
+lb2Px = "muPt[1]*cos(muPhi[1])+jetsPt[0]*cos(jetsPhi[0])"
+lb2Py = "muPt[1]*sin(muPhi[1])+jetsPt[0]*sin(jetsPhi[0])"
+lb2Pz = "muPt[1]*sinh(muEta[1])+jetsPt[0]*sinh(jetsEta[0])"
+mu2En = "sqrt((muPt[1]*muPt[1]) + (%s * %s))" %(lb2Pz,lb2Pz)
+lb2En = "jetsE[0] + %s" %(mu2En)
+lb2M = "sqrt(pow(%s,2)+pow(%s,2)+pow(%s,2)-pow(%s,2))" %(lb2Px, lb2Py, lb2Pz, lb2En)
+
+lb3Px = "muPt[1]*cos(muPhi[1])+jetsPt[1]*cos(jetsPhi[1])"
+lb3Py = "muPt[1]*sin(muPhi[1])+jetsPt[1]*sin(jetsPhi[1])"
+lb3Pz = "muPt[1]*sinh(muEta[1])+jetsPt[1]*sinh(jetsEta[1])"
+mu3En = "sqrt((muPt[1]*muPt[1]) + (%s * %s))" %(lb3Pz,lb3Pz)
+lb3En = "jetsE[1] + %s" %(mu3En)
+lb3M = "sqrt(pow(%s,2)+pow(%s,2)+pow(%s,2)-pow(%s,2))" %(lb3Px, lb3Py, lb3Pz, lb3En)
+
+cDiMu = CutInfo( "Trigger" , Cuts["Trigger"],"bWs.W2L*Weight",False)
 cDiMu.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
-cDiMu.AddHist( "aMuPt" , "aMu.pt", 50 , 0 , 200)
-cDiMu.AddHist( "aBjetMass" , "aBjetPtOrdered.mass", 50 , 15 , 515)
-cDiMu.AddHist( "aBjetPt" , "aBjetPtOrdered.pt", 100 , 0 , 500)
-cDiMu.AddHist( "hMass" , "higgsjetPtOrdered.mass", 50 , 0 , 500)
-cDiMu.AddHist( "hPt" , "higgsjetPtOrdered.pt", 100 , 0 , 500)
-cDiMu.AddHist( "hMassReg" , "higgsReg.mass", 50, 15 , 515)
-cDiMu.AddHist( "aBjetMassReg" , "abjetReg.mass", 50 , 15 , 515)
+cDiMu.AddHist( "DR" , DR, 50 , 0 , 5)
 
-cMetSig = CutInfo( "MetSig" , Cuts["MetSig"],"hltWeights.mu17mu8dz*bWs.W2L*Weight",True)
-cMetSig.AddHist( "bTagDisc1" , "muPt[0]", 100 , 0. , 1.)
-cMetSig.AddHist( "bTagDisc2" , "muPt[0]", 100 , 0. , 1.)
-cMetSig.AddHist( "LeadMuonPt" , "muPt[0]", 40 , 0. , 200.)
-cMetSig.AddHist( "LeadMuonEta" , "muEta[0]", 60 , -3. , 3.)
-cMetSig.AddHist( "SubLeadMuonPt" , "muPt[1]", 40 , 0. , 200.)
-cMetSig.AddHist( "SubLeadMuonEta" , "muEta[1]", 60 , -3. , 3.)
-cMetSig.AddHist( "LeadJetPt" , "jetsPt[0]", 40 , 0. , 200.)
-cMetSig.AddHist( "LeadJetEta" , "jetsEta[0]", 60 , -3. , 3.)
-cMetSig.AddHist( "SubLeadJetPt" , "jetsPt[1]", 40 , 0. , 200.)
-cMetSig.AddHist( "SubLeadJetEta" , "jetsEta[1]", 60 , -3. , 3.)
-cMetSig.AddHist( "MET" , "met", 20 , 0. , 200.)
-cMetSig.AddHist( "metsig" , "metSig", 50 , 0. , 50.)
+cMetSig = CutInfo( "MuPt" , Cuts["MuPt"],"bWs.W2L*Weight",False)
 cMetSig.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
-cMetSig.AddHist( "aMuPt" , "aMu.pt", 50 , 0 , 200)
-cMetSig.AddHist( "aBjetMass" , "aBjetPtOrdered.mass", 50 , 15 , 515)
-cMetSig.AddHist( "aBjetPt" , "aBjetPtOrdered.pt", 100 , 0 , 500)
-cMetSig.AddHist( "hMass" , "higgsjetPtOrdered.mass", 50 , 0 , 500)
-cMetSig.AddHist( "hPt" , "higgsjetPtOrdered.pt", 100 , 0 , 500)
-cMetSig.AddHist( "hMassReg" , "higgsReg.mass", 50, 15 , 515)
-cMetSig.AddHist( "aBjetMassReg" , "abjetReg.mass", 50 , 15 , 515)
 
-cOptimCuts = CutInfo( "MetSig" , Cuts["OptimCuts"],"hltWeights.mu17mu8dz*bWs.W2L*Weight",False)
-cOptimCuts.AddHist( "LeadMuonPt" , "muPt[0]", 40 , 0. , 200.)
-cOptimCuts.AddHist( "LeadMuonEta" , "muEta[0]", 60 , -3. , 3.)
-cOptimCuts.AddHist( "SubLeadMuonPt" , "muPt[1]", 40 , 0. , 200.)
-cOptimCuts.AddHist( "SubLeadMuonEta" , "muEta[1]", 60 , -3. , 3.)
-cOptimCuts.AddHist( "LeadJetPt" , "jetsPt[0]", 40 , 0. , 200.)
-cOptimCuts.AddHist( "LeadJetEta" , "jetsEta[0]", 60 , -3. , 3.)
-cOptimCuts.AddHist( "SubLeadJetPt" , "jetsPt[1]", 40 , 0. , 200.)
-cOptimCuts.AddHist( "SubLeadJetEta" , "jetsEta[1]", 60 , -3. , 3.)
-cOptimCuts.AddHist( "MET" , "met", 20 , 0. , 200.)
-cOptimCuts.AddHist( "metsig" , "metSig", 50 , 0. , 50.)
+cJetPt = CutInfo( "JetPt" , Cuts["JetPt"],"bWs.W2L*Weight",False)
+cJetPt.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
+
+cOptimCuts = CutInfo( "OptimCuts" , Cuts["OptimCuts"],"bWs.W2L*Weight",False)
 cOptimCuts.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
-cOptimCuts.AddHist( "aMuPt" , "aMu.pt", 50 , 0 , 200)
-cOptimCuts.AddHist( "aBjetMass" , "aBjetPtOrdered.mass", 50 , 15 , 515)
-cOptimCuts.AddHist( "aBjetPt" , "aBjetPtOrdered.pt", 100 , 0 , 500)
-cOptimCuts.AddHist( "hMass" , "higgsjetPtOrdered.mass", 50 , 0 , 500)
-cOptimCuts.AddHist( "hPt" , "higgsjetPtOrdered.pt", 100 , 0 , 500)
-cOptimCuts.AddHist( "hMassReg" , "higgsReg.mass", 50, 15 , 515)
-cOptimCuts.AddHist( "aBjetMassReg" , "abjetReg.mass", 50 , 15 , 515)
+cOptimCuts.AddHist( "DR" , DR, 10 , 0 , 5)
+cOptimCuts.AddHist( "DMass" , "abs(aMu.mass-abjet.mass)", 50 , 0 , 100)
+cOptimCuts.AddHist( "Dphi" , dphi, 8 , 0 , 4)
+cOptimCuts.AddHist( "Deta" , deta, 10 , 0 , 5)
+cOptimCuts.AddHist( "hPtReg" , "higgsReg.pt", 50 , 0 , 500)
+cOptimCuts.AddHist( "hPt" , "higgs.pt", 50 , 0 , 500)
+cOptimCuts.AddHist( "hMassReg" , "higgsReg.mass", 30 , 0 , 300)
+cOptimCuts.AddHist( "hMass" , "higgs.mass", 30 , 0 , 300)
+cOptimCuts.AddHist( "LeadmuLeadbMass" ,lb0M , 30 , 0 , 300)
+cOptimCuts.AddHist( "LeadmuSubleadbMass" ,lb1M , 30 , 0 , 300)
+cOptimCuts.AddHist( "SubmuLeadbMass" ,lb2M , 30 , 0 , 300)
+cOptimCuts.AddHist( "SubmuSubleadbMass" ,lb3M , 30 , 0 , 300)
+cOptimCuts.AddHist( "Chi2B", "pow((abjet.mass-aMu.mass),2)/pow(%s,2)" %(width), 50, 0, 50)
+cOptimCuts.AddHist( "Chi2H", "pow((higgs.mass-125),2)/pow(10.56,2)", 50, 0, 50)
+cOptimCuts.AddHist( "Chi2Sum", "pow((higgs.mass-125),2)/pow(10.56,2) + pow((abjet.mass-aMu.mass),2)/pow(%s,2)" %(width), 50, 0, 50)
+cJetPt25 = CutInfo( "JetPt25" , Cuts["JetPt25"],"bWs.W2L*Weight",False)
+cJetPt25.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
 
+cMET = CutInfo( "MET" , Cuts["MET"],"bWs.W2L*Weight",False)
+cMET.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
+
+cMETJet25 = CutInfo( "METJet25" , Cuts["METJet25"],"bWs.W2L*Weight",False)
+cMETJet25.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
+
+cLL = CutInfo( "LL" , Cuts["LL"],"bWs.W2L*Weight",False)
+cLL.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
+
+cML = CutInfo( "ML" , Cuts["ML"],"bWs.W1L1M*Weight",False)
+cML.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
+
+cTL = CutInfo( "TL" , Cuts["TL"],"bWs.W1L1T*Weight",False)
+cTL.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
+
+cMM = CutInfo( "MM" , Cuts["MM"],"bWs.W2L*Weight",False)
+cMM.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
+
+cTM = CutInfo( "TM" , Cuts["TM"],"bWs.W1M1T*Weight",False)
+cTM.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
+
+cTT = CutInfo( "TT" , Cuts["TT"],"bWs.W2T*Weight",False)
+cTT.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
+
+cChi2B = CutInfo( "Chi2B" , Cuts["Chi2B"],"bWs.W2T*Weight",False)
+cChi2B.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
+
+cChi2H = CutInfo( "Chi2H" , Cuts["Chi2H"],"bWs.W2T*Weight",False)
+cChi2H.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
+
+cChi2Sum = CutInfo( "Chi2Sum" , Cuts["Chi2Sum"],"bWs.W2T*Weight",False)
+cChi2Sum.AddHist( "aMuMass" , "aMu.mass", 55 , 15 , 70)
 
 plotter.AddTreePlots( cDiMu )
-#plotter.AddTreePlots( cOptimCuts )
 plotter.AddTreePlots( cMetSig )
+plotter.AddTreePlots( cJetPt )
+plotter.AddTreePlots( cOptimCuts )
+plotter.AddTreePlots( cJetPt25 )
+plotter.AddTreePlots( cMET )
+plotter.AddTreePlots( cMETJet25 )
+
+plotter.AddTreePlots( cLL )
+plotter.AddTreePlots( cML )
+plotter.AddTreePlots( cTL )
+plotter.AddTreePlots( cMM )
+plotter.AddTreePlots( cTM )
+plotter.AddTreePlots( cTT )
+plotter.AddTreePlots( cChi2B )
+plotter.AddTreePlots( cChi2H )
+plotter.AddTreePlots( cChi2Sum )
 #plotter.AddTreePlots( cSignalCount )
 
 # cNonIsoMu = CutInfo("nonIsoMu" , Cuts["DiMu"] + " && " + Cuts["nonIsoMu"] , "Weight.W%d * G1.w * G2.w" )
@@ -150,6 +225,6 @@ plotter.LoadHistos( 12900 )
 
 #plotter.AddLabels( "CutFlowTable" , ["All" , "HLT" , "Vertex" , ">1Pair" , "LeadingPass" , "SubLeadingPass" , "PairCuts" ] )
 
-fout = TFile.Open("out_cft_normtolumi_RegBlindCorrectHLTweight.root", "recreate")
+fout = TFile.Open("out_cft_normtolumi_unblind_checkYields.root", "recreate")
 plotter.Write(fout, False)
 fout.Close()
