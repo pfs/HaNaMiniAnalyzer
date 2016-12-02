@@ -31,7 +31,7 @@ public:
   pat::DiObjectProxy DiMuon;
   double W;
 
-  std::vector<bool> goodMuId;
+  std::vector<float> goodMuId;
   std::vector<float> goodMuIso;
 
   std::vector<float> goodMuIsoChargedHadronPt;

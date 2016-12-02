@@ -70,7 +70,10 @@ DiMuonReader::SelectionStatus DiMuonReader::Read( const edm::Event& iEvent, cons
       continue;
     if( (goodMus.size() == 0) && (mu.pt() < MuonLeadingPtCut) )
       continue;
-
+    //cout << "---- Loose: "<< muon::isLooseMuon( mu )
+    //     << "\tMedium: "<<muon::isMediumMuon( mu )
+	// << "\tTight: "<<muon::isTightMuon(mu ,*PV)
+	 //<< "\tSoft: "<<muon::isSoftMuon( mu ,*PV)<<endl;
     if( MuonID == 1 ){
       if (!muon::isLooseMuon( mu ) ) continue;
     }
@@ -107,14 +110,19 @@ DiMuonReader::SelectionStatus DiMuonReader::Read( const edm::Event& iEvent, cons
     } else {
     /////
     //REDOING MuId Fill
-    	if(muon::isTightMuon(mu ,*PV))
+    	if(muon::isTightMuon(mu ,*PV)){
+		//cout<<"I am tight ------"<<endl;
 		goodMuId.push_back(3);
-    	else if(muon::isMediumMuon( mu ))
+    	} else if(muon::isMediumMuon( mu )){
+		//cout<<"I am medium /////"<<endl;
 		goodMuId.push_back(2);
-    	else if(muon::isTightMuon(mu ,*PV))
+    	} else if(muon::isLooseMuon( mu )){
+		//cout<<"I am loose >>>>>>"<<endl;
 		goodMuId.push_back(1);
-    	else if(muon::isSoftMuon( mu ,*PV))
+    	} else if(muon::isSoftMuon( mu ,*PV)){
+		//cout<<"I am soft +++++++"<<endl;
 		goodMuId.push_back(4);
+	}
     }
     /////
   }

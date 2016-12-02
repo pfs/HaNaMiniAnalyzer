@@ -47,7 +47,7 @@ protected:
   std::vector<float> muEta;
   std::vector<float> muPhi;
   std::vector<float> muIso;
-  std::vector<bool> muId;
+  std::vector<float> muId;
   std::vector<bool> muCharge;
   std::vector<bool> muHLT;
   std::vector<float> muIsoChargedHadronPt;
@@ -328,6 +328,10 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //cout<<"before mu selection "<<endl;
 
+  if(diMuReader->SignalStudy()){
+	FillTree();
+	return true;
+  }
   switch( myDimuStat ){
   case DiMuonReader::Pass:
     W *= (diMuReader->W) ;// No HLT!
@@ -348,7 +352,7 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //    FillTree();
     return false;
   }
-  
+	 
   //cout<<"Before Jet "<<endl;
   JetReader::SelectionStatus myJetsStat = jetReader->Read( iEvent , &(diMuReader->DiMuon) );
   for(unsigned int iJet = 0; iJet < jetReader->selectedJets.size(); iJet++){
