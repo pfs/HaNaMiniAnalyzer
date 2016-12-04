@@ -328,10 +328,6 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //cout<<"before mu selection "<<endl;
 
-  if(diMuReader->SignalStudy()){
-	FillTree();
-	return true;
-  }
   switch( myDimuStat ){
   case DiMuonReader::Pass:
     W *= (diMuReader->W) ;// No HLT!
@@ -399,9 +395,13 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     break;
   case JetReader::NotEnoughBJets:
     hCutFlowTable->Fill( ++stepEventSelection , W );
-    return false;
+    if (!diMuReader->SignalStudy())
+	return false;
   case JetReader::NotEnoughJets:
     //FillTree();
+    if(diMuReader->SignalStudy()){
+	FillTree();
+    }
     return false;
   }
   //cout<< "PASSED ---------------------------------"<<endl;
