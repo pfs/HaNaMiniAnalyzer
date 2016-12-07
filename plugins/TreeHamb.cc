@@ -5,6 +5,7 @@
 
 using namespace std;
 
+
 class TreeHamb : public BaseMiniAnalyzer{
 public:
   explicit TreeHamb(const edm::ParameterSet&);
@@ -35,7 +36,6 @@ protected:
   bool passHLT_Mu17Mu8_DZ;
   float hltWeight_Mu17Mu8;
   float hltWeight_Mu17Mu8_DZ;
-
   std::vector<float> jetsPt;
   std::vector<float> jetsE;
   std::vector<float> jetsEta;
@@ -137,6 +137,10 @@ protected:
     muId.clear();
     muCharge.clear();
     muHLT.clear();
+    muIsoChargedHadronPt.clear();
+    muIsoNeutralHadronEt.clear();
+    muIsoPhotonEt.clear();
+    muPUPt.clear();
     particleinfo tmp;
     aMu = aBjetPtOrdered =  higgsjetPtOrdered = aBjetBtagOrdered = higgsjetBtagOrdered = tmp ;
     hltWeights tmp2;
@@ -348,7 +352,15 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //    FillTree();
     return false;
   }
-	 
+  /*cout <<"++++++++++++++ In tree Maker +++++++++++++++++++++"<<endl;
+  cout <<"++++ Iso: "<<muIso[0]<<",\t"<<muIso[1]<<endl;	 
+  if(diMuReader->SignalStudy()){
+      cout <<"++++ chargedIso 0: "<<muIsoChargedHadronPt[0]<<",\tchargedIso 1: "<<muIsoChargedHadronPt[1]<<endl;
+      cout <<"++++ neutralIso 0: "<<muIsoNeutralHadronEt[0]<<",\tneutralIso 1: "<<muIsoNeutralHadronEt[1]<<endl;
+      cout <<"++++ photonIso 0: "<<muIsoPhotonEt[0]<<",\tphotonIso 1: "<<muIsoPhotonEt[1]<<endl;
+      cout <<"++++ pilupIso 0: "<<muPUPt[0]<<",\tpileupIso 1: "<<muPUPt[1]<<endl;
+  }
+  cout <<"++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl; */
   //cout<<"Before Jet "<<endl;
   JetReader::SelectionStatus myJetsStat = jetReader->Read( iEvent , &(diMuReader->DiMuon) );
   for(unsigned int iJet = 0; iJet < jetReader->selectedJets.size(); iJet++){
