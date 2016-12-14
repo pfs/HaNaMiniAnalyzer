@@ -84,3 +84,6 @@ MiniAOD80Samples.append(GGH6080)
 
 DYBB107080 = Sample( "DYBB1070", 6.316 ,False, "/DYBBJetsToLL_M-10To70_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring16MiniAODv2-premix_withHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM")
 MiniAOD80Samples.append(DYBB107080)
+
+GGHTauMu80 = Sample("GGHTauMu", 43.62*1.7*0.0001, False, "/SUSYGluGluToHToAA_AToMuMu_AToTauTau_M-19_TuneCUETP8M1_13TeV_madgraph_pythia8/RunIISpring16MiniAODv2-premix_withHLT_80X_mcRun2_asymptotic_v14-v1/MINIAODSIM")
+MiniAOD80Samples.append(GGHTauMu80)

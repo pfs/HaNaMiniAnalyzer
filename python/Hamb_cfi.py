@@ -22,7 +22,8 @@ Hamb = cms.EDFilter('TreeHamb',
                                         DiMuCharge = cms.int32( -1 ),
                                         MuonID = cms.int32( 3 ), #0:no id, 1:Loose , 2:Medium , 3:tight , 4 : soft
                                         DiMuZMassWindow = cms.double( 70 ), #Remove the dimu upper bound
-					isHamb = cms.bool(True)
+					isHamb = cms.bool(True),
+					isSignalStudy = cms.bool(False)
                                         ),
 
                      MET = cms.PSet( Input = cms.InputTag("slimmedMETs"),

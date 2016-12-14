@@ -5,6 +5,7 @@
 
 using namespace std;
 
+
 class TreeHamb : public BaseMiniAnalyzer{
 public:
   explicit TreeHamb(const edm::ParameterSet&);
@@ -35,7 +36,6 @@ protected:
   bool passHLT_Mu17Mu8_DZ;
   float hltWeight_Mu17Mu8;
   float hltWeight_Mu17Mu8_DZ;
-
   std::vector<float> jetsPt;
   std::vector<float> jetsE;
   std::vector<float> jetsEta;
@@ -47,10 +47,13 @@ protected:
   std::vector<float> muEta;
   std::vector<float> muPhi;
   std::vector<float> muIso;
-  std::vector<bool> muId;
+  std::vector<float> muId;
   std::vector<bool> muCharge;
   std::vector<bool> muHLT;
-  
+  std::vector<float> muIsoChargedHadronPt;
+  std::vector<float> muIsoNeutralHadronEt;
+  std::vector<float> muIsoPhotonEt;
+  std::vector<float> muPUPt;
   TTree* theSelectionResultTree;
   unsigned int nHistos;
   bool MakeTree,forOptimization;
@@ -134,6 +137,10 @@ protected:
     muId.clear();
     muCharge.clear();
     muHLT.clear();
+    muIsoChargedHadronPt.clear();
+    muIsoNeutralHadronEt.clear();
+    muIsoPhotonEt.clear();
+    muPUPt.clear();
     particleinfo tmp;
     aMu = aBjetPtOrdered =  higgsjetPtOrdered = aBjetBtagOrdered = higgsjetBtagOrdered = tmp ;
     hltWeights tmp2;
@@ -196,6 +203,13 @@ void TreeHamb::beginJob()
         theSelectionResultTree->Branch("aMu" , &aMu , "pt:eta:phi:mass:b1:b2:w");
         theSelectionResultTree->Branch("aBjetPtOrdered" , &aBjetPtOrdered , "pt:eta:phi:mass:b1:b2:w");
         theSelectionResultTree->Branch("higgsjetPtOrdered", &higgsjetPtOrdered , "pt:eta:phi:mass:b1:b2:w");
+    }
+
+    if(diMuReader->SignalStudy()){
+    	theSelectionResultTree->Branch("muIsoChargedHadronPt",(&muIsoChargedHadronPt));
+    	theSelectionResultTree->Branch("muIsoNeutralHadronEt",(&muIsoNeutralHadronEt));
+    	theSelectionResultTree->Branch("muIsoPhotonEt",(&muIsoPhotonEt));
+    	theSelectionResultTree->Branch("muPUPt",(&muPUPt));
     }
 
     theSelectionResultTree->Branch("met", &met);
@@ -287,6 +301,12 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     muPhi.push_back(diMuReader->goodMus[iMu].phi());
     muIso.push_back(diMuReader->goodMuIso[iMu]);
     muId.push_back(diMuReader->goodMuId[iMu]);
+    if(diMuReader->SignalStudy()){
+	muIsoChargedHadronPt.push_back(diMuReader->goodMuIsoChargedHadronPt[iMu]);
+    	muIsoNeutralHadronEt.push_back(diMuReader->goodMuIsoNeutralHadronEt[iMu]);
+    	muIsoPhotonEt.push_back(diMuReader->goodMuIsoPhotonEt[iMu]);
+    	muPUPt.push_back(diMuReader->goodMuIsoPUPt[iMu]);
+    }
     muCharge.push_back((diMuReader->goodMus[iMu].charge() > 0));
     //cout << "---- Muon "<<iMu<<" Charge: "<<diMuReader->goodMus[iMu].charge()<<",\tSign: "<<(diMuReader->goodMus[iMu].charge() > 0)<<endl;
     //cout<<diMuReader->goodMus[iMu].charge() <<"\t"<< muCharge[muCharge.size()-1]<<endl;
@@ -332,7 +352,15 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //    FillTree();
     return false;
   }
-  
+  /*cout <<"++++++++++++++ In tree Maker +++++++++++++++++++++"<<endl;
+  cout <<"++++ Iso: "<<muIso[0]<<",\t"<<muIso[1]<<endl;	 
+  if(diMuReader->SignalStudy()){
+      cout <<"++++ chargedIso 0: "<<muIsoChargedHadronPt[0]<<",\tchargedIso 1: "<<muIsoChargedHadronPt[1]<<endl;
+      cout <<"++++ neutralIso 0: "<<muIsoNeutralHadronEt[0]<<",\tneutralIso 1: "<<muIsoNeutralHadronEt[1]<<endl;
+      cout <<"++++ photonIso 0: "<<muIsoPhotonEt[0]<<",\tphotonIso 1: "<<muIsoPhotonEt[1]<<endl;
+      cout <<"++++ pilupIso 0: "<<muPUPt[0]<<",\tpileupIso 1: "<<muPUPt[1]<<endl;
+  }
+  cout <<"++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl; */
   //cout<<"Before Jet "<<endl;
   JetReader::SelectionStatus myJetsStat = jetReader->Read( iEvent , &(diMuReader->DiMuon) );
   for(unsigned int iJet = 0; iJet < jetReader->selectedJets.size(); iJet++){
@@ -379,9 +407,13 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     break;
   case JetReader::NotEnoughBJets:
     hCutFlowTable->Fill( ++stepEventSelection , W );
-    return false;
+    if (!diMuReader->SignalStudy())
+	return false;
   case JetReader::NotEnoughJets:
     //FillTree();
+    if(diMuReader->SignalStudy()){
+	FillTree();
+    }
     return false;
   }
   //cout<< "PASSED ---------------------------------"<<endl;

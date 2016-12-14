@@ -14,7 +14,8 @@ DiMuonReader::DiMuonReader( edm::ParameterSet const& iConfig, edm::ConsumesColle
   MuonID( iConfig.getParameter<int>( "MuonID" ) ), // 0 no id, 1 loose, 2 medium, 3 tight, 4 soft
   DiMuCharge( iConfig.getParameter<int>( "DiMuCharge" ) ),
   IsData(isData),
-  isHamb(iConfig.getParameter<bool>( "isHamb" ))
+  isHamb(iConfig.getParameter<bool>( "isHamb" )),
+  isSignalStudy(iConfig.getParameter<bool>( "isSignalStudy" ))
 {
   if( !IsData ){
     TFile* f1 = TFile::Open( TString(SetupDir + "/MuonIDSF.root") );
@@ -47,9 +48,15 @@ DiMuonReader::DiMuonReader( edm::ParameterSet const& iConfig, edm::ConsumesColle
     hMuHltMu17Mu8 = (TH2*)( f1->Get("Mu17Mu8")->Clone("Mu17Mu8_") );
     hMuHltMu17Mu8_DZ = (TH2*)( f1->Get("Mu17Mu8_DZ")->Clone("Mu17Mu8_DZ_") );
     f1->Close();
+    myIso = new Isolation("TestIso");
   }
   goodMuIso.clear();
   goodMuId.clear();
+  goodMuIsoChargedHadronPt.clear();
+  goodMuIsoNeutralHadronEt.clear();
+  goodMuIsoPhotonEt.clear();
+  goodMuIsoPUPt.clear();
+
   cout << MuonSubLeadingPtCut << "  " << MuonEtaCut << "  " << MuonLeadingPtCut << "    " << MuonIsoCut << "    " << MuonID << endl;
 }
 
@@ -59,12 +66,24 @@ DiMuonReader::SelectionStatus DiMuonReader::Read( const edm::Event& iEvent, cons
     
   W = 1.0;
   goodMus.clear();
+  goodMuIso.clear();
+  goodMuIsoChargedHadronPt.clear();
+  goodMuIsoNeutralHadronEt.clear();
+  goodMuIsoPhotonEt.clear();
+  goodMuIsoPUPt.clear();
+  goodMuId.clear();
+  
   for (const pat::Muon &mu : *handle) {
     if (mu.pt() < MuonSubLeadingPtCut || fabs(mu.eta()) > MuonEtaCut )
       continue;
+    reco::MuonPFIsolation iso = mu.pfIsolationR04();
+    myIso->Fill(iso, mu.pt());
     if( (goodMus.size() == 0) && (mu.pt() < MuonLeadingPtCut) )
       continue;
-
+    //cout << "---- Loose: "<< muon::isLooseMuon( mu )
+    //     << "\tMedium: "<<muon::isMediumMuon( mu )
+	// << "\tTight: "<<muon::isTightMuon(mu ,*PV)
+	 //<< "\tSoft: "<<muon::isSoftMuon( mu ,*PV)<<endl;
     if( MuonID == 1 ){
       if (!muon::isLooseMuon( mu ) ) continue;
     }
@@ -77,27 +96,55 @@ DiMuonReader::SelectionStatus DiMuonReader::Read( const edm::Event& iEvent, cons
     else if(MuonID == 4){
       if (!muon::isSoftMuon( mu ,*PV) ) continue;
     }
-    reco::MuonPFIsolation iso = mu.pfIsolationR04();
+    //cout<<"In muon loop, isolation is ";
     double reliso = (iso.sumChargedHadronPt+TMath::Max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-0.5*iso.sumPUPt))/mu.pt();
+    //cout<<reliso<<" to be compared with "<<MuonIsoCut<<endl;
     if( reliso > MuonIsoCut) continue;
     goodMus.push_back( mu );
 
     //Filling additional Info
     goodMuIso.push_back(reliso);
-    if( MuonID == 1 ){
-      goodMuId.push_back(muon::isLooseMuon( mu ) );
-    } else if(MuonID == 2){
-      goodMuId.push_back(muon::isMediumMuon( mu ) );
-    } else if(MuonID == 3){
-      goodMuId.push_back(muon::isTightMuon(mu ,*PV) );
-    } else if(MuonID == 4){
-      goodMuId.push_back(muon::isSoftMuon( mu ,*PV) );
+    goodMuIsoChargedHadronPt.push_back(iso.sumChargedHadronPt);
+    goodMuIsoNeutralHadronEt.push_back(iso.sumNeutralHadronEt);
+    goodMuIsoPhotonEt.push_back(iso.sumPhotonEt);
+    goodMuIsoPUPt.push_back(iso.sumPUPt);
+    if(!isSignalStudy){
+    	if( MuonID == 1 ){
+	      goodMuId.push_back(muon::isLooseMuon( mu ) );
+        } else if(MuonID == 2){
+	      goodMuId.push_back(muon::isMediumMuon( mu ) );
+        } else if(MuonID == 3){
+	      goodMuId.push_back(muon::isTightMuon(mu ,*PV) );
+        } else if(MuonID == 4){
+	      goodMuId.push_back(muon::isSoftMuon( mu ,*PV) );
+        }
+    } else {
+    /////
+    //REDOING MuId Fill
+    	if(muon::isTightMuon(mu ,*PV)){
+		//cout<<"I am tight ------"<<endl;
+		goodMuId.push_back(3);
+    	} else if(muon::isMediumMuon( mu )){
+		//cout<<"I am medium /////"<<endl;
+		goodMuId.push_back(2);
+    	} else if(muon::isLooseMuon( mu )){
+		//cout<<"I am loose >>>>>>"<<endl;
+		goodMuId.push_back(1);
+    	} else if(muon::isSoftMuon( mu ,*PV)){
+		//cout<<"I am soft +++++++"<<endl;
+		goodMuId.push_back(4);
+	}
     }
     /////
   }
-    
+   
   if( goodMus.size() < 2 ) return DiMuonReader::LessThan2Muons ;
-  
+  /*cout <<"---------- In DiMuReader vectors --------------"<<endl;
+  cout <<"---- chargedIso 0: "<<goodMuIsoChargedHadronPt[0]<<",\tchargedIso 1: "<<goodMuIsoChargedHadronPt[1]<<endl;
+  cout <<"---- neutralIso 0: "<<goodMuIsoNeutralHadronEt[0]<<",\tneutralIso 1: "<<goodMuIsoNeutralHadronEt[1]<<endl;
+  cout <<"---- photonIso 0: "<<goodMuIsoPhotonEt[0]<<",\tphotonIso 1: "<<goodMuIsoPhotonEt[1]<<endl;
+  cout <<"---- pilupIso 0: "<<goodMuIsoPUPt[0]<<",\tpileupIso 1: "<<goodMuIsoPUPt[1]<<endl;
+  cout <<"-----------------------------------------------"<<endl; */
   for ( pat::MuonCollection::iterator i = goodMus.begin(); i != goodMus.end(); ++i) {
     goodMusOS.clear();
     int mu0charge= i->charge();
