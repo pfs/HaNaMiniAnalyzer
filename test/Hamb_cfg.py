@@ -119,7 +119,7 @@ process.Hamb.sample = theSample.Name
 process.Hamb.LHE.useLHEW = theSample.LHEWeight
 process.Hamb.isData = theSample.IsData
 process.Hamb.Jets.BTagCuts = cms.vint32(0,-1)
-process.DiMuon.MuonLeadingPtCut = cms.double(20)
+process.Hamb.DiMuon.MuonLeadingPtCut = cms.double(20)
 
 if not ( options.job < theSample.MakeJobs( options.nFilesPerJob , options.output ) ):
     raise NameError("Job %d is not in the list of the jobs of sample %s with %d files per run" % (options.job , options.sample , options.nFilesPerJob ) )
