@@ -64,6 +64,10 @@ public :
    vector<bool>    *muId;
    vector<bool>    *muCharge;
    vector<bool>    *muHLT;
+   vector<float>   *muIsoChargedHadronPt;
+   vector<float>   *muIsoNeutralHadronEt;
+   vector<float>   *muIsoPhotonEt;
+   vector<float>   *muPUPt;   
    Float_t         aMu_pt;
    Float_t         aMu_eta;
    Float_t         aMu_phi;
@@ -193,6 +197,10 @@ public :
    TBranch        *b_muId;   //!
    TBranch        *b_muCharge;   //!
    TBranch        *b_muHLT;   //!
+   TBranch   	  *b_muIsoChargedHadronPt;
+   TBranch   	  *b_muIsoNeutralHadronEt;
+   TBranch   	  *b_muIsoPhotonEt;
+   TBranch   	  *b_muPUPt;   
    TBranch        *b_aMu;   //!
    TBranch        *b_aBjetPtOrdered;   //!
    TBranch        *b_aBjetBtagOrdered;   //!
@@ -281,6 +289,11 @@ void HambTree::Init(TTree *tree)
    muId = 0;
    muCharge = 0;
    muHLT = 0;
+   muIsoChargedHadronPt=0;
+   muIsoNeutralHadronEt=0;
+   muIsoPhotonEt=0;
+   muPUPt=0;
+   
    // Set branch addresses and branch pointers
    if (!tree) return;
    fChain = tree;
@@ -318,6 +331,10 @@ void HambTree::Init(TTree *tree)
    fChain->SetBranchAddress("muId", &muId, &b_muId);
    fChain->SetBranchAddress("muCharge", &muCharge, &b_muCharge);
    fChain->SetBranchAddress("muHLT", &muHLT, &b_muHLT);
+   fChain->SetBranchAddress("muIsoChargedHadronPt", &muIsoChargedHadronPt, &b_muIsoChargedHadronPt);
+   fChain->SetBranchAddress("muIsoNeutralHadronEt", &muIsoNeutralHadronEt, &b_muIsoNeutralHadronEt);
+   fChain->SetBranchAddress("muIsoPhotonEt", &muIsoPhotonEt, &b_muIsoPhotonEt);
+   fChain->SetBranchAddress("muPUPt", &muPUPt, &b_muPUPt);    
    fChain->SetBranchAddress("aMu", &aMu_pt, &b_aMu);
    fChain->SetBranchAddress("aBjetPtOrdered", &aBjetPtOrdered_pt, &b_aBjetPtOrdered);
    fChain->SetBranchAddress("aBjetBtagOrdered", &aBjetBtagOrdered_pt, &b_aBjetBtagOrdered);

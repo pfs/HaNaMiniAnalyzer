@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 using namespace std;
-const TString hist = "chi2Sum";
+const TString hist = "amuMass";
 const TString massVals[9] = {"15","20","25","30","35","40","45","55","60"};
 const TString p1 = "ROC_";
 const TString p2 = hist + "_Signal";
@@ -127,10 +127,10 @@ void BtagChoice(){
 	//std::vector<TH1D*> vec1 = compareSignificances("out_mH_ttdy_significance_all.root","b","SoSqrtB",match);
 	//std::vector<TH1D*> vec2 = compareSignificances("out_mH_ttdy_significance_all.root","b","SoSqrtBdB2",match);
 	std::vector<TH1D*> mass3;
-	std::vector<TH1D*> vec3 = compareSignificances("out_mH_ttdy_significance_Chi2.root","","LnSoSqrtSB", mass3, match);
+	std::vector<TH1D*> vec3 = compareSignificances("out_mH_ttdy_significance_Opt.root","","LnSoSqrtSB", mass3, match);
 	std::vector<TH1D*> mass4;
-	std::vector<TH1D*> vec4 = compareSignificances("out_mH_ttdy_significance_Chi2.root","","LnSoSqrtSBdB", mass4, match);	
-	TFile * f = new TFile("BtagComp_Reg_Significance"+ismatched+"_Chi2.root","recreate");
+	std::vector<TH1D*> vec4 = compareSignificances("out_mH_ttdy_significance_Opt.root","","LnSoSqrtSBdB", mass4, match);	
+	TFile * f = new TFile("BtagComp_Reg_Significance"+ismatched+"_Opt.root","recreate");
 	/*f->mkdir("SoSqrtB")->cd();
 	for(unsigned int i = 0; i<vec1.size(); i++)
 		vec1[i]->Write();
@@ -156,9 +156,9 @@ void BtagChoice(){
 	f->Write();
 	f->Close();
 
-	TFile *f = new TFile("BtagComp_Reg_Limit"+ismatched+"_Chi2.root","recreate");	
+	TFile *f = new TFile("BtagComp_Reg_Limit"+ismatched+"_Opt.root","recreate");	
 	std::vector<TH1D*> eMass;
-	std::vector<TH1D*> vec5 = compareLimits("out_mH_ttdy_limit_Chi2.root","",eMass,match);
+	std::vector<TH1D*> vec5 = compareLimits("out_mH_ttdy_limit_Opt.root","",eMass,match);
 	f->mkdir("Limits")->cd();	
 	for(unsigned int i = 0; i<vec5.size(); i++){
 		vec5[i]->Write();

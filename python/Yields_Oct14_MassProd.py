@@ -66,4 +66,17 @@ lb3Pz = "muPt[1]*sinh(muEta[1])+jetsPt[1]*sinh(jetsEta[1])"
 mu3En = "sqrt((muPt[1]*muPt[1]) + (%s * %s))" %(lb3Pz,lb3Pz)
 lb3En = "jetsE[1] + %s" %(mu3En)
 lb3M = "sqrt(pow(%s,2)+pow(%s,2)+pow(%s,2)-pow(%s,2))" %(lb3Px, lb3Py, lb3Pz, lb3En)
+outname = "checkYields_Oct14_MassProd"
+amuMass = "aMu.mass"
+abMass = "abjet.mass"
+mH = "higgs.mass"
+mHReg = "higgsReg.mass"
+hRegPt = "higgsReg.pt"
+hPt = "higgs.pt"
+myW = "bWs.W2L*Weight"
+myWLM = "bWs.W1L1M*Weight"
+myWLT ="bWs.W1L1T*Weight"
+myWMM ="bWs.W2M*Weight"
+myWMT ="bWs.W1M1T*Weight"
+myWTT ="bWs.W2T*Weight"
 

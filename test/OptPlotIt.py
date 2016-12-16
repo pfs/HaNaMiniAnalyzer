@@ -24,11 +24,10 @@ def GetSample( s ):
         return s
 
 
-nTuples = "/home/nadjieh/cernbox/Hamb13/Oct19_8020_Opt/"
+nTuples = "/home/nadjieh/cernbox/Hamb13/Oct14_8020_Opt/Trees/"
 print ">>>>"
 from Haamm.HaNaMiniAnalyzer.SampleType import *
 from ROOT import kGray, kGreen, kOrange, kRed, kBlack, kCyan, kBlue, kAzure, kTeal, kPink, kYellow
-#dataSamples = SampleType("Data" , kBlack , [GetSample(s) for s in MiniAOD80Samples if s.IsData] , nTuples ) # the first item must be data
 ci = TColor.GetColor("#ff6666")
 DYSamples = SampleType("DY" , ci , [ GetSample(DYJets80) , GetSample(DYJetsLowMass80)] , nTuples )
 ci = TColor.GetColor("#ffff66")
@@ -110,38 +109,50 @@ amuEn = "sqrt(pow(muPt[0]*cos(muPhi[0]),2)+pow(muPt[0]*sin(muPhi[0]),2)+pow(muPt
 
 amuMass = "sqrt(pow(%s,2) + pow(%s,2) + pow(%s,2) - pow(%s,2))" %(amuPx,amuPy,amuPz,amuEn)
 
-abPx = "jetsPt[mH.b1Index]*cos(jetsPhi[mH.b1Index])+jetsPt[mH.b2Index]*cos(jetsPhi[mH.b2Index])"
-abPy = "jetsPt[mH.b1Index]*sin(jetsPhi[mH.b1Index])+jetsPt[mH.b2Index]*sin(jetsPhi[mH.b2Index])"
-abPz = "jetsPt[mH.b1Index]*sinh(jetsEta[mH.b1Index])+jetsPt[mH.b2Index]*sinh(jetsEta[mH.b2Index])"
-abEn = "jetsE[mH.b1Index] + jetsE[mH.b2Index]"
+abPx = "jetsPt[0]*cos(jetsPhi[0])+jetsPt[1]*cos(jetsPhi[1])"
+abPy = "jetsPt[0]*sin(jetsPhi[0])+jetsPt[1]*sin(jetsPhi[1])"
+abPz = "jetsPt[0]*sinh(jetsEta[0])+jetsPt[1]*sinh(jetsEta[1])"
+abEn = "jetsE[0] + jetsE[1]"
 
 abMass = "sqrt(pow(%s,2) + pow(%s,2) + pow(%s,2) - pow(%s,2))" %(abPx,abPy,abPz,abEn)
+dphiBB_ = "abs(jetsPhi[0]-jetsPhi[1])"
+dphiBB = "(%s >= 3.14)*(6.28 - %s)+(%s < 3.14)*%s" %(dphiBB_,dphiBB_,dphiBB_,dphiBB_)
+detaBB = "abs(jetsEta[0]-jetsEta[1])"
+DR = "sqrt(pow(%s,2) + pow(%s,2))" % (dphiBB , detaBB)
+
+hx = "%s+%s" %(amuPx,abPx)
+hy = "%s+%s" %(amuPy,abPy)
+hz = "%s+%s" %(amuPz,abPz)
+he = "%s+%s" %(amuEn,abEn)
+
+mH = "sqrt(pow(%s,2) + pow(%s,2) + pow(%s,2) - pow(%s,2))" %(hx,hy,hz,he)
+
 width = "0.18 + 0.175* %s" %(amuMass)
 chi2B = "pow((%s-%s),2)/(%s*%s)" %(amuMass,abMass,width,width)
-chi2H = "pow((mH.mass-125),2)/(10.56*10.56)" 
+chi2H = "pow((%s-125),2)/(10.56*10.56)" %(mH)
 chi2Sum = "%s+%s" %(chi2B, chi2H)
 
 
 masscut = "%s < %s && %s > %s" %(amuMass,highmass,amuMass,lowmass)
-mupt = masscut+" && muPt[0]>24 && muPt[1]>10"
-jetpt = mupt + "&& jetsPt[0]>25 && jetsPt[1]>15"
-metSig = jetpt+" && metSig < 2 && met < 30"
+mupt = masscut+" && muPt[0]>20 && muPt[1]>9"
+jetpt = mupt + "&& jetsPt[0]>20 && jetsPt[1]>15"
+metSig = jetpt+" && met < 60"
+mhdiff = jetpt+" && fabs(%s -125) < 15" %(mH)
+chi2HCut = "%s < 5" %(chi2H)
+chi2BCut = "%s < 5" %(chi2B)
+chi2SumCut = "%s < 5" %(chi2Sum)
 trueb = metSig + " && abs(jetsFlavour[0]) == 5 && abs(jetsFlavour[1]) == 5"
 
-LL =  "jetsBtag[0] > 0.460 && jetsBtag[1] > 0.460"
-ML =  "(jetsBtag[0] > 0.800 && jetsBtag[1] > 0.460) | (jetsBtag[0] > 0.460 && jetsBtag[1] > 0.800)"
-TL =  "(jetsBtag[0] > 0.935 && jetsBtag[1] > 0.460) | (jetsBtag[0] > 0.460 && jetsBtag[1] > 0.935)"
-MM =  "(jetsBtag[0] > 0.800 && jetsBtag[1] > 0.800) | (jetsBtag[0] > 0.800 && jetsBtag[1] > 0.800)"
-TM =  "(jetsBtag[0] > 0.935 && jetsBtag[1] > 0.800) | (jetsBtag[0] > 0.800 && jetsBtag[1] > 0.935)"
-TT =  "(jetsBtag[0] > 0.935 && jetsBtag[1] > 0.935) | (jetsBtag[0] > 0.935 && jetsBtag[1] > 0.935)"
 
 
-LLb =  "(mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.460 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.460 : 0)"
-MLb =  "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.800 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.460: 0)) | ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.460: 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.800: 0))"
-TLb =  "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.935 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.460: 0)) | ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.460: 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.935: 0))"
-MMb =  "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.800 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.800: 0)) | ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.800: 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.800: 0))"
-TMb =  "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.935 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.800: 0)) | ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.800: 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.935: 0))"
-TTb =  "((mHb.b1Index >= 0 ? jetsBtag[mHb.b1Index] > 0.935 : 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.935: 0)) | ((mHb.b1Index >=0 ? jetsBtag[mHb.b1Index] > 0.935: 0) && (mHb.b2Index >=0 ? jetsBtag[mHb.b2Index] > 0.935: 0))"
+LL =  "jetsBtag[0] > 0.460 && jetsBtag[1] > 0.460 && %s" %(masscut)
+ML =  "(jetsBtag[0] > 0.800 && jetsBtag[1] > 0.460) | (jetsBtag[0] > 0.460 && jetsBtag[1] > 0.800) && %s" %(masscut)
+#TL =  "(jetsBtag[0] > 0.935 && jetsBtag[1] > 0.460) | (jetsBtag[0] > 0.460 && jetsBtag[1] > 0.935) && %s" %(masscut)
+TL =  "(jetsBtag[0] > 0.935 && jetsBtag[1] > 0.460) | (jetsBtag[0] > 0.460 && jetsBtag[1] > 0.935) && %s && %s" %(chi2SumCut,metSig)
+MM =  "jetsBtag[0] > 0.800 && jetsBtag[1] > 0.800 && %s" %(masscut)
+TM =  "(jetsBtag[0] > 0.935 && jetsBtag[1] > 0.800) | (jetsBtag[0] > 0.800 && jetsBtag[1] > 0.935) && %s" %(masscut)
+TT =  "jetsBtag[0] > 0.935 && jetsBtag[1] > 0.935 && %s" %(masscut)
+
 
 Cuts = {"LL":LL,
 	    "ML":ML,
@@ -149,12 +160,6 @@ Cuts = {"LL":LL,
 	    "MM":MM,
 	    "TM":TM,
 	    "TT":TT,
-	    "LLb":LLb,
-	    "MLb":MLb,
-	    "TLb":TLb,
-	    "MMb":MMb,
-	    "TMb":TMb,
-	    "TTb":TTb,
 	    "metSig":metSig,
 	    }
 
@@ -163,92 +168,59 @@ cML = CutInfo( "ML" , Cuts["ML"])
 cTL = CutInfo( "TL" , Cuts["TL"])
 cMM = CutInfo( "MM" , Cuts["MM"])
 cTM = CutInfo( "TM" , Cuts["TM"])
-cTT = CutInfo( "TT" , Cuts["TL"])
+cTT = CutInfo( "TT" , Cuts["TT"])
 
-cLLb = CutInfo( "LLb" , Cuts["LLb"])
-cMLb = CutInfo( "MLb" , Cuts["MLb"])
-cTLb = CutInfo( "TLb" , Cuts["TLb"])
-cMMb = CutInfo( "MMb" , Cuts["MMb"])
-cTMb = CutInfo( "TMb" , Cuts["TMb"])
-cTTb = CutInfo( "TTb" , Cuts["TLb"])
+
 cMetSig = CutInfo( "metSig" , Cuts["metSig"])
 
+mHDiff = "abs(%s-125)" %(mH)
 
-cLL.AddHist( "HiggsMDiff" , "abs(mH.mass-125)", 20 , 0. , 100., False )
-#cLL.AddHist( "bHiggsMDiff" , "abs(mHb.mass-125)", 20 , 0. , 100., False )
+cLL.AddHist( "HiggsMDiff" , mHDiff, 20 , 0. , 100., False )
+cLL.AddHist( "amuMass" , amuMass, 55 , 15 , 70)
 cLL.AddHist( "chi2B" , chi2B, 25 , 0. , 50., False )
 cLL.AddHist( "chi2H" , chi2H, 25 , 0. , 50., False )
 cLL.AddHist( "chi2Sum" , chi2Sum, 25 , 0. , 50., False )
 
-cML.AddHist( "HiggsMDiff" , "abs(mH.mass-125)", 20 , 0. , 100., False )
-#cML.AddHist( "bHiggsMDiff" , "abs(mHb.mass-125)", 20 , 0. , 100., False )
+cML.AddHist( "HiggsMDiff" , mHDiff, 20 , 0. , 100., False )
+cML.AddHist( "amuMass" , amuMass, 55 , 15 , 70)
 cML.AddHist( "chi2B" , chi2B, 25 , 0. , 50., False )
 cML.AddHist( "chi2H" , chi2H, 25 , 0. , 50., False )
 cML.AddHist( "chi2Sum" , chi2Sum, 25 , 0. , 50., False )
 
-cTL.AddHist( "HiggsMDiff" , "abs(mH.mass-125)", 20 , 0. , 100., False )
-#cTL.AddHist( "bHiggsMDiff" , "abs(mHb.mass-125)", 20 , 0. , 100., False )
+cTL.AddHist( "MuPtLead" , "muPt[0]", 75 , 0. , 150., True )
+cTL.AddHist( "MuPtSubLead" , "muPt[1]", 75 , 0. , 150., True )
+cTL.AddHist( "JetPtLead" , "jetsPt[0]", 75 , 0. , 150., True )
+cTL.AddHist( "JetPtSubLead" , "jetsPt[1]", 75 , 0. , 150., True )
+cTL.AddHist( "Met" , "met", 100 , 0. , 200., False )
+cTL.AddHist( "MetSig" , "metSig", 50 , 0. , 10., False )
+cTL.AddHist( "HiggsMDiff" , mHDiff, 20 , 0. , 100., False )
+cTL.AddHist( "amuMass" , amuMass, 55 , 15 , 70)
 cTL.AddHist( "chi2B" , chi2B, 25 , 0. , 50., False )
 cTL.AddHist( "chi2H" , chi2H, 25 , 0. , 50., False )
 cTL.AddHist( "chi2Sum" , chi2Sum, 25 , 0. , 50., False )
+cTL.AddHist( "DRbb" , DR, 25 , 0. , 10., True )
 
-cMM.AddHist( "HiggsMDiff" , "abs(mH.mass-125)", 20 , 0. , 100., False )
-#cMM.AddHist( "bHiggsMDiff" , "abs(mHb.mass-125)", 20 , 0. , 100., False )
+cMM.AddHist( "HiggsMDiff" , mHDiff, 20 , 0. , 100., False )
+cMM.AddHist( "amuMass" , amuMass, 55 , 15 , 70)
 cMM.AddHist( "chi2B" , chi2B, 25 , 0. , 50., False )
 cMM.AddHist( "chi2H" , chi2H, 25 , 0. , 50., False )
 cMM.AddHist( "chi2Sum" , chi2Sum, 25 , 0. , 50., False )
 
 
-cTM.AddHist( "HiggsMDiff" , "abs(mH.mass-125)", 20 , 0. , 100., False )
-#cTM.AddHist( "bHiggsMDiff" , "abs(mHb.mass-125)", 20 , 0. , 100., False )
+cTM.AddHist( "HiggsMDiff" , mHDiff, 20 , 0. , 100., False )
+cTM.AddHist( "amuMass" , amuMass, 55 , 15 , 70)
 cTM.AddHist( "chi2B" , chi2B, 25 , 0. , 50., False )
 cTM.AddHist( "chi2H" , chi2H, 25 , 0. , 50., False )
 cTM.AddHist( "chi2Sum" , chi2Sum, 25 , 0. , 50., False )
 
-cTT.AddHist( "HiggsMDiff" , "abs(mH.mass-125)", 20 , 0. , 100., False )
-#cTT.AddHist( "bHiggsMDiff" , "abs(mHb.mass-125)", 20 , 0. , 100., False )
+cTT.AddHist( "HiggsMDiff" , mHDiff, 20 , 0. , 100., False )
+cTT.AddHist( "amuMass" , amuMass, 55 , 15 , 70)
 cTT.AddHist( "chi2B" , chi2B, 25 , 0. , 50., False )
 cTT.AddHist( "chi2H" , chi2H, 25 , 0. , 50., False )
 cTT.AddHist( "chi2Sum" , chi2Sum, 25 , 0. , 50., False )
 
-cLLb.AddHist( "HiggsMDiff" , "abs(mH.mass-125)", 20 , 0. , 100., False )
-#cLLb.AddHist( "bHiggsMDiff" , "abs(mHb.mass-125)", 20 , 0. , 100., False )
-cLLb.AddHist( "chi2B" , chi2B, 25 , 0. , 50., False )
-cLLb.AddHist( "chi2H" , chi2H, 25 , 0. , 50., False )
-cLLb.AddHist( "chi2Sum" , chi2Sum, 25 , 0. , 50., False )
-
-cMLb.AddHist( "HiggsMDiff" , "abs(mH.mass-125)", 20 , 0. , 100., False )
-#cMLb.AddHist( "bHiggsMDiff" , "abs(mHb.mass-125)", 20 , 0. , 100., False )
-cMLb.AddHist( "chi2B" , chi2B, 25 , 0. , 50., False )
-cMLb.AddHist( "chi2H" , chi2H, 25 , 0. , 50., False )
-cMLb.AddHist( "chi2Sum" , chi2Sum, 25 , 0. , 50., False )
-
-cTLb.AddHist( "HiggsMDiff" , "abs(mH.mass-125)", 20 , 0. , 100., False )
-#cTLb.AddHist( "bHiggsMDiff" , "abs(mHb.mass-125)", 20 , 0. , 100., False )
-cTLb.AddHist( "chi2B" , chi2B, 25 , 0. , 50., False )
-cTLb.AddHist( "chi2H" , chi2H, 25 , 0. , 50., False )
-cTLb.AddHist( "chi2Sum" , chi2Sum, 25 , 0. , 50., False )
-
-cMMb.AddHist( "HiggsMDiff" , "abs(mH.mass-125)", 20 , 0. , 100., False )
-#cMMb.AddHist( "bHiggsMDiff" , "abs(mHb.mass-125)", 20 , 0. , 100., False )
-cMMb.AddHist( "chi2B" , chi2B, 25 , 0. , 50., False )
-cMMb.AddHist( "chi2H" , chi2H, 25 , 0. , 50., False )
-cMMb.AddHist( "chi2Sum" , chi2Sum, 25 , 0. , 50., False )
-
-cTMb.AddHist( "HiggsMDiff" , "abs(mH.mass-125)", 20 , 0. , 100., False )
-#cTMb.AddHist( "bHiggsMDiff" , "abs(mHb.mass-125)", 20 , 0. , 100., False )
-cTMb.AddHist( "chi2B" , chi2B, 25 , 0. , 50., False )
-cTMb.AddHist( "chi2H" , chi2H, 25 , 0. , 50., False )
-cTMb.AddHist( "chi2Sum" , chi2Sum, 25 , 0. , 50., False )
-
-cTTb.AddHist( "HiggsMDiff" , "abs(mH.mass-125)", 20 , 0. , 100., False )
-#cTTb.AddHist( "bHiggsMDiff" , "abs(mHb.mass-125)", 20 , 0. , 100., False )
-cTTb.AddHist( "chi2B" , chi2B, 25 , 0. , 50., False )
-cTTb.AddHist( "chi2H" , chi2H, 25 , 0. , 50., False )
-cTTb.AddHist( "chi2Sum" , chi2Sum, 25 , 0. , 50., False )
-
-cMetSig.AddHist( "HiggsMDiff" , "abs(mH.mass-125)", 20 , 0. , 100., False )
-#cMetSig.AddHist( "bHiggsMDiff" , "abs(mHb.mass-125)", 20 , 0. , 100., False )
+cMetSig.AddHist( "HiggsMDiff" , mHDiff, 20 , 0. , 100., False )
+cMetSig.AddHist( "amuMass" , amuMass, 55 , 15 , 70)
 cMetSig.AddHist( "chi2B" , chi2B, 25 , 0. , 50., False )
 cMetSig.AddHist( "chi2H" , chi2H, 25 , 0. , 50., False )
 cMetSig.AddHist( "chi2Sum" , chi2Sum, 25 , 0. , 50., False )
@@ -259,20 +231,13 @@ print "I'm going to apply %s" % (method)
 cuttoapply = sys.argv[2] 
 allcuts = []
 
-allcuts.append( cLL )
-allcuts.append( cML )
+#allcuts.append( cLL )
+#allcuts.append( cML )
 allcuts.append( cTL )
-allcuts.append( cMM )
-allcuts.append( cTM )
-allcuts.append( cTT )
+#allcuts.append( cMM )
+#allcuts.append( cTM )
+#allcuts.append( cTT )
 
-allcuts.append( cLLb )
-allcuts.append( cMLb )
-allcuts.append( cTLb )
-allcuts.append( cMMb )
-allcuts.append( cTMb )
-allcuts.append( cTTb )
-allcuts.append( cMetSig )
 
 if method == "significance":
 	for i in range(0, len(allcuts)):

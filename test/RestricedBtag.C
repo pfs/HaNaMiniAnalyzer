@@ -137,8 +137,8 @@ void RestricedBtag(){
 	f->Write();
 	f->Close();
 
-	TFile *f = new TFile("BtagComp_Reg_Limit"+ismatched+"_Reg_WithCuts_25.root","recreate");	
-	std::vector<TH1D*> vec4 = compareLimits("out_mH_ttdy_limit","",match);
+	TFile *f = new TFile("BtagComp_Reg_Limit"+ismatched+"_Reg_WithCuts.root","recreate");	
+	std::vector<TH1D*> vec4 = compareLimits("out_mH_ttdy_limit_NoCut_Restricted","",match);
 	f->mkdir("Limits")->cd();	
 	for(unsigned int i = 0; i<vec4.size(); i++)
 		vec4[i]->Write();

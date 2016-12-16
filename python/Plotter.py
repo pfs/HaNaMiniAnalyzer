@@ -87,7 +87,8 @@ class CutInfo:
 				mycut += " && (higgsReg.mass > 145 || higgsReg.mass < 105)"
 		nLoaded = tree.Draw( ">>list_%s_%s"%(samplename, self.Name) , mycut , "entrylist" )
 		lst = gDirectory.Get( "list_%s_%s"%(samplename, self.Name) )
-		print "\t\tEvents from tree are loaded (%s , %s), %d" % (self.Name , mycut , nLoaded)
+		#print "\t\tEvents from tree are loaded (%s , %s), %d" % (self.Name , mycut , nLoaded)
+		print "\t\tEvents from tree are loaded (%s , %s), %d" % (self.Name , "" , nLoaded)
 		print "\t\tHistograms from tree are being created"
 		if nLoaded < 0:
 			print "Error in loading events with cut (%s) from dataset (%s), nLoaded = %d" % (mycut,samplename , nLoaded)
