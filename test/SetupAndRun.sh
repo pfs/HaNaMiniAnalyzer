@@ -12,7 +12,7 @@ cd HaNaMiniAnalyzer/
 git checkout $4
 scram b
 cd test
-ln -s ../../../RecoMET/METProducers/test/Summer15_25nsV6.db
+
 if [ ! -z "$LSB_JOBINDEX" ];
 then
     echo $LSB_JOBINDEX
@@ -27,8 +27,8 @@ else
 fi
 
 
-echo cmsRun Hamb_cfg.py sample=$5 job=$FILEID output=$6 maxEvents=-1 nFilesPerJob=$8
-cmsRun Hamb_cfg.py sample=$5 job=$FILEID output=$6 maxEvents=-1 nFilesPerJob=$8
+echo cmsRun PUAnalyzer_cfg.py sample=$5 job=$FILEID output=$6 maxEvents=-1 nFilesPerJob=$8
+cmsRun PUAnalyzer_cfg.py sample=$5 job=$FILEID output=$6 maxEvents=-1 nFilesPerJob=$8
 
 if [[ $7 == eos* ]] ;
 then

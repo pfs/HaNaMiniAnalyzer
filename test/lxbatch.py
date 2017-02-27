@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-nFilesPerJob=15
-CheckFailedJobs=True
+nFilesPerJob=40
+CheckFailedJobs=False
 hname = "Hamb/CutFlowTable/CutFlowTable"
 prefix = "out"
 
@@ -15,9 +15,10 @@ if not len(sys.argv) == 3 :
     exit()
 
 OutPath = "eos/cms/store/user/%s/%s/" % (user, sys.argv[2] )
-from Samples76.Samples import MiniAOD76Samples as samples
+from SamplesPU.Samples import MINIAOD as samples
 for sample in samples:
-    sample.MakeJobs( nFilesPerJob , "%s/%s" % (OutPath , prefix) )
+    print sample.Name
+    print sample.MakeJobs( nFilesPerJob , "%s/%s" % (OutPath , prefix) )
 
 import os
 from shutil import copy
@@ -74,7 +75,7 @@ for sample in samples:
                 "vomsaddress":"`pwd`/.x509up_u%d" % (os.getuid()) ,
                 "scram":os.getenv("SCRAM_ARCH") ,
                 "cmsver":os.getenv("CMSSW_VERSION"),
-                "gitco":"master" ,
+                "gitco":"HamedPU" ,
                 "sample":sample.Name ,
                 "out":prefix ,
                 "outdir":OutPath,
@@ -87,7 +88,9 @@ for sample in samples:
 
     else :
         initlen = len(sample.Jobs)
-        steps = range( 0 , initlen , 1000)
+        print sample.Jobs
+        steps = range( 0 , initlen , 1000 )
+        print steps
         if not steps[-1] == initlen :
             steps.append( initlen )
         print "%s : %d"% ( sample.Name , initlen )
@@ -98,7 +101,7 @@ for sample in samples:
                 "vomsaddress":"`pwd`/.x509up_u%d" % (os.getuid()) ,
                 "scram":os.getenv("SCRAM_ARCH") ,
                 "cmsver":os.getenv("CMSSW_VERSION"),
-                "gitco":"master" ,
+                "gitco":"HamedPU" ,
                 "sample":sample.Name ,
                 "out":prefix ,
                 "outdir":OutPath,
