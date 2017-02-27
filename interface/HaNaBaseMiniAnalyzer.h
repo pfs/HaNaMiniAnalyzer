@@ -21,6 +21,8 @@
 #include "DiMuonReader.h"
 #include "METReader.h"
 #include "JetReader.h"
+#include "GenEventInfoProductReader.h"
+#include "PackedCandidateReader.h"
 
 #include "Histograms.h"
 
@@ -49,6 +51,8 @@ protected:
   bool IsData;
   string SampleName;
   // --------- All Info needed in the event processing ---------------
+  PackedCandidateReader* packedReader, *lostReader;
+  GenEventInfoProductReader* geninfoReader;
   LHEEventReader* LHEReader;
   HLTReader* hltReader;
   VertexReader* vertexReader;

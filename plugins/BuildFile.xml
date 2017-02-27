@@ -4,6 +4,7 @@
 <use name="CLHEP" />
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/PatCandidates"/>
+<use name="PhysicsTools/PatUtils"/>
 <use name="JetMETCorrections/Modules"/>
 <use name="ROOT"/>
 <use name="FWCore/ServiceRegistry"/>

@@ -8,8 +8,8 @@
 #include <iostream>
 #include <string>
 
-#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
-#include "CondFormats/BTauObjects/interface/BTagCalibrationReader.h"
+//#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
+//#include "CondFormats/BTauObjects/interface/BTagCalibrationReader.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 using namespace std;
 
@@ -43,7 +43,7 @@ class BTagWeight
   public:
     BTagWeight(string algorithm, int WPt, string setupDir, int mintag, int maxtag, double BLCut = 0.460, double BMCut = 0.800, 
 	       double BTCut = 0.935, int WPl = -1, int systematics = 0): 
-      algo(algorithm), WPT(WPt), WPL(WPl), minTag(mintag), maxTag(maxtag), syst(systematics),readerExc(0),readerCentExc(0)
+      algo(algorithm), WPT(WPt), WPL(WPl), minTag(mintag), maxTag(maxtag), syst(systematics) //,readerExc(0),readerCentExc(0)
     {
 	bTagMapCSVv2[0] = BLCut;
 	bTagMapCSVv2[1] = BMCut;
@@ -60,17 +60,17 @@ class BTagWeight
 	Systs[-1] = "down";
 	Systs[1] = "up";
 	cout<< setupDir+"/"+algo+string(".csv")<<endl;
-	calib = new BTagCalibration(algo /*"CSVv2"*/, setupDir+"/"+algo+string(".csv"));
-	reader = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"mujets",Systs[syst]);
-        readerCent = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"mujets","central");  
-	readerLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"incl",Systs[syst]);
-        readerCentLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"incl","central");  
-	if(WPL != -1){
-		readerExc = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPL,"mujets",Systs[syst]);
-        	readerCentExc = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint) WPL,"mujets","central");  
-		readerExcLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPL,"incl",Systs[syst]);
-        	readerCentExcLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint) WPL,"incl","central");  
-	}
+	// calib = new BTagCalibration(algo /*"CSVv2"*/, setupDir+"/"+algo+string(".csv"));
+	// reader = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"mujets",Systs[syst]);
+        // readerCent = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"mujets","central");  
+	// readerLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"incl",Systs[syst]);
+        // readerCentLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"incl","central");  
+	// if(WPL != -1){
+	// 	readerExc = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPL,"mujets",Systs[syst]);
+        // 	readerCentExc = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint) WPL,"mujets","central");  
+	// 	readerExcLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPL,"incl",Systs[syst]);
+        // 	readerCentExcLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint) WPL,"incl","central");  
+	// }
 
 	/* Sanity checks
 	 * std::cout<< "---- BTag WPs ----\n\t" <<bTagMapCSVv2[0] <<",\t"<<bTagMapCSVv2[1] <<",\t"<<bTagMapCSVv2[2]
@@ -93,15 +93,15 @@ class BTagWeight
     float TagScaleFactor(pat::Jet jet, bool LooseWP = false);
     float MCTagEfficiency(pat::Jet jet, int WP);
     std::map<int, string> Systs;
-    BTagCalibration * calib;
-    BTagCalibrationReader * reader;
-    BTagCalibrationReader * readerCent;
-    BTagCalibrationReader * readerExc;
-    BTagCalibrationReader * readerCentExc;
-    BTagCalibrationReader * readerLight;
-    BTagCalibrationReader * readerCentLight;
-    BTagCalibrationReader * readerExcLight;
-    BTagCalibrationReader * readerCentExcLight;
+    // BTagCalibration * calib;
+    // BTagCalibrationReader * reader;
+    // BTagCalibrationReader * readerCent;
+    // BTagCalibrationReader * readerExc;
+    // BTagCalibrationReader * readerCentExc;
+    // BTagCalibrationReader * readerLight;
+    // BTagCalibrationReader * readerCentLight;
+    // BTagCalibrationReader * readerExcLight;
+    // BTagCalibrationReader * readerCentExcLight;
   };
 #endif
 

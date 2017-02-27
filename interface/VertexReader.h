@@ -20,6 +20,15 @@ public:
   double puWeight;
   int vtxMult;
   int nGoodVtx;
+  int npv;
+  int npv50ns;
+
+  int nTracksPV;
+  int nTracksW05PV;
+
+  int nTracksAll;
+  int nTracksW05All;
+ 
   const reco::Vertex * PV();
 private :
   bool IsData ;

@@ -4,9 +4,7 @@ export SCRAM_ARCH=$2
 scramv1 project CMSSW $3
 cd $3/src/
 eval `scramv1 runtime -sh`
-cms init
-git cms-merge-topic cms-met:76X-METSignificance-patch0
-scram b
+
 mkdir Haamm/
 cd Haamm
 git clone https://github.com/nadjieh/HaNaMiniAnalyzer/

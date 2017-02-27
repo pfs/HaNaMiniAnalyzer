@@ -6,9 +6,9 @@ VertexReader::VertexReader( edm::ParameterSet const& iPS, edm::ConsumesCollector
 {
   if( !IsData ){
     PileupToken_ = iC.consumes<std::vector<PileupSummaryInfo>>(iPS.getParameter<edm::InputTag>("pileupSrc")) ;
-    LumiWeights_ = edm::LumiReWeighting( SetupDir + "/pileUpMC.root" ,
-					 SetupDir + "/pileUpData.root", 
-					 std::string("pileup"), std::string("pileup") );
+    //LumiWeights_ = edm::LumiReWeighting( SetupDir + "/pileUpMC.root" ,
+    //SetupDir + "/pileUpData.root", 
+    //std::string("pileup"), std::string("pileup") );
   }
 }
 
@@ -30,11 +30,20 @@ double VertexReader::Read( const edm::Event& iEvent ){
     auto vtx = handle->front();
     if(!CheckVertex(vtx) )
       return -1.0;
+    else{
+      nTracksPV = vtx.tracksSize();
+      nTracksW05PV = vtx.nTracks(0.5);
+
+      nTracksAll = nTracksW05All = 0;
+    }
 
     for( auto vtx1 : *handle )
-      if( CheckVertex(vtx1) )
+      if( CheckVertex(vtx1) ){
 	nGoodVtx++;
 
+	nTracksAll += vtx.tracksSize();
+	nTracksW05All += vtx.nTracks(0.5);
+      }
 
     if( !IsData ){
       iEvent.getByToken(PileupToken_, PupInfo);
@@ -43,9 +52,25 @@ double VertexReader::Read( const edm::Event& iEvent ){
       //   puBX->push_back(  PVI->getBunchCrossing() ); 
       //   puNInt->push_back( PVI->getPU_NumInteractions() );
       // }
-      puWeight = LumiWeights_.weight(PupInfo->begin()->getTrueNumInteractions());
+      npv = -1;
+      npv50ns = -1;
+      
+      for(std::vector<PileupSummaryInfo>::const_iterator PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+	
+	int BX = PVI->getBunchCrossing();
+ 
+	if(BX == 0) { 
+	  npv = PVI->getPU_NumInteractions();
+	}
+ 
+	if(BX == 1) { 
+	  npv50ns = PVI->getPU_NumInteractions();
+	}
+	
+      }
+      puWeight = 1; //LumiWeights_.weight(PupInfo->begin()->getTrueNumInteractions());
     }else
       puWeight = 1.0;
-
+    
     return puWeight;
 }

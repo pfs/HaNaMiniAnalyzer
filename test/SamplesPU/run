@@ -1,0 +1,14 @@
+/afs/cern.ch/work/h/hbakhshi/PU/CMSSW_8_0_26_patch2/src/Haamm/HaNaMiniAnalyzer/test/SamplesPU
+das_client --limit=0 --query="file dataset=/SingleMuon/Run2016B-03Feb2017_ver1-v1/MINIAOD" > SingleMuB1.list
+das_client --limit=0 --query="file dataset=/SingleMuon/Run2016B-03Feb2017_ver2-v2/MINIAOD" > SingleMuB2.list
+das_client --limit=0 --query="file dataset=/SingleMuon/Run2016C-03Feb2017-v1/MINIAOD" > SingleMuC.list
+das_client --limit=0 --query="file dataset=/SingleMuon/Run2016D-03Feb2017-v1/MINIAOD" > SingleMuD.list
+das_client --limit=0 --query="file dataset=/SingleMuon/Run2016E-03Feb2017-v1/MINIAOD" > SingleMuE.list
+das_client --limit=0 --query="file dataset=/SingleMuon/Run2016F-03Feb2017-v1/MINIAOD" > SingleMuF.list
+das_client --limit=0 --query="file dataset=/SingleMuon/Run2016G-03Feb2017-v1/MINIAOD" > SingleMuG.list
+das_client --limit=0 --query="file dataset=/SingleMuon/Run2016H-03Feb2017_ver2-v1/MINIAOD" > SingleMuH2.list
+das_client --limit=0 --query="file dataset=/SingleMuon/Run2016H-03Feb2017_ver3-v1/MINIAOD" > SingleMuH3.list
+das_client --limit=0 --query="file dataset=/ZToMuMu_NNPDF30_13TeV-powheg_M_50_120/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM" > ZmuMu.list
+das_client --limit=0 --query="file dataset=/DYToLL_0J_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/MINIAODSIM" > DYMuMu0J.list
+das_client --limit=0 --query="file dataset=/DYToLL_1J_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/MINIAODSIM" > DYMuMu1J.list
+das_client --limit=0 --query="file dataset=/DYToLL_2J_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/MINIAODSIM" > DYMuMu2J.list

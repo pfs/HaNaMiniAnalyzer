@@ -1,0 +1,133 @@
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("HaNa")
+
+process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.cerr.FwkReport.reportEvery = 10000
+
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+process.TFileService = cms.Service("TFileService", fileName = cms.string("histo.root") )
+
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.source = cms.Source("PoolSource",
+    # replace 'myfile.root' with the source file you want to use
+                            fileNames = cms.untracked.vstring()
+)
+
+process.PUAnalyzer = cms.EDAnalyzer('PUAnalyzer',
+                                    LHE = cms.PSet ( useLHEW = cms.bool( False ),
+                                                     Input = cms.InputTag("externalLHEProducer")
+                                                     ),
+
+                                    HLT = cms.PSet( Input = cms.InputTag( "TriggerResults","","HLT" ), 
+                                                    HLT_To_Or = cms.vstring()
+                                                    ),
+                                    Vertex = cms.PSet( Input = cms.InputTag( "offlineSlimmedPrimaryVertices" ),
+                                                       pileupSrc = cms.InputTag("slimmedAddPileupInfo")
+                                                       ),
+                                    DiMuon = cms.PSet( Input = cms.InputTag("slimmedMuons"),
+                                                       MuonLeadingPtCut = cms.double(20),
+                                                       MuonSubLeadingPtCut = cms.double(20),
+                                                       MuonIsoCut = cms.double( 0.25 ),
+                                                       MuonEtaCut = cms.double( 2.4 ),
+                                                       DiMuLowMassCut = cms.double( 20. ),
+                                                       DiMuCharge = cms.int32( -1 ),
+                                                       MuonID = cms.int32( 2 ), #0:no id, 1:Loose , 2:Medium , 3:tight , 4 : soft
+                                                       DiMuZMassWindow = cms.double( 1000 ),
+                                                       isHamb = cms.bool( False )
+                                                       ),
+
+                                    Tracks = cms.PSet( Input = cms.InputTag("packedPFCandidates" ) ),
+                                    LostTracks = cms.PSet( Input = cms.InputTag("lostTracks" ) ),
+                                    
+                                    sample = cms.string("WJetsMG"),
+                                    isData = cms.bool( False ),
+                                    SetupDir = cms.string("PUStudies")
+                                    )
+
+import FWCore.ParameterSet.VarParsing as opts
+options = opts.VarParsing ('analysis')
+options.register('sync',
+                 0,
+                 opts.VarParsing.multiplicity.singleton,
+                 opts.VarParsing.varType.int ,
+                 "")
+options.register('sample',
+                 'WJetsMG',
+                 opts.VarParsing.multiplicity.singleton,
+                 opts.VarParsing.varType.string,
+                 'Sample to analyze')
+options.register('job',
+                 0,
+                 opts.VarParsing.multiplicity.singleton,
+                 opts.VarParsing.varType.int ,
+                 "number of the job")
+options.register('nFilesPerJob',
+                 1,
+                 opts.VarParsing.multiplicity.singleton,
+                 opts.VarParsing.varType.int ,
+                 "number of the files pre job")
+options.register('output',
+                 "out",
+                 opts.VarParsing.multiplicity.singleton,
+                 opts.VarParsing.varType.string ,
+                 "could be root://eoscms//eos/cms/store/user/hbakhshi/out")
+
+options.parseArguments()
+
+
+theSample = None
+import os
+
+if options.sync == 0 :
+    from SamplesPU.Samples import MINIAOD as samples
+
+
+    for sample in samples:
+        if sample.Name == options.sample :
+            theSample = sample
+
+    if not theSample.Name == options.sample:
+        raise NameError("The correct sample is not found %s !+ %s" % (sample.Name , options.sample) )
+
+    if theSample == None:
+        raise NameError("Sample with name %s wasn't found" % (options.sample))
+else:
+    from Haamm.HaNaMiniAnalyzer.Sample import *
+    theSample = Sample( "Sync" , "Sync" , 1 , False , 0 , "" )
+    theSample.Files = ['/store/mc/RunIISummer16MiniAODv2/ZToMuMu_NNPDF30_13TeV-powheg_M_50_120/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/60000/243D09B4-90D1-E611-B0FA-001E674DA347.root']
+    options.nFilesPerJob = 1
+    options.output = "out" 
+    options.job = 0
+
+process.PUAnalyzer.sample = theSample.Name
+process.PUAnalyzer.LHE.useLHEW = theSample.LHEWeight
+process.PUAnalyzer.isData = theSample.IsData
+
+if not ( options.job < theSample.MakeJobs( options.nFilesPerJob , options.output ) ):
+    raise NameError("Job %d is not in the list of the jobs of sample %s with %d files per run" % (options.job , options.sample , options.nFilesPerJob ) )
+job = theSample.Jobs[ options.job ]
+
+process.source.fileNames.extend( job.Inputs )
+process.TFileService.fileName = job.Output
+
+process.maxEvents.input = options.maxEvents
+
+if theSample.IsData :
+    import FWCore.PythonUtilities.LumiList as LumiList
+    process.source.lumisToProcess = LumiList.LumiList(filename = (process.PUAnalyzer.SetupDir.value() + '/JSON.txt')).getVLuminosityBlockRange()
+    #process.GlobalTag.globaltag = '76X_dataRun2_v15'
+    process.p = cms.Path( process.PUAnalyzer )
+    # for v in range(0 , 10 ):
+    #     process.PUAnalyzer.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
+
+else :
+    #process.GlobalTag.globaltag = '76X_dataRun2_16Dec2015_v0'
+    from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import *
+
+    process.p = cms.Path(process.PUAnalyzer)
+    if options.sync == 0 :
+        for v in range(0 , 10 ):
+            process.PUAnalyzer.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )

@@ -119,51 +119,52 @@ float BTagWeight::TagScaleFactor(pat::Jet jet, bool LooseWP ){
 	float MaxBJetPt = 670., MaxLJetPt = 1000.;
         float JetPt = jet.pt(); bool DoubleUncertainty = false;
 	int flavour = fabs(jet.hadronFlavour());
-	if(flavour == 5) flavour = BTagEntry::FLAV_B;
-	else if(flavour == 4) flavour = BTagEntry::FLAV_C;
-	else flavour = BTagEntry::FLAV_UDSG;
+	// if(flavour == 5) flavour = BTagEntry::FLAV_B;
+	// else if(flavour == 4) flavour = BTagEntry::FLAV_C;
+	// else flavour = BTagEntry::FLAV_UDSG;
 	
-	if(flavour != BTagEntry::FLAV_UDSG){
-	   if (JetPt>MaxBJetPt)  { // use MaxLJetPt for  light jets
-        	JetPt = MaxBJetPt; 
-        	DoubleUncertainty = true;
-      	   }
-	} else {
-	   if (JetPt>MaxLJetPt)  { // use MaxLJetPt for  light jets
-                JetPt = MaxBJetPt;
-                DoubleUncertainty = true;
-           }
-	}
-	if(JetPt<MinJetPt){
-	   JetPt = MinJetPt;
-	   DoubleUncertainty = true;
-	}
+	// if(flavour != BTagEntry::FLAV_UDSG){
+	//    if (JetPt>MaxBJetPt)  { // use MaxLJetPt for  light jets
+        // 	JetPt = MaxBJetPt; 
+        // 	DoubleUncertainty = true;
+      	//    }
+	// } else {
+	//    if (JetPt>MaxLJetPt)  { // use MaxLJetPt for  light jets
+        //         JetPt = MaxBJetPt;
+        //         DoubleUncertainty = true;
+        //    }
+	// }
+	// if(JetPt<MinJetPt){
+	//    JetPt = MinJetPt;
+	//    DoubleUncertainty = true;
+	// }
 
 	float jet_scalefactor = 1;
-	if((BTagEntry::JetFlavor)flavour != BTagEntry::FLAV_UDSG){
-		jet_scalefactor = reader->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt); 
-		if(LooseWP)
-			jet_scalefactor = readerExc->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
-	} else {
-		jet_scalefactor = readerLight->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
-		if(LooseWP)
-			jet_scalefactor = readerExcLight->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
-	}
+
+	// if((BTagEntry::JetFlavor)flavour != BTagEntry::FLAV_UDSG){
+	// 	jet_scalefactor = reader->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt); 
+	// 	if(LooseWP)
+	// 		jet_scalefactor = readerExc->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
+	// } else {
+	// 	jet_scalefactor = readerLight->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
+	// 	if(LooseWP)
+	// 		jet_scalefactor = readerExcLight->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
+	// }
 
 
-	if(DoubleUncertainty && syst != 0){
-	        float jet_scalefactorCent = 1;
-		if((BTagEntry::JetFlavor)flavour != BTagEntry::FLAV_UDSG){
-			jet_scalefactorCent = readerCent->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt); 
-			if(LooseWP)
-				jet_scalefactorCent = readerCentExc->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
-		} else {
-			jet_scalefactorCent = readerCentLight->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt); 
-			if(LooseWP)
-				jet_scalefactorCent = readerCentExcLight->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
-		}
-                jet_scalefactor = 2*(jet_scalefactor - jet_scalefactorCent) + jet_scalefactorCent; 
-	}
+	// if(DoubleUncertainty && syst != 0){
+	//         float jet_scalefactorCent = 1;
+	// 	if((BTagEntry::JetFlavor)flavour != BTagEntry::FLAV_UDSG){
+	// 		jet_scalefactorCent = readerCent->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt); 
+	// 		if(LooseWP)
+	// 			jet_scalefactorCent = readerCentExc->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
+	// 	} else {
+	// 		jet_scalefactorCent = readerCentLight->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt); 
+	// 		if(LooseWP)
+	// 			jet_scalefactorCent = readerCentExcLight->eval((BTagEntry::JetFlavor)flavour, jet.eta(), JetPt);
+	// 	}
+        //         jet_scalefactor = 2*(jet_scalefactor - jet_scalefactorCent) + jet_scalefactorCent; 
+	// }
 	return jet_scalefactor;
 }
 

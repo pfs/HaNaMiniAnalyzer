@@ -27,13 +27,25 @@ HaNaBaseMiniAnalyzer::HaNaBaseMiniAnalyzer(const edm::ParameterSet& iConfig):
   if( !IsData ){
     if( iConfig.exists( "LHE" ) ){
        edm::ParameterSet LHE = iConfig.getParameter< edm::ParameterSet >("LHE");
-       if( LHE.getParameter< bool >( "useLHEW" ) )
+       if( LHE.getParameter< bool >( "useLHEW" ) ){
          LHEReader = new LHEEventReader( LHE , consumesCollector() );
+       }
+
+       edm::ParameterSet genPset;
+       genPset.addParameter( "Input" , edm::InputTag( "generator" ) );
+       geninfoReader = new GenEventInfoProductReader( genPset , consumesCollector() );
     } else LHEReader = NULL;
   }  
   if (iConfig.exists( "HLT"))
      hltReader = new HLTReader( iConfig.getParameter< edm::ParameterSet >("HLT") , consumesCollector() );
   else hltReader = NULL;
+
+  if (iConfig.exists( "Tracks")){
+     packedReader = new PackedCandidateReader( iConfig.getParameter< edm::ParameterSet >("Tracks") , consumesCollector() );
+     lostReader = new PackedCandidateReader( iConfig.getParameter< edm::ParameterSet >("LostTracks") , consumesCollector() );
+  }
+  else packedReader = NULL;
+
   if (iConfig.exists( "Vertex"))
      vertexReader = new VertexReader( iConfig.getParameter< edm::ParameterSet >("Vertex") , consumesCollector() , IsData , SetupDir );
   else vertexReader = NULL;
