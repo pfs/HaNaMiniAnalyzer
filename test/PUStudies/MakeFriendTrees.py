@@ -4,6 +4,7 @@ from Haamm.HaNaMiniAnalyzer.ExtendedSample import *
 from ROOT import TSystem, gSystem, gROOT, TCanvas, TH1D, TDirectory, gDirectory, TFile, TH1
 import sys
 import array
+import os
 sys.path.append('../')
 
 prefix = "tree"
@@ -19,18 +20,33 @@ hMC_In = fMC_In.Get( hMCName_In ).Clone()
 fMC_In.Close()
 hMC_In.Scale( 1.0 / hMC_In.Integral() )
 
-xsec_variations={"nominal" , "up" , "down"}
-json_files={"bestFit" , "latest"}
+xsec_variations = [ str(i) for i in range( 84 , 118 ) ]
+jsons = {"All":"/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"} 
+dir="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Era/ReReco/"
+for f in listdir(dir):
+    era = f.split("_")[-1].split(".")[0]
+    jsons[era] = dir+f
+
+json_files={"bestFit" , "latest" , "pcc"}
 DataFiles = {}
 for xsec in xsec_variations:
     for json in json_files:
-        fdata = TFile.Open( "./data_%s_%s.root" % (json , xsec) )
-        hdata = fdata.Get("pileup")
-        hdata.Scale( 1.0 / hdata.Integral() )
-        hdata.Divide( hMC_In )
-        gROOT.cd()
-        DataFiles[ "%s_%s" % (json , xsec) ] = hdata.Clone()
-        fdata.Close()
+        for pujson in jsons:
+            name = "%s_%s_%s" % (json , xsec , pujson)
+            fdata = None
+            if os.path.isfile( "./data_" + name + ".root" ):
+                fdata = TFile.Open( "./data_%s.root" % (name) )
+            elif os.path.isfile( "./data_" + name + "2.root" ):
+                fdata = TFile.Open( "./data_%s2.root" % (name) )
+            else:
+                print name, "doesn't exit"
+                continue
+            hdata = fdata.Get("pileup")
+            hdata.Scale( 1.0 / hdata.Integral() )
+            hdata.Divide( hMC_In )
+            gROOT.cd()
+            DataFiles[ name ] = hdata.Clone(name)
+            fdata.Close()
         
 
 from SamplesPU.Samples import *
@@ -48,7 +64,7 @@ for s in MINIAOD:
     vals_template = []
     leaves = ""
     for df in DataFiles:
-        for oot in ["it", "oot"]:
+        for oot in ["it"]:
             if not leaves == "" :
                 leaves += ":"
             leaves += ("%s_%s" % (df, oot))
@@ -63,7 +79,7 @@ for s in MINIAOD:
     
     for event in es.Tree:
         nInt = ord(event.nInt)
-        print nInt
+        #print nInt
         nInt50ns = ord(event.nInt50ns)
         #print nInt
         #print nInt50ns
@@ -79,10 +95,10 @@ for s in MINIAOD:
                 
             leafValues[counter] = wIn
             counter += 1
-            leafValues[counter] = wOut
-            counter += 1
+            # leafValues[counter] = wOut
+            # counter += 1
 
-        print leafValues
+        #print leafValues
         friendT.Fill()
 
     friendT.Write()
