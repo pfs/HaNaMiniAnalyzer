@@ -13,6 +13,8 @@ public:
   PackedCandidateReader( edm::ParameterSet const& iPS, edm::ConsumesCollector && iC);
   double Read( const edm::Event& iEvent ) override;
 
+  int nNeutralHadrons;
+  int nPhotons;
   int nEles;
   int nMus;
   int nChargedHadrons;

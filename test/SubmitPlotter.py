@@ -8,6 +8,6 @@ puScenarios = { "pcc" :[95,105,5]  ,
 for era in eras:
     for puScenario in puScenarios:
         variation = puScenarios[puScenario]
-        xsecs = "%d,%d:%d" % ( variation[0] , variation[1] , variation[2] )
-        lxbatch = "bsub -q 1nh -J {pu:s}_{era:s}[{xsecs:s}] -o {pu:s}_{era:s}_%I.out runPlotter.sh {pu:s} {era:s}".format( pu=puScenario , era=era , xsecs=xsecs )
+        xsecs = "%d-%d:%d" % ( variation[0] , variation[1] , variation[2] )
+        lxbatch = "bsub -q 1nh -J {pu:s}_{era:s}[{xsecs:s}] -env \"all\" -o {pu:s}_{era:s}_%I.out Plotter.py {pu:s} {era:s}".format( pu=puScenario , era=era , xsecs=xsecs )
         print lxbatch

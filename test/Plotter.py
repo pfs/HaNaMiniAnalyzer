@@ -1,4 +1,6 @@
-#!/usr/bin/env python
+#!/cvmfs/cms.cern.ch/slc6_amd64_gcc530/cms/cmssw-patch/CMSSW_8_0_26_patch2/external/slc6_amd64_gcc530/bin/python
+
+#/usr/bin/env python
 ############MAKE SAMPLE LIST : ###################
 
 LUMI = 35.5
@@ -16,11 +18,15 @@ from ROOT import kGray, kGreen, kYellow, kOrange, kRed, kBlack, kCyan, kBlue, gR
 
 puScenario=sys.argv[1]
 era=sys.argv[2]
-xsecvar=os.getenv( "LSB_JOBINDEX" , sys.argv[3] )
-
+for env in os.environ:
+    if "LSB" in env:
+        print "%s = %s" %( env , os.environ[env] )
+xsecvar=os.environ[  "LSB_JOBINDEX" ]
+print xsecvar
+outdir=os.environ[ "LSB_OUTDIR" ]
 
 TreeTemN = "PUAnalyzer/Trees/Events"
-DIR = "/home/hbakhshi/Downloads/CERNBox/Personal/Projects/PU/02MarchPPD/"
+DIR = "/eos/user/h/hbakhshi/Personal/Projects/PU/02MarchPPD/" #"/home/hbakhshi/Downloads/CERNBox/Personal/Projects/PU/02MarchPPD/"
 data_files = [ "%s%s" % (DIR,s) for s in [ #"SingleMuB1.root",
                                            "SingleMuB2.root",
                                            "SingleMuC.root",
@@ -35,7 +41,7 @@ dataSamples = SampleType("Data" , kBlack , [ Sample( os.path.basename(s).split('
 
 zmumu = SampleType("ZMuMu" , kCyan , [ Sample( "ZmuMu" , -1 , False , "", treeName=TreeTemN ) ] , DIR )
 for s in zmumu.Samples:
-    s.SetFriendTreeInfo( DIR + "weights3" , "friend" )
+    s.SetFriendTreeInfo( DIR + "weights4" , "friend" )
 
 allSTs = [ dataSamples , zmumu ]
 
@@ -52,34 +58,24 @@ if len(sys.argv) < 2:
 
 appendix = puScenario+"_"+era+"_"+xsecvar
 #appendix = sys.argv[1]
-outfname = "out_%s_normtolumi.root" % appendix
+outfname = "out_%s.root" % appendix
 
 gROOT.SetBatch(True)
 
 from Haamm.HaNaMiniAnalyzer.Plotter import *            
 plotter = Plotter()
-plotter.AddSampleType (zmumu )
+
 if era == "All" :
     plotter.AddSampleType( dataSamples )
-elif era == "eraB":
+else:
+    run = era[-1]
     samples = []
     for s in dataSamples.Samples:
-        if "B" in s.Name :
+        if run in s.Name :
             samples.append( s )
     plotter.AddSampleType( SampleType("Data" , kBlack , samples , DIR ) )
-elif era == "eraC":
-    plotter.AddSampleType( SampleType("Data" , kBlack , [ Sample( os.path.basename(s).split('.')[0] , 0 , False , "" , treeName = TreeTemN  ) for s in data_files if "C" in s ] , DIR ) )
-elif era == "eraD":
-    plotter.AddSampleType( SampleType("Data" , kBlack , [ Sample( os.path.basename(s).split('.')[0] , 0 , False , "" , treeName = TreeTemN  ) for s in data_files if "D" in s ] , DIR ) )
-elif era == "eraE":
-    plotter.AddSampleType( SampleType("Data" , kBlack , [ Sample( os.path.basename(s).split('.')[0] , 0 , False , "" , treeName = TreeTemN  ) for s in data_files if "E" in s ] , DIR ) )
-elif era == "eraF":
-    plotter.AddSampleType( SampleType("Data" , kBlack , [ Sample( os.path.basename(s).split('.')[0] , 0 , False , "" , treeName = TreeTemN  ) for s in data_files if "F" in s ] , DIR ) )
-elif era == "eraG":
-    plotter.AddSampleType( SampleType("Data" , kBlack , [ Sample( os.path.basename(s).split('.')[0] , 0 , False , "" , treeName = TreeTemN  ) for s in data_files if "G" in s ] , DIR ) )
-elif era == "eraH":
-    plotter.AddSampleType( SampleType("Data" , kBlack , [ Sample( os.path.basename(s).split('.')[0] , 0 , False , "" , treeName = TreeTemN  ) for s in data_files if "H" in s ] , DIR ) )
 
+plotter.AddSampleType (zmumu )
 # for st in allSTs :
 #     plotter.AddSampleType( st )
 # data_ranges = {}
@@ -128,7 +124,7 @@ c.AddHist( "nChargedParticles" , "nEles+nMus+nChargedHadrons+nLostTracks", 60 , 
 c.AddHist( "InvMass" , "InvMass", 14 , 70 , 112  , "InvMass" )
 plotter.AddTreePlots( c )
 
-fout = TFile.Open( outfname , "recreate")
+fout = TFile.Open( outdir + "/" + outfname , "recreate")
 
 plotter.LoadHistos( LUMI  , "PUAnalyzer/" )
 dir = fout.mkdir( name )

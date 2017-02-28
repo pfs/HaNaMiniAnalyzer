@@ -1,4 +1,4 @@
-from ROOT import TDirectory, TFile, TCanvas , TH1D , TH1 , THStack, TList, gROOT, TLegend, TPad, TLine, gStyle, TTree , TObject , gDirectory, gPad, TLimit, Double, TLimitDataSource, TString, TObject, TRatioPlot, TLatex, TH2D , TH2
+from ROOT import TDirectory, TFile, TCanvas , TH1D , TH1 , THStack, TList, gROOT, TLegend, TPad, TLine, gStyle, TTree , TObject , gDirectory, gPad, TLimit, Double, TLimitDataSource, TString, TObject,  TLatex, TH2D , TH2 #TRatioPlot
 from ROOT import RooFit,RooDataHist, RooHistPdf,RooAddPdf,RooFitResult, RooRealVar, RooArgSet, RooArgList
 
 from math import sqrt, log
@@ -428,8 +428,8 @@ class Property:
         #self.AddOF_UF_Bins()
         self.GetCanvas(1, padOrCanvas)        
         if padOrCanvas == 2:
-            self.Ratio = TRatioPlot( self.GetStack(normalizetodata) ,
-                                     self.Data )
+            #self.Ratio = TRatioPlot( self.GetStack(normalizetodata) ,
+            #self.Data )
             self.Ratio.Draw()
             self.Ratio.GetLowerRefYaxis().SetTitle("ratio")
             self.Ratio.GetUpperRefYaxis().SetTitle("entries")

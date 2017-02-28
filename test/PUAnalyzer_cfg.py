@@ -28,7 +28,7 @@ process.PUAnalyzer = cms.EDAnalyzer('PUAnalyzer',
                                                        pileupSrc = cms.InputTag("slimmedAddPileupInfo")
                                                        ),
                                     DiMuon = cms.PSet( Input = cms.InputTag("slimmedMuons"),
-                                                       MuonLeadingPtCut = cms.double(20),
+                                                       MuonLeadingPtCut = cms.double(25),
                                                        MuonSubLeadingPtCut = cms.double(20),
                                                        MuonIsoCut = cms.double( 0.25 ),
                                                        MuonEtaCut = cms.double( 2.4 ),
@@ -96,7 +96,7 @@ if options.sync == 0 :
         raise NameError("Sample with name %s wasn't found" % (options.sample))
 else:
     from Haamm.HaNaMiniAnalyzer.Sample import *
-    theSample = Sample( "Sync" , "Sync" , 1 , False , 0 , "" )
+    theSample = Sample( "Sync" , 1 , False , "" )
     theSample.Files = ['/store/mc/RunIISummer16MiniAODv2/ZToMuMu_NNPDF30_13TeV-powheg_M_50_120/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/60000/243D09B4-90D1-E611-B0FA-001E674DA347.root']
     options.nFilesPerJob = 1
     options.output = "out" 
@@ -128,6 +128,6 @@ else :
     from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import *
 
     process.p = cms.Path(process.PUAnalyzer)
-    if options.sync == 0 :
-        for v in range(0 , 10 ):
-            process.PUAnalyzer.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
+    # if options.sync == 0 :
+    #     for v in range(0 , 10 ):
+    #         process.PUAnalyzer.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )

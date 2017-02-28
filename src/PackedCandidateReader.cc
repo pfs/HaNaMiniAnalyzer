@@ -9,7 +9,7 @@ PackedCandidateReader::PackedCandidateReader( edm::ParameterSet const& iPS, edm:
 double PackedCandidateReader::Read( const edm::Event& iEvent ){
   BaseEventReader< pat::PackedCandidateCollection >::Read( iEvent );
   
-  nEles = nMus = nChargedHadrons = 0;
+  nNeutralHadrons = nPhotons = nEles = nMus = nChargedHadrons = 0;
 
   for(auto cand : *handle){
     int id = abs(cand.pdgId());
@@ -19,6 +19,11 @@ double PackedCandidateReader::Read( const edm::Event& iEvent ){
       nMus ++;
     else if( id == 211 )
       nChargedHadrons++;
+    else if( id == 130 )
+      nNeutralHadrons++;
+    else if( id == 22 )
+      nPhotons++;
+
   }
 
   return (nEles+nMus+nChargedHadrons);
