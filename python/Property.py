@@ -360,7 +360,7 @@ class Property:
             self.Ratio.SetMarkerStyle(20)
             self.Ratio.GetXaxis().SetLabelSize( 0.)
             self.Ratio.GetXaxis().SetTitle("")
-            self.Ratio.GetYaxis().SetRangeUser(0,2)
+            self.Ratio.GetYaxis().SetRangeUser(0,3)
             self.Ratio.GetYaxis().SetTitle("Data / MC")
             self.Ratio.GetXaxis().SetTitleSize(0.2) 
             self.Ratio.GetXaxis().SetTitleOffset(0.25)

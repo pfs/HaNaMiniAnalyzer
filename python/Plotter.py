@@ -194,6 +194,7 @@ class CutInfo:
                             f.write("#{0:s}:[{1:d},{2:.2g},{3:.2g}]".format( hist.VarName , hist.nBins , hist.From , hist.To ) )
                         
 
+                            
                     tree.Draw( "%s>>cloned_%s(%s)" % ( hist.VarName , hname , hist.Bins() ) ,
                                "" if isdata else self.Weights( n , samplename , isdata) )
                     setattr( self , hname , gDirectory.Get( "cloned_"+hname ).Clone( hname ) )
