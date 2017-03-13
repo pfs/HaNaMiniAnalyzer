@@ -1,0 +1,17 @@
+ -- Asymptotic -- 
+Observed Limit: r < 3.2881
+Expected  2.5%: r < 1.1968
+Expected 16.0%: r < 1.6659
+Expected 50.0%: r < 2.4609
+Expected 84.0%: r < 3.7460
+Expected 97.5%: r < 5.5125
+
+
+
+
+Observed Limit: r < 1.9793
+Expected  2.5%: r < 0.7706
+Expected 16.0%: r < 1.0543
+Expected 50.0%: r < 1.5352
+Expected 84.0%: r < 2.2878
+Expected 97.5%: r < 3.3013

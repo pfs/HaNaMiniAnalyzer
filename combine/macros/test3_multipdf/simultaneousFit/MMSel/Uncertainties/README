@@ -1,0 +1,12 @@
+To extract the uncertainty band, steps are the following:
+
+1- combine  -M MultiDimFit --saveWorkspace --expectSignal 1
+   - Note that this is to extract the best pdf fitting to data, so "-t -1" should not be used to make toys. If we use it, the code will take the first pdf to generate the toys
+2- root -l  higgsCombineTest.MultiDimFit.mHXX.root
+   - .L libHiggsAnalysisCombinedLimit
+   -  w->loadSnapshot("MultiDimFit")
+   -  w->cat("pdfindex")->getIndex()
+   - So we see which pdf has been the best --> we make the input workspace with ONLY this pdf
+3- No we run ML-fit test: 
+   - -M MaxLikelihoodFit -t -1 --expectSignal 1 --saveNormalizations --saveShapes --saveWithUncertainties 
+   - mlfit.root has what it should have!

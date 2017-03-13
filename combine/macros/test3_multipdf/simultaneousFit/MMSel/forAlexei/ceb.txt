@@ -1,0 +1,652 @@
+Inv is 2
+================ Degree: 1
+c10
+c11
+ **********
+ **   13 **MIGRAD        1500           1
+ **********
+ FIRST CALL TO USER FUNCTION AT NEW START POINT, WITH IFLAG=4.
+ START MIGRAD MINIMIZATION.  STRATEGY  1.  CONVERGENCE WHEN EDM .LT. 1.00e-03
+ FCN=-134.921 FROM MIGRAD    STATUS=INITIATE       12 CALLS          13 TOTAL
+                     EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
+  EXT PARAMETER               CURRENT GUESS       STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  c10          0.00000e+00   2.00000e+00   2.01358e-01   1.30000e+02
+   2  c11          0.00000e+00   2.00000e+00   2.01358e-01   9.23953e+01
+   3  n            2.08000e+02   4.16000e+01   2.01358e-01  -2.15245e-05
+                               ERR DEF= 0.5
+ MIGRAD MINIMIZATION HAS CONVERGED.
+ MIGRAD WILL VERIFY CONVERGENCE AND ERROR MATRIX.
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=-136.883 FROM MIGRAD    STATUS=CONVERGED      45 CALLS          46 TOTAL
+                     EDM=6.65005e-05    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  c10         -2.01312e-01   1.19446e-01   9.71777e-05  -6.80166e-01
+   2  c11         -1.37842e-01   1.23530e-01   9.93500e-05   4.45457e-02
+   3  n            2.08000e+02   1.44107e+01   5.61203e-04   2.19214e-05
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  3    ERR DEF=0.5
+  1.427e-02 -2.689e-04  0.000e+00 
+ -2.689e-04  1.526e-02  0.000e+00 
+  0.000e+00  0.000e+00  2.080e+02 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2      3
+        1  0.01822   1.000 -0.018  0.000
+        2  0.01822  -0.018  1.000  0.000
+        3  0.00000   0.000  0.000  1.000
+ **********
+ **   18 **HESSE        1500
+ **********
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=-136.883 FROM HESSE     STATUS=OK             16 CALLS          62 TOTAL
+                     EDM=6.65036e-05    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                INTERNAL      INTERNAL  
+  NO.   NAME      VALUE            ERROR       STEP SIZE       VALUE   
+   1  c10         -2.01312e-01   1.19447e-01   1.94355e-05  -2.01326e-02
+   2  c11         -1.37842e-01   1.23531e-01   1.98700e-05  -1.37846e-02
+   3  n            2.08000e+02   1.44106e+01   2.24481e-05   1.05545e-07
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  3    ERR DEF=0.5
+  1.427e-02 -2.735e-04  0.000e+00 
+ -2.735e-04  1.526e-02  0.000e+00 
+  0.000e+00  0.000e+00  2.080e+02 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2      3
+        1  0.01854   1.000 -0.019  0.000
+        2  0.01854  -0.019  1.000  0.000
+        3  0.00000   0.000  0.000  1.000
+cut off is COs[49] = 2.0096
+Ratios size: 2
+c10
+c10: 1.68537 which is NOT necessary ////
+c11
+c11: 1.11585 which is NOT necessary ////
+------>> 2
+2
+I don't keep this Chebychev: 1
+================ Degree: 2
+c20
+c21
+c22
+ **********
+ **   13 **MIGRAD        2000           1
+ **********
+ FIRST CALL TO USER FUNCTION AT NEW START POINT, WITH IFLAG=4.
+ START MIGRAD MINIMIZATION.  STRATEGY  1.  CONVERGENCE WHEN EDM .LT. 1.00e-03
+ FCN=-134.921 FROM MIGRAD    STATUS=INITIATE       16 CALLS          17 TOTAL
+                     EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
+  EXT PARAMETER               CURRENT GUESS       STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  c20          0.00000e+00   2.00000e+00   2.01358e-01   1.30000e+02
+   2  c21          0.00000e+00   2.00000e+00   2.01358e-01   9.23953e+01
+   3  c22          0.00000e+00   2.00000e+00   2.01358e-01  -5.15572e+01
+   4  n            2.08000e+02   4.16000e+01   2.01358e-01  -2.15245e-05
+                               ERR DEF= 0.5
+ MIGRAD MINIMIZATION HAS CONVERGED.
+ MIGRAD WILL VERIFY CONVERGENCE AND ERROR MATRIX.
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=-136.985 FROM MIGRAD    STATUS=CONVERGED      81 CALLS          82 TOTAL
+                     EDM=1.19416e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  c20         -2.26544e-01   1.31942e-01   9.62776e-05   1.16897e-02
+   2  c21         -1.38026e-01   1.23088e-01   9.93478e-05  -6.07063e-02
+   3  c22         -5.00054e-02   1.10363e-01   8.07120e-05  -7.68209e-02
+   4  n            2.08000e+02   1.44107e+01   5.61411e-04   2.16981e-05
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  4    ERR DEF=0.5
+  1.741e-02 -1.301e-03  6.247e-03  0.000e+00 
+ -1.301e-03  1.515e-02 -1.415e-04  0.000e+00 
+  6.247e-03 -1.415e-04  1.218e-02  0.000e+00 
+  0.000e+00  0.000e+00  0.000e+00  2.080e+02 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2      3      4
+        1  0.43564   1.000 -0.080  0.429  0.000
+        2  0.08438  -0.080  1.000 -0.010  0.000
+        3  0.42969   0.429 -0.010  1.000  0.000
+        4  0.00000   0.000  0.000  0.000  1.000
+ **********
+ **   18 **HESSE        2000
+ **********
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=-136.985 FROM HESSE     STATUS=OK             23 CALLS         105 TOTAL
+                     EDM=1.19421e-06    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                INTERNAL      INTERNAL  
+  NO.   NAME      VALUE            ERROR       STEP SIZE       VALUE   
+   1  c20         -2.26544e-01   1.31939e-01   1.92555e-05  -2.26564e-02
+   2  c21         -1.38026e-01   1.23092e-01   1.98696e-05  -1.38030e-02
+   3  c22         -5.00054e-02   1.10356e-01   1.61424e-05  -5.00056e-03
+   4  n            2.08000e+02   1.44106e+01   2.24564e-05   1.04497e-07
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  4    ERR DEF=0.5
+  1.741e-02 -1.307e-03  6.245e-03  0.000e+00 
+ -1.307e-03  1.515e-02 -1.423e-04  0.000e+00 
+  6.245e-03 -1.423e-04  1.218e-02  0.000e+00 
+  0.000e+00  0.000e+00  0.000e+00  2.080e+02 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2      3      4
+        1  0.43559   1.000 -0.080  0.429  0.000
+        2  0.08477  -0.080  1.000 -0.010  0.000
+        3  0.42958   0.429 -0.010  1.000  0.000
+        4  0.00000   0.000  0.000  0.000  1.000
+cut off is COs[48] = 2.0106
+Ratios size: 3
+c20
+c20: 1.71704 which is NOT necessary ////
+c21
+c21: 1.12132 which is NOT necessary ////
+c22
+c22: 0.453126 which is NOT necessary ////
+------>> 3
+3
+I don't keep this Chebychev: 2
+================ Degree: 3
+c30
+c31
+c32
+c33
+ **********
+ **   13 **MIGRAD        2500           1
+ **********
+ FIRST CALL TO USER FUNCTION AT NEW START POINT, WITH IFLAG=4.
+ START MIGRAD MINIMIZATION.  STRATEGY  1.  CONVERGENCE WHEN EDM .LT. 1.00e-03
+ FCN=-134.921 FROM MIGRAD    STATUS=INITIATE       20 CALLS          21 TOTAL
+                     EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
+  EXT PARAMETER               CURRENT GUESS       STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  c30          0.00000e+00   2.00000e+00   2.01358e-01   1.30000e+02
+   2  c31          0.00000e+00   2.00000e+00   2.01358e-01   9.23953e+01
+   3  c32          0.00000e+00   2.00000e+00   2.01358e-01  -5.15572e+01
+   4  c33          0.00000e+00   2.00000e+00   2.01358e-01  -5.02573e+01
+   5  n            2.08000e+02   4.16000e+01   2.01358e-01  -2.15245e-05
+                               ERR DEF= 0.5
+ MIGRAD MINIMIZATION HAS CONVERGED.
+ MIGRAD WILL VERIFY CONVERGENCE AND ERROR MATRIX.
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=-136.993 FROM MIGRAD    STATUS=CONVERGED     101 CALLS         102 TOTAL
+                     EDM=2.12089e-05    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  c30         -2.27601e-01   1.31316e-01   9.63895e-05   5.71670e-02
+   2  c31         -1.44208e-01   1.29895e-01   9.86294e-05  -2.82642e-01
+   3  c32         -4.86688e-02   1.10538e-01   8.11278e-05  -1.85215e-01
+   4  c33         -1.45725e-02   1.09466e-01   8.24099e-05  -1.25467e-01
+   5  n            2.08000e+02   1.44107e+01   5.61428e-04   2.14924e-05
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  5    ERR DEF=0.5
+  1.724e-02 -1.017e-03  5.868e-03  8.549e-04  0.000e+00 
+ -1.017e-03  1.687e-02 -6.829e-04  4.794e-03  0.000e+00 
+  5.868e-03 -6.829e-04  1.222e-02 -1.214e-03  0.000e+00 
+  8.549e-04  4.794e-03 -1.214e-03  1.198e-02  0.000e+00 
+  0.000e+00  0.000e+00  0.000e+00  0.000e+00  2.080e+02 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2      3      4      5
+        1  0.42391   1.000 -0.060  0.404  0.059  0.000
+        2  0.34711  -0.060  1.000 -0.048  0.337  0.000
+        3  0.42351   0.404 -0.048  1.000 -0.100  0.000
+        4  0.36909   0.059  0.337 -0.100  1.000  0.000
+        5  0.00000   0.000  0.000  0.000  0.000  1.000
+ **********
+ **   18 **HESSE        2500
+ **********
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=-136.993 FROM HESSE     STATUS=OK             31 CALLS         133 TOTAL
+                     EDM=2.12077e-05    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                INTERNAL      INTERNAL  
+  NO.   NAME      VALUE            ERROR       STEP SIZE       VALUE   
+   1  c30         -2.27601e-01   1.31313e-01   1.92779e-05  -2.27621e-02
+   2  c31         -1.44208e-01   1.29886e-01   1.97259e-05  -1.44213e-02
+   3  c32         -4.86688e-02   1.10528e-01   1.62256e-05  -4.86690e-03
+   4  c33         -1.45725e-02   1.09452e-01   1.64820e-05  -1.45725e-03
+   5  n            2.08000e+02   1.44107e+01   2.24571e-05   1.03493e-07
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  5    ERR DEF=0.5
+  1.724e-02 -1.024e-03  5.866e-03  8.549e-04  0.000e+00 
+ -1.024e-03  1.687e-02 -6.822e-04  4.789e-03  0.000e+00 
+  5.866e-03 -6.822e-04  1.222e-02 -1.211e-03  0.000e+00 
+  8.549e-04  4.789e-03 -1.211e-03  1.198e-02  0.000e+00 
+  0.000e+00  0.000e+00  0.000e+00  0.000e+00  2.080e+02 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2      3      4      5
+        1  0.42386   1.000 -0.060  0.404  0.059  0.000
+        2  0.34694  -0.060  1.000 -0.048  0.337  0.000
+        3  0.42334   0.404 -0.048  1.000 -0.100  0.000
+        4  0.36880   0.059  0.337 -0.100  1.000  0.000
+        5  0.00000   0.000  0.000  0.000  0.000  1.000
+cut off is COs[47] = 2.0117
+Ratios size: 4
+c30
+c30: 1.73328 which is NOT necessary ////
+c31
+c31: 1.11027 which is NOT necessary ////
+c32
+c32: 0.440329 which is NOT necessary ////
+c33
+c33: 0.133141 which is NOT necessary ////
+------>> 4
+4
+I don't keep this Chebychev: 3
+================ Degree: 4
+c40
+c41
+c42
+c43
+c44
+ **********
+ **   13 **MIGRAD        3000           1
+ **********
+ FIRST CALL TO USER FUNCTION AT NEW START POINT, WITH IFLAG=4.
+ START MIGRAD MINIMIZATION.  STRATEGY  1.  CONVERGENCE WHEN EDM .LT. 1.00e-03
+ FCN=-134.921 FROM MIGRAD    STATUS=INITIATE       24 CALLS          25 TOTAL
+                     EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
+  EXT PARAMETER               CURRENT GUESS       STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  c40          0.00000e+00   2.00000e+00   2.01358e-01   1.30000e+02
+   2  c41          0.00000e+00   2.00000e+00   2.01358e-01   9.23953e+01
+   3  c42          0.00000e+00   2.00000e+00   2.01358e-01  -5.15572e+01
+   4  c43          0.00000e+00   2.00000e+00   2.01358e-01  -5.02573e+01
+   5  c44          0.00000e+00   2.00000e+00   2.01358e-01   1.58155e+02
+   6  n            2.08000e+02   4.16000e+01   2.01358e-01  -2.15245e-05
+                               ERR DEF= 0.5
+ MIGRAD MINIMIZATION HAS CONVERGED.
+ MIGRAD WILL VERIFY CONVERGENCE AND ERROR MATRIX.
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=-138.864 FROM MIGRAD    STATUS=CONVERGED     137 CALLS         138 TOTAL
+                     EDM=5.44103e-05    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  c40         -2.75625e-01   1.29321e-01   9.34170e-05  -1.56507e-01
+   2  c41         -1.12023e-01   1.29639e-01   9.48699e-05  -3.76453e-01
+   3  c42         -1.25645e-01   1.14749e-01   7.87430e-05  -3.95087e-01
+   4  c43          2.21536e-02   1.08796e-01   8.14690e-05  -2.81700e-01
+   5  c44         -2.16721e-01   1.09216e-01   8.43535e-05  -2.04478e-01
+   6  n            2.08000e+02   1.44107e+01   5.65235e-04   2.23885e-05
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  6    ERR DEF=0.5
+  1.672e-02 -4.661e-03  6.465e-03 -3.285e-03  2.169e-03  0.000e+00 
+ -4.661e-03  1.681e-02 -4.878e-03  4.976e-03 -1.767e-03  0.000e+00 
+  6.465e-03 -4.878e-03  1.317e-02 -3.131e-03  3.963e-03  0.000e+00 
+ -3.285e-03  4.976e-03 -3.131e-03  1.184e-02 -1.913e-03  0.000e+00 
+  2.169e-03 -1.767e-03  3.963e-03 -1.913e-03  1.193e-02  0.000e+00 
+  0.000e+00  0.000e+00  0.000e+00  0.000e+00  0.000e+00  2.080e+02 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2      3      4      5      6
+        1  0.46733   1.000 -0.278  0.436 -0.233  0.154  0.000
+        2  0.44506  -0.278  1.000 -0.328  0.353 -0.125  0.000
+        3  0.54363   0.436 -0.328  1.000 -0.251  0.316  0.000
+        4  0.39971  -0.233  0.353 -0.251  1.000 -0.161  0.000
+        5  0.32733   0.154 -0.125  0.316 -0.161  1.000  0.000
+        6  0.00000   0.000  0.000  0.000  0.000  0.000  1.000
+ **********
+ **   18 **HESSE        3000
+ **********
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=-138.864 FROM HESSE     STATUS=OK             40 CALLS         178 TOTAL
+                     EDM=5.43579e-05    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                INTERNAL      INTERNAL  
+  NO.   NAME      VALUE            ERROR       STEP SIZE       VALUE   
+   1  c40         -2.75625e-01   1.29317e-01   1.86834e-05  -2.75660e-02
+   2  c41         -1.12023e-01   1.29651e-01   1.89740e-05  -1.12025e-02
+   3  c42         -1.25645e-01   1.14724e-01   1.57486e-05  -1.25648e-02
+   4  c43          2.21536e-02   1.08787e-01   1.62938e-05   2.21536e-03
+   5  c44         -2.16721e-01   1.09205e-01   1.68707e-05  -2.16738e-02
+   6  n            2.08000e+02   1.44106e+01   2.26094e-05   1.07805e-07
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  6    ERR DEF=0.5
+  1.672e-02 -4.673e-03  6.459e-03 -3.287e-03  2.162e-03  0.000e+00 
+ -4.673e-03  1.681e-02 -4.881e-03  4.973e-03 -1.767e-03  0.000e+00 
+  6.459e-03 -4.881e-03  1.316e-02 -3.129e-03  3.958e-03  0.000e+00 
+ -3.287e-03  4.973e-03 -3.129e-03  1.184e-02 -1.912e-03  0.000e+00 
+  2.162e-03 -1.767e-03  3.958e-03 -1.912e-03  1.193e-02  0.000e+00 
+  0.000e+00  0.000e+00  0.000e+00  0.000e+00  0.000e+00  2.080e+02 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2      3      4      5      6
+        1  0.46727   1.000 -0.279  0.435 -0.234  0.153  0.000
+        2  0.44523  -0.279  1.000 -0.328  0.353 -0.125  0.000
+        3  0.54335   0.435 -0.328  1.000 -0.251  0.316  0.000
+        4  0.39953  -0.234  0.353 -0.251  1.000 -0.161  0.000
+        5  0.32707   0.153 -0.125  0.316 -0.161  1.000  0.000
+        6  0.00000   0.000  0.000  0.000  0.000  0.000  1.000
+cut off is COs[46] = 2.0129
+Ratios size: 5
+c40
+c40: 2.1314 which is necessary -----
+-0.275625, -0.534258, -0.0169918
+c41
+c41: 0.864032 which is NOT necessary ////
+c42
+c42: 1.09519 which is NOT necessary ////
+c43
+c43: 0.203642 which is NOT necessary ////
+c44
+c44: 1.98453 which is NOT necessary ////
+------>> 5
+4
+I don't keep this Chebychev: 4
+================ Degree: 5
+c50
+c51
+c52
+c53
+c54
+c55
+ **********
+ **   13 **MIGRAD        3500           1
+ **********
+ FIRST CALL TO USER FUNCTION AT NEW START POINT, WITH IFLAG=4.
+ START MIGRAD MINIMIZATION.  STRATEGY  1.  CONVERGENCE WHEN EDM .LT. 1.00e-03
+ FCN=-134.921 FROM MIGRAD    STATUS=INITIATE       28 CALLS          29 TOTAL
+                     EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
+  EXT PARAMETER               CURRENT GUESS       STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  c50          0.00000e+00   2.00000e+00   2.01358e-01   1.30000e+02
+   2  c51          0.00000e+00   2.00000e+00   2.01358e-01   9.23953e+01
+   3  c52          0.00000e+00   2.00000e+00   2.01358e-01  -5.15572e+01
+   4  c53          0.00000e+00   2.00000e+00   2.01358e-01  -5.02573e+01
+   5  c54          0.00000e+00   2.00000e+00   2.01358e-01   1.58155e+02
+   6  c55          0.00000e+00   2.00000e+00   2.01358e-01  -1.57971e+02
+   7  n            2.08000e+02   4.16000e+01   2.01358e-01  -2.15245e-05
+                               ERR DEF= 0.5
+ MIGRAD MINIMIZATION HAS CONVERGED.
+ MIGRAD WILL VERIFY CONVERGENCE AND ERROR MATRIX.
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=-140.385 FROM MIGRAD    STATUS=CONVERGED     175 CALLS         176 TOTAL
+                     EDM=1.13436e-05    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  c50         -3.19640e-01   1.37393e-01   9.08869e-05  -7.78964e-02
+   2  c51         -4.51139e-02   1.40794e-01   9.30946e-05   6.11846e-02
+   3  c52         -1.56833e-01   1.25714e-01   8.27453e-05   9.47602e-02
+   4  c53          1.08807e-01   1.18496e-01   7.63882e-05  -2.86568e-01
+   5  c54         -2.29478e-01   1.07639e-01   7.97742e-05  -1.60571e-01
+   6  c55          1.90813e-01   1.04986e-01   7.95691e-05   1.72319e-01
+   7  n            2.08000e+02   1.44107e+01   5.68310e-04   2.23624e-05
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  7    ERR DEF=0.5
+  1.888e-02 -5.668e-03  9.344e-03 -4.413e-03  5.534e-03 -1.927e-03  0.000e+00 
+ -5.668e-03  1.982e-02 -5.774e-03  9.258e-03 -1.974e-03  3.672e-03  0.000e+00 
+  9.344e-03 -5.774e-03  1.580e-02 -3.942e-03  5.001e-03 -1.427e-03  0.000e+00 
+ -4.413e-03  9.258e-03 -3.942e-03  1.404e-02 -2.039e-03  4.690e-03  0.000e+00 
+  5.534e-03 -1.974e-03  5.001e-03 -2.039e-03  1.159e-02 -4.659e-04  0.000e+00 
+ -1.927e-03  3.672e-03 -1.427e-03  4.690e-03 -4.659e-04  1.102e-02  0.000e+00 
+  0.000e+00  0.000e+00  0.000e+00  0.000e+00  0.000e+00  0.000e+00  2.080e+02 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2      3      4      5      6      7
+        1  0.58987   1.000 -0.293  0.541 -0.271  0.374 -0.134  0.000
+        2  0.59095  -0.293  1.000 -0.326  0.555 -0.130  0.248  0.000
+        3  0.59600   0.541 -0.326  1.000 -0.265  0.370 -0.108  0.000
+        4  0.61812  -0.271  0.555 -0.265  1.000 -0.160  0.377  0.000
+        5  0.42798   0.374 -0.130  0.370 -0.160  1.000 -0.041  0.000
+        6  0.38215  -0.134  0.248 -0.108  0.377 -0.041  1.000  0.000
+        7  0.00000   0.000  0.000  0.000  0.000  0.000  0.000  1.000
+ **********
+ **   18 **HESSE        3500
+ **********
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=-140.385 FROM HESSE     STATUS=OK             50 CALLS         226 TOTAL
+                     EDM=1.1341e-05    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                INTERNAL      INTERNAL  
+  NO.   NAME      VALUE            ERROR       STEP SIZE       VALUE   
+   1  c50         -3.19640e-01   1.37366e-01   1.81774e-05  -3.19695e-02
+   2  c51         -4.51139e-02   1.40803e-01   1.86189e-05  -4.51141e-03
+   3  c52         -1.56833e-01   1.25678e-01   1.65491e-05  -1.56840e-02
+   4  c53          1.08807e-01   1.18494e-01   1.52776e-05   1.08809e-02
+   5  c54         -2.29478e-01   1.07620e-01   1.59548e-05  -2.29498e-02
+   6  c55          1.90813e-01   1.05012e-01   1.59138e-05   1.90824e-02
+   7  n            2.08000e+02   1.44107e+01   2.27324e-05   1.07706e-07
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  7    ERR DEF=0.5
+  1.887e-02 -5.674e-03  9.335e-03 -4.410e-03  5.528e-03 -1.929e-03  0.000e+00 
+ -5.674e-03  1.983e-02 -5.773e-03  9.257e-03 -1.973e-03  3.683e-03  0.000e+00 
+  9.335e-03 -5.773e-03  1.580e-02 -3.937e-03  4.995e-03 -1.431e-03  0.000e+00 
+ -4.410e-03  9.257e-03 -3.937e-03  1.404e-02 -2.035e-03  4.697e-03  0.000e+00 
+  5.528e-03 -1.973e-03  4.995e-03 -2.035e-03  1.158e-02 -4.649e-04  0.000e+00 
+ -1.929e-03  3.683e-03 -1.431e-03  4.697e-03 -4.649e-04  1.103e-02  0.000e+00 
+  0.000e+00  0.000e+00  0.000e+00  0.000e+00  0.000e+00  0.000e+00  2.080e+02 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2      3      4      5      6      7
+        1  0.58965   1.000 -0.293  0.541 -0.271  0.374 -0.134  0.000
+        2  0.59102  -0.293  1.000 -0.326  0.555 -0.130  0.249  0.000
+        3  0.59569   0.541 -0.326  1.000 -0.264  0.369 -0.108  0.000
+        4  0.61809  -0.271  0.555 -0.264  1.000 -0.160  0.377  0.000
+        5  0.42766   0.374 -0.130  0.369 -0.160  1.000 -0.041  0.000
+        6  0.38270  -0.134  0.249 -0.108  0.377 -0.041  1.000  0.000
+        7  0.00000   0.000  0.000  0.000  0.000  0.000  0.000  1.000
+cut off is COs[45] = 2.0141
+Ratios size: 6
+c50
+c50: 2.32692 which is necessary -----
+-0.31964, -0.594372, -0.0449083
+c51
+c51: 0.320405 which is NOT necessary ////
+c52
+c52: 1.2479 which is NOT necessary ////
+c53
+c53: 0.91825 which is NOT necessary ////
+c54
+c54: 2.13229 which is necessary -----
+-0.229478, -0.444719, -0.0142373
+c55
+c55: 1.81707 which is NOT necessary ////
+------>> 6
+4
+I keep this Chebychev: 5
+ ----- 
+ **********
+ **   13 **MIGRAD        1500           1
+ **********
+ FIRST CALL TO USER FUNCTION AT NEW START POINT, WITH IFLAG=4.
+ START MIGRAD MINIMIZATION.  STRATEGY  1.  CONVERGENCE WHEN EDM .LT. 1.00e-03
+ FCN=-132.528 FROM MIGRAD    STATUS=INITIATE       12 CALLS          13 TOTAL
+                     EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
+  EXT PARAMETER               CURRENT GUESS       STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  c50         -3.19640e-01   2.74732e-01   2.01358e-01  -1.11627e+01
+   2  c54         -2.29478e-01   2.15241e-01   2.01358e-01  -9.49407e+00
+   3  n_5          2.52000e+02   5.04000e+01   2.01358e-01   4.40000e+01
+                               ERR DEF= 0.5
+ MIGRAD MINIMIZATION HAS CONVERGED.
+ MIGRAD WILL VERIFY CONVERGENCE AND ERROR MATRIX.
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=-137.414 FROM MIGRAD    STATUS=CONVERGED      51 CALLS          52 TOTAL
+                     EDM=1.38826e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  c50         -2.03344e-01   1.23845e-01   7.34184e-04   3.03577e-03
+   2  c54         -1.51198e-01   9.86013e-02   7.45371e-04   1.52679e-03
+   3  n_5          2.07997e+02   1.44139e+01   4.71726e-04  -3.65012e-03
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  3    ERR DEF=0.5
+  1.538e-02 -2.487e-04  0.000e+00 
+ -2.487e-04  9.750e-03  0.000e+00 
+  0.000e+00  0.000e+00  2.080e+02 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2      3
+        1  0.02031   1.000 -0.020  0.000
+        2  0.02031  -0.020  1.000  0.000
+        3  0.00000   0.000  0.000  1.000
+ **********
+ **   18 **HESSE        1500
+ **********
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=-137.414 FROM HESSE     STATUS=OK             16 CALLS          68 TOTAL
+                     EDM=1.38819e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                INTERNAL      INTERNAL  
+  NO.   NAME      VALUE            ERROR       STEP SIZE       VALUE   
+   1  c50         -2.03344e-01   1.23845e-01   1.46837e-04   8.47627e-02
+   2  c54         -1.51198e-01   9.86016e-02   1.49074e-04   7.28017e-02
+   3  n_5          2.07997e+02   1.44139e+01   9.43453e-05  -1.75515e-01
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  3    ERR DEF=0.5
+  1.538e-02 -2.503e-04  0.000e+00 
+ -2.503e-04  9.750e-03  0.000e+00 
+  0.000e+00  0.000e+00  2.080e+02 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2      3
+        1  0.02044   1.000 -0.020  0.000
+        2  0.02044  -0.020  1.000  0.000
+        3  0.00000   0.000  0.000  1.000
+================ Degree: 6
+c60
+c61
+c62
+c63
+c64
+c65
+c66
+ **********
+ **   13 **MIGRAD        4000           1
+ **********
+ FIRST CALL TO USER FUNCTION AT NEW START POINT, WITH IFLAG=4.
+ START MIGRAD MINIMIZATION.  STRATEGY  1.  CONVERGENCE WHEN EDM .LT. 1.00e-03
+ FCN=-134.921 FROM MIGRAD    STATUS=INITIATE       32 CALLS          33 TOTAL
+                     EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
+  EXT PARAMETER               CURRENT GUESS       STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  c60          0.00000e+00   2.00000e+00   2.01358e-01   1.30000e+02
+   2  c61          0.00000e+00   2.00000e+00   2.01358e-01   9.23953e+01
+   3  c62          0.00000e+00   2.00000e+00   2.01358e-01  -5.15572e+01
+   4  c63          0.00000e+00   2.00000e+00   2.01358e-01  -5.02573e+01
+   5  c64          0.00000e+00   2.00000e+00   2.01358e-01   1.58155e+02
+   6  c65          0.00000e+00   2.00000e+00   2.01358e-01  -1.57971e+02
+   7  c66          0.00000e+00   2.00000e+00   2.01358e-01  -1.28022e+02
+   8  n            2.08000e+02   4.16000e+01   2.01358e-01  -2.15245e-05
+                               ERR DEF= 0.5
+ MIGRAD MINIMIZATION HAS CONVERGED.
+ FCN=-140.458 FROM MIGRAD    STATUS=CONVERGED     140 CALLS         141 TOTAL
+                     EDM=6.55263e-05    STRATEGY= 1  ERROR MATRIX UNCERTAINTY   3.5 per cent
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  c60         -3.02970e-01   1.47712e-01  -6.69325e-05  -5.18932e-01
+   2  c61         -5.52781e-02   1.38588e-01   1.99463e-04  -1.19342e-01
+   3  c62         -1.38706e-01   1.32010e-01   8.64286e-05   4.51577e-01
+   4  c63          1.04554e-01   1.09160e-01   7.64483e-05  -7.29269e-01
+   5  c64         -2.10252e-01   1.19005e-01   1.00705e-04  -1.42134e-01
+   6  c65          1.86188e-01   1.06325e-01   1.04011e-04   1.84747e-01
+   7  c66          4.24340e-02   1.12053e-01  -4.16391e-06  -2.69329e-01
+   8  n            2.08000e+02   1.44107e+01   5.16013e-10   1.67993e-08
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  8    ERR DEF=0.5
+  2.182e-02 -5.841e-03  1.201e-02 -4.701e-03  7.664e-03 -2.267e-03  4.679e-03  9.100e-08 
+ -5.841e-03  1.921e-02 -4.936e-03  7.869e-03 -2.840e-03  3.591e-03 -3.573e-03  1.292e-07 
+  1.201e-02 -4.936e-03  1.743e-02 -2.415e-03  7.577e-03 -1.790e-03  5.671e-03 -4.199e-08 
+ -4.701e-03  7.869e-03 -2.415e-03  1.192e-02 -3.023e-03  4.177e-03 -2.090e-03  1.609e-07 
+  7.664e-03 -2.840e-03  7.577e-03 -3.023e-03  1.416e-02 -1.265e-03  5.564e-03  4.163e-08 
+ -2.267e-03  3.591e-03 -1.790e-03  4.177e-03 -1.265e-03  1.131e-02 -1.584e-03  1.693e-08 
+  4.679e-03 -3.573e-03  5.671e-03 -2.090e-03  5.564e-03 -1.584e-03  1.256e-02  5.754e-08 
+  9.100e-08  1.292e-07 -4.199e-08  1.609e-07  4.163e-08  1.693e-08  5.754e-08  2.080e+02 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2      3      4      5      6      7      8
+        1  0.65858   1.000 -0.285  0.616 -0.292  0.436 -0.144  0.283  0.000
+        2  0.56455  -0.285  1.000 -0.270  0.520 -0.172  0.244 -0.230  0.000
+        3  0.68591   0.616 -0.270  1.000 -0.168  0.482 -0.127  0.383 -0.000
+        4  0.60356  -0.292  0.520 -0.168  1.000 -0.233  0.360 -0.171  0.000
+        5  0.57863   0.436 -0.172  0.482 -0.233  1.000 -0.100  0.417  0.000
+        6  0.37398  -0.144  0.244 -0.127  0.360 -0.100  1.000 -0.133  0.000
+        7  0.48369   0.283 -0.230  0.383 -0.171  0.417 -0.133  1.000  0.000
+        8  0.00000   0.000  0.000 -0.000  0.000  0.000  0.000  0.000  1.000
+ **********
+ **   18 **HESSE        4000
+ **********
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=-140.458 FROM HESSE     STATUS=OK             63 CALLS         204 TOTAL
+                     EDM=0.000125609    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                INTERNAL      INTERNAL  
+  NO.   NAME      VALUE            ERROR       STEP SIZE       VALUE   
+   1  c60         -3.02970e-01   1.44839e-01   9.14009e-05  -3.03017e-02
+   2  c61         -5.52781e-02   1.42999e-01   9.34886e-05  -5.52784e-03
+   3  c62         -1.38706e-01   1.34511e-01   8.32216e-05  -1.38711e-02
+   4  c63          1.04554e-01   1.19078e-01   7.69640e-05   1.04555e-02
+   5  c64         -2.10252e-01   1.19872e-01   8.00520e-05  -2.10267e-02
+   6  c65          1.86188e-01   1.05866e-01   7.97790e-05   1.86199e-02
+   7  c66          4.24340e-02   1.12134e-01   8.07051e-05   4.24342e-03
+   8  n            2.08000e+02   1.44107e+01   5.68457e-04   1.07796e-07
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  8    ERR DEF=0.5
+  2.098e-02 -6.200e-03  1.149e-02 -4.206e-03  7.967e-03 -1.782e-03  5.198e-03  0.000e+00 
+ -6.200e-03  2.045e-02 -6.369e-03  9.451e-03 -2.606e-03  4.037e-03 -2.879e-03  0.000e+00 
+  1.149e-02 -6.369e-03  1.809e-02 -3.749e-03  7.522e-03 -1.770e-03  5.387e-03  0.000e+00 
+ -4.206e-03  9.451e-03 -3.749e-03  1.418e-02 -2.364e-03  4.827e-03 -1.163e-03  0.000e+00 
+  7.967e-03 -2.606e-03  7.522e-03 -2.364e-03  1.437e-02 -1.070e-03  5.747e-03  0.000e+00 
+ -1.782e-03  4.037e-03 -1.770e-03  4.827e-03 -1.070e-03  1.121e-02 -1.410e-03  0.000e+00 
+  5.198e-03 -2.879e-03  5.387e-03 -1.163e-03  5.747e-03 -1.410e-03  1.257e-02  0.000e+00 
+  0.000e+00  0.000e+00  0.000e+00  0.000e+00  0.000e+00  0.000e+00  0.000e+00  2.080e+02 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2      3      4      5      6      7      8
+        1  0.63856   1.000 -0.299  0.590 -0.244  0.459 -0.116  0.320  0.000
+        2  0.60415  -0.299  1.000 -0.331  0.555 -0.152  0.267 -0.180  0.000
+        3  0.65639   0.590 -0.331  1.000 -0.234  0.466 -0.124  0.357  0.000
+        4  0.61622  -0.244  0.555 -0.234  1.000 -0.166  0.383 -0.087  0.000
+        5  0.58126   0.459 -0.152  0.466 -0.166  1.000 -0.084  0.428  0.000
+        6  0.39624  -0.116  0.267 -0.124  0.383 -0.084  1.000 -0.119  0.000
+        7  0.48032   0.320 -0.180  0.357 -0.087  0.428 -0.119  1.000  0.000
+        8  0.00000   0.000  0.000  0.000  0.000  0.000  0.000  0.000  1.000
+cut off is COs[44] = 2.0154
+Ratios size: 7
+c60
+c60: 2.09177 which is necessary -----
+-0.30297, -0.592649, -0.0132922
+c61
+c61: 0.386563 which is NOT necessary ////
+c62
+c62: 1.03119 which is NOT necessary ////
+c63
+c63: 0.878025 which is NOT necessary ////
+c64
+c64: 1.75397 which is NOT necessary ////
+c65
+c65: 1.75872 which is NOT necessary ////
+c66
+c66: 0.378422 which is NOT necessary ////
+------>> 7
+6
+I don't keep this Chebychev: 6
+ **********
+ **   13 **MIGRAD        1000           1
+ **********
+ FIRST CALL TO USER FUNCTION AT NEW START POINT, WITH IFLAG=4.
+ START MIGRAD MINIMIZATION.  STRATEGY  1.  CONVERGENCE WHEN EDM .LT. 1.00e-03
+ FCN=1459.53 FROM MIGRAD    STATUS=INITIATE       12 CALLS          13 TOTAL
+                     EDM= unknown      STRATEGY= 1      NO ERROR MATRIX       
+  EXT PARAMETER               CURRENT GUESS       STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  a0           3.00000e+01   4.00000e+00   2.01358e-01   6.12947e+02
+   2  a1           0.00000e+00   2.00000e+01   2.01358e-01   7.39062e+03
+                               ERR DEF= 0.5
+ MIGRAD MINIMIZATION HAS CONVERGED.
+ MIGRAD WILL VERIFY CONVERGENCE AND ERROR MATRIX.
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=1255.82 FROM MIGRAD    STATUS=CONVERGED     129 CALLS         130 TOTAL
+                     EDM=2.02406e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                   STEP         FIRST   
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE 
+   1  a0           2.98741e+01   1.00058e-01   1.22450e-04  -1.86956e-03
+   2  a1          -1.00000e+02   7.01425e-01   2.90064e-03** at limit **
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  2    ERR DEF=0.5
+  1.001e-02 -3.129e-09 
+ -3.129e-09  3.991e-07 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2
+        1  0.00005   1.000 -0.000
+        2  0.00005  -0.000  1.000
+ **********
+ **   18 **HESSE        1000
+ **********
+ COVARIANCE MATRIX CALCULATED SUCCESSFULLY
+ FCN=1255.82 FROM HESSE     STATUS=OK             10 CALLS         140 TOTAL
+                     EDM=2.02407e-07    STRATEGY= 1      ERROR MATRIX ACCURATE 
+  EXT PARAMETER                                INTERNAL      INTERNAL  
+  NO.   NAME      VALUE            ERROR       STEP SIZE       VALUE   
+   1  a0           2.98741e+01   1.00058e-01   4.89801e-06  -6.29731e-03
+   2  a1          -1.00000e+02   7.01425e-01   5.80128e-04  -1.57085e+00
+                                 WARNING -   - ABOVE PARAMETER IS AT LIMIT.
+                               ERR DEF= 0.5
+ EXTERNAL ERROR MATRIX.    NDIM=  25    NPAR=  2    ERR DEF=0.5
+  1.001e-02 -5.248e-10 
+ -5.248e-10  3.991e-07 
+ PARAMETER  CORRELATION COEFFICIENTS  
+       NO.  GLOBAL      1      2
+        1  0.00001   1.000 -0.000
+        2  0.00001  -0.000  1.000

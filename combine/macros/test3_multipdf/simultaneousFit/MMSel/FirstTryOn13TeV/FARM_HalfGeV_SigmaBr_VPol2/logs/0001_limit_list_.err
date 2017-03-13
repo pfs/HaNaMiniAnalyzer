@@ -1,0 +1,2 @@
+/home/condor/local/execute/dir_29048/condor_exec.exe: line 16: 29681 Segmentation fault      /nfs/user/ajafari/work/CMSSW_7_1_5/bin/slc6_amd64_gcc481/combine -M Asymptotic /nfs/user/ajafari/work/CMSSW_7_1_5/src/HiggsAnalysis/CombinedLimit/macros/test3_multipdf/simultaneousFit/MMSel/FirstTryOn13TeV/hamb_shape_SigmaBr_ws.txt -m 16.0
+mv: cannot stat `limit_list_*': No such file or directory
