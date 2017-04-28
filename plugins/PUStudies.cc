@@ -5,21 +5,21 @@
 
 using namespace std;
 
-class UIntReader : public BaseEventReader< unsigned int  > {
-public:
-  UIntReader( std::string tag , edm::ConsumesCollector && iC) :
-    BaseEventReader< unsigned int  >(tag , &iC)
-  {
-  };
+// class UIntReader : public BaseEventReader< unsigned int  > {
+// public:
+//   UIntReader( std::string tag , edm::ConsumesCollector && iC) :
+//     BaseEventReader< unsigned int  >(tag , &iC)
+//   {
+//   };
 
-  virtual double Read( const edm::Event& iEvent ){
-    BaseEventReader< unsigned int  >::Read( iEvent );
-    Value =*(BaseEventReader< unsigned int  >::handle);
-    return Value;
-  }
+//   virtual double Read( const edm::Event& iEvent ){
+//     BaseEventReader< unsigned int  >::Read( iEvent );
+//     Value =*(BaseEventReader< unsigned int  >::handle);
+//     return Value;
+//   }
    
-  unsigned int Value ;
-};
+//   unsigned int Value ;
+// };
 
 class DoubleReader : public BaseEventReader< double  > {
 public:
@@ -52,7 +52,7 @@ public:
 
   TTree* theTree;
   //TREE VALS
-  // unsigned int RunN;
+  unsigned int runNumber, lumiNumber;
   // unsigned long long EventN;
   // char nVertices, nGoodVertices , nInt , nInt50ns ;
   int nLostTracks; // ,nEles , nMus , nChargedHadrons ,  nPhotons, nNeutralHadrons ;
@@ -61,9 +61,6 @@ public:
   bool mu1positive, mu2positive;
   float mu1pt, mu2pt, mu1eta , mu2eta;
 
-  UIntReader runNumber, lumiNumber;
-
-  
   
   std::vector< DoubleReader > Rhos ;
   //-------------
@@ -76,9 +73,7 @@ DEFINE_FWK_MODULE(PUAnalyzer);
 
 PUAnalyzer::~PUAnalyzer() {}
 PUAnalyzer::PUAnalyzer( const edm::ParameterSet& ps ) :
-  HaNaBaseMiniAnalyzer( ps ) ,
-  runNumber( "runNumber" , consumesCollector() ),
-  lumiNumber( "lumiBlock" , consumesCollector() )
+  HaNaBaseMiniAnalyzer( ps ) 
 {
   for(auto s : ps.getParameter< std::vector<string> >("Rhos") )
     Rhos.push_back( DoubleReader( s , consumesCollector() ) ); 
@@ -103,8 +98,8 @@ void PUAnalyzer::beginJob()
   theTree = treeDir.make<TTree>("Events" , "Events");
   //fs->make<TTree>("SelectedEventNumbers" , "SelectedEventNumbers");
 
-  theTree->Branch("run" , runNumber.Value );
-  theTree->Branch("lumi" , lumiNumber.Value );
+  theTree->Branch("run" , &runNumber );
+  theTree->Branch("lumi" , &lumiNumber );
 
   // gDirectory->Print();
   theTree->Branch("nGoodVertices" , &(vertexReader->nGoodVtx) );
@@ -160,8 +155,8 @@ void PUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if(!IsData)
     hnTruInt->Fill( vertexReader->npv  , 1.0 );
 
-  runNumber.Read(iEvent);
-  lumiNumber.Read(iEvent);
+  runNumber = iEvent.eventAuxiliary().run();
+  lumiNumber = iEvent.eventAuxiliary().luminosityBlock();
  
   packedReader->Read( iEvent );
 

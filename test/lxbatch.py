@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 nFilesPerJob=4
-CheckFailedJobs=True
+CheckFailedJobs=False
 hname = "PUAnalyzer/CutFlowTable/CutFlowTable"
 prefix = "out"
 
