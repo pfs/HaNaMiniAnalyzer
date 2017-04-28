@@ -16,6 +16,7 @@ process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring()
 )
 
+
 process.PUAnalyzer = cms.EDAnalyzer('PUAnalyzer',
                                     LHE = cms.PSet ( useLHEW = cms.bool( False ),
                                                      Input = cms.InputTag("externalLHEProducer")
@@ -41,6 +42,15 @@ process.PUAnalyzer = cms.EDAnalyzer('PUAnalyzer',
 
                                     Tracks = cms.PSet( Input = cms.InputTag("packedPFCandidates" ) ),
                                     LostTracks = cms.PSet( Input = cms.InputTag("lostTracks" ) ),
+
+                                    ZSelection = cms.bool(True),
+                                    Rhos = cms.vstring( "fixedGridRhoAll",
+                                                        "fixedGridRhoFastjetAll",
+                                                        "fixedGridRhoFastjetAllCalo",
+                                                        "fixedGridRhoFastjetCentral",
+                                                        "fixedGridRhoFastjetCentralCalo",
+                                                        "fixedGridRhoFastjetCentralChargedPileUp",
+                                                        "fixedGridRhoFastjetCentralNeutral"),
                                     
                                     sample = cms.string("WJetsMG"),
                                     isData = cms.bool( False ),
@@ -119,14 +129,17 @@ if theSample.IsData :
     import FWCore.PythonUtilities.LumiList as LumiList
     process.source.lumisToProcess = LumiList.LumiList(filename = (process.PUAnalyzer.SetupDir.value() + '/JSON.txt')).getVLuminosityBlockRange()
     #process.GlobalTag.globaltag = '76X_dataRun2_v15'
+    
+    process.PUAnalyzer.ZSelection = ("SingleMu" in theSample.Name)
+
     process.p = cms.Path( process.PUAnalyzer )
     # for v in range(0 , 10 ):
     #     process.PUAnalyzer.HLT.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
-
+    
 else :
     #process.GlobalTag.globaltag = '76X_dataRun2_16Dec2015_v0'
     from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import *
-
+    process.PUAnalyzer.ZSelection = ("ZmuMu" in theSample.Name)
     process.p = cms.Path(process.PUAnalyzer)
     # if options.sync == 0 :
     #     for v in range(0 , 10 ):

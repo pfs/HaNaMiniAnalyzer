@@ -5,6 +5,42 @@
 
 using namespace std;
 
+class UIntReader : public BaseEventReader< unsigned int  > {
+public:
+  UIntReader( std::string tag , edm::ConsumesCollector && iC) :
+    BaseEventReader< unsigned int  >(tag , &iC)
+  {
+  };
+
+  virtual double Read( const edm::Event& iEvent ){
+    BaseEventReader< unsigned int  >::Read( iEvent );
+    Value =*(BaseEventReader< unsigned int  >::handle);
+    return Value;
+  }
+   
+  unsigned int Value ;
+};
+
+class DoubleReader : public BaseEventReader< double  > {
+public:
+  DoubleReader( std::string tag , edm::ConsumesCollector && iC) :
+    BaseEventReader< double  >(tag , &iC)
+  {
+    tagName = tag;
+  };
+
+  std::string tagName ;
+
+  virtual double Read( const edm::Event& iEvent ){
+    BaseEventReader< double  >::Read( iEvent );
+    Value =*(BaseEventReader< double  >::handle);
+
+    return Value;
+  }
+   
+  double Value ;
+};
+
 class PUAnalyzer : public HaNaBaseMiniAnalyzer{
 public:
   explicit PUAnalyzer(const edm::ParameterSet&);
@@ -18,17 +54,18 @@ public:
   //TREE VALS
   // unsigned int RunN;
   // unsigned long long EventN;
-  char nVertices, nGoodVertices , nInt , nInt50ns ;
-  int nEles , nMus , nChargedHadrons , nLostTracks , nPhotons, nNeutralHadrons ;
+  // char nVertices, nGoodVertices , nInt , nInt50ns ;
+  int nLostTracks; // ,nEles , nMus , nChargedHadrons ,  nPhotons, nNeutralHadrons ;
   float InvMass , reliso1 , reliso2;
-  bool passDiMuMedium, passDiMuTight;
+  bool ZSelection, passDiMuMedium, passDiMuTight;
   bool mu1positive, mu2positive;
   float mu1pt, mu2pt, mu1eta , mu2eta;
 
-  std::vector< edm::EDGetTokenT<double> > t_Rho_;
-  edm::Handle<double> rho;
-  float Rhos[7];
-  std::vector<string> rhos;
+  UIntReader runNumber, lumiNumber;
+
+  
+  
+  std::vector< DoubleReader > Rhos ;
   //-------------
 protected:
   virtual void beginJob() override;
@@ -39,17 +76,14 @@ DEFINE_FWK_MODULE(PUAnalyzer);
 
 PUAnalyzer::~PUAnalyzer() {}
 PUAnalyzer::PUAnalyzer( const edm::ParameterSet& ps ) :
-  HaNaBaseMiniAnalyzer( ps ) 
+  HaNaBaseMiniAnalyzer( ps ) ,
+  runNumber( "runNumber" , consumesCollector() ),
+  lumiNumber( "lumiBlock" , consumesCollector() )
 {
-  rhos = { "fixedGridRhoAll",
-	   "fixedGridRhoFastjetAll",
-	   "fixedGridRhoFastjetAllCalo",
-	   "fixedGridRhoFastjetCentral",
-	   "fixedGridRhoFastjetCentralCalo",
-	   "fixedGridRhoFastjetCentralChargedPileUp",
-	   "fixedGridRhoFastjetCentralNeutral" };
-  for(auto s : rhos )
-    t_Rho_.push_back(consumes<double>( edm::InputTag( s ) ) );
+  for(auto s : ps.getParameter< std::vector<string> >("Rhos") )
+    Rhos.push_back( DoubleReader( s , consumesCollector() ) ); 
+
+  ZSelection = ps.getParameter<bool>("ZSelection");
 }
 // ------------ method called once each job just before starting event loop  ------------
 void PUAnalyzer::beginJob()
@@ -68,35 +102,39 @@ void PUAnalyzer::beginJob()
   // gDirectory->Print();
   theTree = treeDir.make<TTree>("Events" , "Events");
   //fs->make<TTree>("SelectedEventNumbers" , "SelectedEventNumbers");
-    
+
+  theTree->Branch("run" , runNumber.Value );
+  theTree->Branch("lumi" , lumiNumber.Value );
+
   // gDirectory->Print();
-  theTree->Branch("passDiMuTight", &passDiMuTight );
-  theTree->Branch("passDiMuMedium", &passDiMuMedium );
-  theTree->Branch("nVertices" , &nVertices);
-  theTree->Branch("nInt" , &nInt);
-  theTree->Branch("nInt50ns" , &nInt50ns);
-  theTree->Branch("nEles" , &nEles);
-  theTree->Branch("nMus" , &nMus);
-  theTree->Branch("nChargedHadrons" , &nChargedHadrons);
+  theTree->Branch("nGoodVertices" , &(vertexReader->nGoodVtx) );
+  theTree->Branch("nVertices" , &(vertexReader->vtxMult));
+  theTree->Branch("nInt" , &(vertexReader->npv));
+  theTree->Branch("nInt50ns" , &(vertexReader->npv50ns) );
+  theTree->Branch("nEles" , &(packedReader->nEles));
+  theTree->Branch("nMus" , &(packedReader->nMus));
+  theTree->Branch("nChargedHadrons" , &(packedReader->nChargedHadrons) );
   theTree->Branch("nLostTracks" , &nLostTracks);
-  theTree->Branch("nPhotons" , &nPhotons);
-  theTree->Branch("nNeutralHadrons" , &nNeutralHadrons);
+  theTree->Branch("nPhotons" , &(packedReader->nPhotons) );
+  theTree->Branch("nNeutralHadrons" , &(packedReader->nNeutralHadrons) );
 
-  int ccc = 0;
-  for(auto rho : rhos ){
-    theTree->Branch(rho.c_str() , &(Rhos[ccc]));
-    ccc ++;
+  for(auto rho : Rhos )
+    theTree->Branch(rho.tagName.c_str() , rho.Value );
+
+
+  if( ZSelection ){
+    theTree->Branch("passDiMuTight", &passDiMuTight );
+    theTree->Branch("passDiMuMedium", &passDiMuMedium );
+    theTree->Branch("InvMass" , &InvMass);
+    theTree->Branch("reliso2" , &reliso2);
+    theTree->Branch("reliso1" , &reliso1);
+    theTree->Branch("mu1positive" , &mu1positive);
+    theTree->Branch("mu2positive" , &mu2positive);
+    theTree->Branch("mu1pt" , &mu1pt);
+    theTree->Branch("mu2pt" , &mu2pt);
+    theTree->Branch("mu1eta" , &mu1eta);
+    theTree->Branch("mu2eta" , &mu2eta);
   }
-  theTree->Branch("InvMass" , &InvMass);
-  theTree->Branch("reliso2" , &reliso2);
-  theTree->Branch("reliso1" , &reliso1);
-  theTree->Branch("mu1positive" , &mu1positive);
-  theTree->Branch("mu2positive" , &mu2positive);
-  theTree->Branch("mu1pt" , &mu1pt);
-  theTree->Branch("mu2pt" , &mu2pt);
-  theTree->Branch("mu1eta" , &mu1eta);
-  theTree->Branch("mu2eta" , &mu2eta);
-
   theTree->Branch("W" , &W);
 }
 
@@ -122,61 +160,55 @@ void PUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if(!IsData)
     hnTruInt->Fill( vertexReader->npv  , 1.0 );
 
-  
-  nInt = vertexReader->npv;
-  nInt50ns = vertexReader->npv50ns;
-  nVertices = vertexReader->vtxMult;
-  nGoodVertices = vertexReader->nGoodVtx;
-  
+  runNumber.Read(iEvent);
+  lumiNumber.Read(iEvent);
+ 
   packedReader->Read( iEvent );
-  nEles = packedReader->nEles;
-  nMus = packedReader->nMus;
-  nChargedHadrons = packedReader->nChargedHadrons;
-  nPhotons = packedReader->nPhotons;
-  nNeutralHadrons = packedReader->nPhotons;
 
   lostReader->Read( iEvent );
   nLostTracks = lostReader->size();
 
 
-  int sss = 0;
-  for(auto _Rho_ : t_Rho_ ){
-    iEvent.getByToken(_Rho_ ,rho);
-    Rhos[sss] = *rho;
-    sss ++;
+  for(auto _Rho_ : Rhos ){
+    _Rho_.Read(iEvent);
   }
-  //cout << vertexReader->PV()->ndof() << endl;
-  switch( diMuReader->Read( iEvent , vertexReader->PV() ) ){
-  case DiMuonReader::Pass :
-  case DiMuonReader::UnderTheZPeak:   
-    W *= (diMuReader->W) ;
-    hCutFlowTable->Fill( ++stepEventSelection , W );
-    break;
-  case DiMuonReader::LowMassPair:
-  case DiMuonReader::NoPairWithChargeReq:
-  case DiMuonReader::LessThan2Muons :
-    return ;
-  }
+
+
+  if( ZSelection ){
+    //cout << vertexReader->PV()->ndof() << endl;
+    switch( diMuReader->Read( iEvent , vertexReader->PV() ) ){
+    case DiMuonReader::Pass :
+    case DiMuonReader::UnderTheZPeak:   
+      W *= (diMuReader->W) ;
+      hCutFlowTable->Fill( ++stepEventSelection , W );
+      break;
+    case DiMuonReader::LowMassPair:
+    case DiMuonReader::NoPairWithChargeReq:
+    case DiMuonReader::LessThan2Muons :
+      return ;
+    }
   
-  InvMass = diMuReader->DiMuon.totalP4().M();
-  passDiMuMedium = true;
+    InvMass = diMuReader->DiMuon.totalP4().M();
+    passDiMuMedium = true;
 
-  passDiMuTight = ( muon::isTightMuon( diMuReader->DiMuon.mu1() , *vertexReader->PV() )
-		    && muon::isTightMuon( diMuReader->DiMuon.mu2() , *vertexReader->PV() ) );
+    passDiMuTight = ( muon::isTightMuon( diMuReader->DiMuon.mu1() , *vertexReader->PV() )
+		      && muon::isTightMuon( diMuReader->DiMuon.mu2() , *vertexReader->PV() ) );
 
-  mu1pt = diMuReader->DiMuon.mu1().pt();
-  mu2pt = diMuReader->DiMuon.mu2().pt();
+    mu1pt = diMuReader->DiMuon.mu1().pt();
+    mu2pt = diMuReader->DiMuon.mu2().pt();
 
-  reco::MuonPFIsolation iso = diMuReader->DiMuon.mu1().pfIsolationR04();
-  reliso1 = (iso.sumChargedHadronPt+TMath::Max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-0.5*iso.sumPUPt))/mu1pt;
-  iso = diMuReader->DiMuon.mu2().pfIsolationR04();
-  reliso2 = (iso.sumChargedHadronPt+TMath::Max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-0.5*iso.sumPUPt))/mu2pt;
+    reco::MuonPFIsolation iso = diMuReader->DiMuon.mu1().pfIsolationR04();
+    reliso1 = (iso.sumChargedHadronPt+TMath::Max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-0.5*iso.sumPUPt))/mu1pt;
+    iso = diMuReader->DiMuon.mu2().pfIsolationR04();
+    reliso2 = (iso.sumChargedHadronPt+TMath::Max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-0.5*iso.sumPUPt))/mu2pt;
 
-  mu1eta = diMuReader->DiMuon.mu1().eta();
-  mu2eta = diMuReader->DiMuon.mu2().eta();
+    mu1eta = diMuReader->DiMuon.mu1().eta();
+    mu2eta = diMuReader->DiMuon.mu2().eta();
 
-  mu1positive = diMuReader->DiMuon.mu1().charge() > 0;
-  mu2positive = diMuReader->DiMuon.mu2().charge() > 0;
+    mu1positive = diMuReader->DiMuon.mu1().charge() > 0;
+    mu2positive = diMuReader->DiMuon.mu2().charge() > 0;
+  }
+
 
   theTree->Fill();
 }

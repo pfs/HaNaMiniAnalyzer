@@ -8,11 +8,11 @@ import os
 sys.path.append('../')
 
 prefix = "tree"
-nTuples = "/eos/user/h/hbakhshi/Personal/Projects/PU/02MarchPPD/"
-
+#nTuples = "/eos/user/h/hbakhshi/Personal/Projects/PU/02MarchPPD/"
+nTuples = "/eos/cms/store/user/hbakhshi/02MarchPPD2/"
 
 fMC_In_SampleName = "ZmuMu"
-fMCName_In = nTuples + fMC_In_SampleName + ".root"
+fMCName_In = nTuples +"out"+ fMC_In_SampleName + ".root"
 fMC_In = TFile.Open( fMCName_In )
 hMCName_In = "PUAnalyzer/nTruInteractions/nTruInteractions_" + fMC_In_SampleName
 gROOT.cd()
@@ -20,14 +20,14 @@ hMC_In = fMC_In.Get( hMCName_In ).Clone()
 fMC_In.Close()
 hMC_In.Scale( 1.0 / hMC_In.Integral() )
 
-xsec_variations = [ str(i) for i in range( 84 , 118 ) ]
+xsec_variations = [ str(i) for i in [95,100,105] ] #range( 84 , 118 ) ]
 jsons = {"All":"/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt"} 
 dir="/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Era/ReReco/"
 for f in listdir(dir):
     era = f.split("_")[-1].split(".")[0]
     jsons[era] = dir+f
 
-json_files={"bestFit" , "latest" , "pcc"}
+json_files={"latest"} # "bestFit" , , "pcc"}
 DataFiles = {}
 for xsec in xsec_variations:
     for json in json_files:
@@ -58,7 +58,7 @@ for s in MINIAOD:
         print s.Name
 
     es = ExtendedSample( s )
-    es.LoadJobs( nTuples )
+    es.LoadJobs( nTuples , "out%s.root" )
     es.LoadTree("PUAnalyzer/Trees/Events")
 
     vals_template = []
@@ -72,15 +72,24 @@ for s in MINIAOD:
 
     leafValues = array.array("f", vals_template )
 
-    fNew = TFile( s.Name + ".root" , "recreate" )
-    friendT = TTree("friend", "friend")
+    fNew = TFile( s.Name + "2.root" , "recreate" )
+    es.Tree.GetEntry(0)
+    friendT = es.Tree.GetTree().Clone(0) #TTree("friend", "friend")
 
     friendT.Branch( "PUWeights"  , leafValues , leaves)
     
-    for event in es.Tree:
-        nInt = ord(event.nInt)
+    ccc = 0
+    total=es.Tree.GetEntries()
+    #for event in es.Tree:
+    for i in range(0 , total):
+        es.Tree.GetEntry(i)
+        if (ccc % 1000) == 0 :
+            print("\r%d out of %d (%.2f)"%(ccc , total , ccc*100./total )),
+            sys.stdout.flush()
+        nInt = es.Tree.GetLeaf("nInt").GetValue()
         #print nInt
-        nInt50ns = ord(event.nInt50ns)
+        nInt50ns = es.Tree.GetLeaf("nInt50ns").GetValue()
+        #print nInt, nInt50ns
         #print nInt
         #print nInt50ns
         counter = 0
@@ -100,6 +109,7 @@ for s in MINIAOD:
 
         #print leafValues
         friendT.Fill()
+        ccc += 1
 
     friendT.Write()
     fNew.Close()

@@ -109,6 +109,7 @@ class ExtendedSample: #extend the sample object to store histograms
             self.FriendFile = TFile.Open( "%s/%s.root" % (self.FriendsDir , self.Name ) )
             self.FriendTree = self.FriendFile.Get( self.FriendTreeName )
             self.Tree.AddFriend( self.FriendTree )
+            
         
     def DrawTreeHistos( self , treeselections ,  treeName = "tHq/Trees/Events"):
         if hasattr(self, "TreeName" ):
@@ -275,7 +276,7 @@ class ExtendedSample: #extend the sample object to store histograms
         # open the seed file - contents is looked up from here
         seedindex = 1
         seedfilename = sources[seedindex-1]
-        while (not os.path.exists(seedfilename)) and (seedfilename < len(sources)): 
+        while (not os.path.exists(seedfilename)) and (seedfilename < 2) : #len(sources)): 
             seedfilename = sources[seedindex]
             seedindex += 1
             print "Seed file doesn't exist, moving to the next one"
@@ -297,12 +298,15 @@ class ExtendedSample: #extend the sample object to store histograms
 
         # open remaining files
         otherfiles = []
+        notexistingfiles=[]
         for n, f in enumerate(sources[seedindex:]):
             print "fhadd Source file %d: %s" % (n+2, f)
             if not os.path.exists(f):
+                notexistingfiles.append( f )
                 continue
             otherfiles.append(TFile.Open(f))
 
+        print "The following files don't exist %s" % notexistingfiles
         
         # loop over contents and merge objects from other files to seed file objects
         for n, (path, hname) in enumerate(contents):

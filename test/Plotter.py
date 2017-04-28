@@ -26,22 +26,26 @@ print xsecvar
 outdir=os.environ[ "LSB_OUTDIR" ]
 
 TreeTemN = "PUAnalyzer/Trees/Events"
-DIR = "/eos/user/h/hbakhshi/Personal/Projects/PU/02MarchPPD/" #"/home/hbakhshi/Downloads/CERNBox/Personal/Projects/PU/02MarchPPD/"
+DIR = "/eos/cms/store/user/hbakhshi/02MarchPPD2/"
+#DIR = "/eos/user/h/hbakhshi/Personal/Projects/PU/02MarchPPD/" #"/home/hbakhshi/Downloads/CERNBox/Personal/Projects/PU/02MarchPPD/"
 data_files = [ "%s%s" % (DIR,s) for s in [ #"SingleMuB1.root",
-                                           "SingleMuB2.root",
-                                           "SingleMuC.root",
-                                           "SingleMuD.root",
-                                           "SingleMuE.root",
-                                           "SingleMuF.root",
-                                           "SingleMuG.root",
-                                           "SingleMuH2.root",
-                                           "SingleMuH3.root"]]
+                                           "outSingleMuB2.root",
+                                           "outSingleMuC.root",
+                                           "outSingleMuD.root",
+                                           "outSingleMuE.root",
+                                           "outSingleMuF.root",
+                                           "outSingleMuG.root",
+                                           "outSingleMuH2.root",
+                                           "outSingleMuH3.root"]]
 
 dataSamples = SampleType("Data" , kBlack , [ Sample( os.path.basename(s).split('.')[0] , 0 , False , "" , treeName = TreeTemN  ) for s in data_files ] , DIR )
 
-zmumu = SampleType("ZMuMu" , kCyan , [ Sample( "ZmuMu" , -1 , False , "", treeName=TreeTemN ) ] , DIR )
+
+zmumu = SampleType("ZMuMu" , kCyan , [ Sample( "ZmuMu" , -1 , True , "" , treeName = TreeTemN  ) ]  )
 for s in zmumu.Samples:
-    s.SetFriendTreeInfo( DIR + "weights4" , "friend" )
+    s.LoadJobs( "/tmp/hbakhshi/" , "out%s.root" )
+    s.SetFriendTreeInfo( "/tmp/hbakhshi/" , "friend" )
+
 
 allSTs = [ dataSamples , zmumu ]
 
@@ -65,7 +69,7 @@ gROOT.SetBatch(True)
 from Haamm.HaNaMiniAnalyzer.Plotter import *            
 plotter = Plotter()
 
-if era == "All" :
+if era == "All" or era == "1" :
     plotter.AddSampleType( dataSamples )
 else:
     run = era[-1]
@@ -73,7 +77,7 @@ else:
     for s in dataSamples.Samples:
         if run in s.Name :
             samples.append( s )
-    plotter.AddSampleType( SampleType("Data" , kBlack , samples , DIR ) )
+    plotter.AddSampleType( SampleType("Data" , kBlack , samples  ) )
 
 plotter.AddSampleType (zmumu )
 # for st in allSTs :
@@ -113,18 +117,41 @@ plotter.AddSampleType (zmumu )
     
 Cuts = {"InvMass":"abs(InvMass-91.) < 15 ",
         "tight":"passDiMuTight" , 
-        "iso":"reliso1 < 0.15 && reliso2 < 0.15"}
+        "iso":"reliso1 < 0.15 && reliso2 < 0.15",
+        "OS":"mu1positive!=mu2positive"}
 
-name = "%s_%s_%s" % (puScenario , xsecvar , era)   
-cut =  "&&".join( [ Cuts[s] for s in [ "InvMass" ] ])
-c = CutInfo( name , cut ,  "PUWeights."+name )
+name = "%s_%s_%s" % (puScenario , xsecvar , era)
+print name
+cut =  "&&".join( [ Cuts[s] for s in [ "InvMass"  ] ])
+weights = "W*PUWeights."+name + "_it"
+if weights == "1_1_1":
+    weights = "W"
+print weights
+c = CutInfo( name , cut ,  weights , name )
 c.AddHist( "nVertices" , "nVertices", 50 , 0. , 50. , "#vertices" )
-c.AddHist( "Rho" , "Rho", 50 , 0. , 50. , "#rho" )
+c.AddHist( "RhoAll" , "Rho", 50 , 0. , 50. , "#rho(All)" )
+#c.AddHist( "Weight" , weights, 50 , 0. ,1.5 , "#rho(All)" )
+# c.AddHist( "RhoFAll" , "fixedGridRhoFastjetAll", 50 , 0. , 50. , "#rho(FastJetAll)" )
+# c.AddHist( "RhoAllCalo" , "fixedGridRhoFastjetAllCalo", 50 , 0. , 50. , "#rho(FJ_AllCalo)" )
+# c.AddHist( "RhoFCentral" , "fixedGridRhoFastjetCentral", 50 , 0. , 50. , "#rho(FastJetCentral)" )
+# c.AddHist( "RhoFCentralCalo" , "fixedGridRhoFastjetCentralCalo", 50 , 0. , 50. , "#rho(FJ_CentralCalo)" )
+# c.AddHist( "RhoFCentralCharged" , "fixedGridRhoFastjetCentralChargedPileUp", 50 , 0. , 50. , "#rho(FastJetCentral ChargedPU)" )
+# c.AddHist( "RhoFCentralNeutral" , "fixedGridRhoFastjetCentralNeutral", 50 , 0. , 50. , "#rho(FJ_CentralNeutral)" )
+# c.AddHist( "Mu1Pt" , "mu1pt", 10 , 20 , 120  , "mu1pt" )
+# c.AddHist( "Mu2Pt" , "mu2pt", 10 , 20 , 120  , "mu2pt" )
+# c.AddHist( "Mu1Eta" , "mu1eta", 10 , -2.5 , 2.5  , "mu1eta" )
+# c.AddHist( "Mu2Eta" , "mu2eta", 10 , -2.5 , 2.5  , "mu2eta" )
+# c.AddHist( "Mu1Iso" , "reliso1", 5 , 0 , 0.25  , "mu1iso" )
+# c.AddHist( "Mu2Iso" , "reliso2", 5 , 0 , 0.25  , "mu2iso" )
+
 c.AddHist( "nChargedParticles" , "nEles+nMus+nChargedHadrons+nLostTracks", 60 , 0 , 1200.  , "#tracks" )
+# c.AddHist( "nPhotons" , "nPhotons", 60 , 0 , 500.  , "#photons" )
+# c.AddHist( "nNeutralParticles" , "nNeutralHadrons", 60 , 0 , 1000.  , "#NeutralHadrons" )
 c.AddHist( "InvMass" , "InvMass", 14 , 70 , 112  , "InvMass" )
 plotter.AddTreePlots( c )
 
-fout = TFile.Open( outdir + "/" + outfname , "recreate")
+
+fout = TFile.Open( outdir + "/w_" + outfname , "recreate")
 
 plotter.LoadHistos( LUMI  , "PUAnalyzer/" )
 dir = fout.mkdir( name )

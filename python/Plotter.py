@@ -197,6 +197,7 @@ class CutInfo:
                             
                     tree.Draw( "%s>>cloned_%s(%s)" % ( hist.VarName , hname , hist.Bins() ) ,
                                "" if isdata else self.Weights( n , samplename , isdata) )
+                    print self.Weights(n,samplename,isdata)
                     setattr( self , hname , gDirectory.Get( "cloned_"+hname ).Clone( hname ) )
                 else :
                     hcloned_empty = hist.MakeEmptyHist( samplename , n )

@@ -15,9 +15,10 @@ for sample in samples:
         #job is already created : sample.MakeJobs( 20 , "%s/%s" % (OutPath24June , prefix) )
     #    print sample.Name 
     #else:
-    sample.MakeJobs( 40 , "root://eoscms//eos/cms/store/user/%s/%s/%s" % (GetUserName(), "pu27Feb" , "out" ) ) 
+    sample.MakeJobs( 4 , "/eos/cms/store/user/%s/%s/%s" % (GetUserName(), "02MarchPPD3" , "out" ) ) 
     # sample.ParentSample.MakeJobs( 3 , "root://eoscms//eos/cms/store/user/%s/%s/%s" % (GetUserName(), "Moriond17" , "tree" ) ) 
 
+    #print [j.Output for j in sample.Jobs]
 
 from Haamm.HaNaMiniAnalyzer.ExtendedSample import *
 for sample in samples:
@@ -29,4 +30,4 @@ for sample in samples:
         ss = ExtendedSample(sample)
     #export EOS_MGM_URL=root://eosuser.cern.ch
     #eosmount eos_cb
-    ss.fhadd("/eos/user/h/hbakhshi/Personal/Projects/PU/02MarchPPD/" , True)
+    ss.fhadd("/eos/user/h/hbakhshi/Personal/Projects/PU/02MarchPPD3/" , True ) #"/eos/user/h/hbakhshi/Personal/Projects/PU/02MarchPPD2/" , True)
