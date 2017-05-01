@@ -291,7 +291,7 @@ class ExtendedSample: #extend the sample object to store histograms
         print "looping over seed file"
         contents = self.loop(seedfile)
         print "done %d objects are ready to be merged" % len(contents)
-        if( verbose ):
+        if( verbose or True ):
             for c in contents:
                 print c
                 

@@ -134,6 +134,7 @@ class Sample :
         return ret
 
     def AddDASFiles( self , sample , prefix = "" ):
+        return
         jsondict = get_data( "https://cmsweb.cern.ch" , 
                              "file dataset=%(sample)s instance=prod/%(dbs)s"  %  {'sample':sample , 'dbs':self.DBSInstance} ,
                              0 , #idx
