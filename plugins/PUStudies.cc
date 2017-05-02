@@ -27,6 +27,7 @@ public:
     BaseEventReader< double  >(tag , &iC)
   {
     tagName = tag;
+    Value = -1;
   };
 
   std::string tagName ;
@@ -34,11 +35,11 @@ public:
   virtual double Read( const edm::Event& iEvent ){
     BaseEventReader< double  >::Read( iEvent );
     Value =*(BaseEventReader< double  >::handle);
-
+    //std::cout << tagName << " : " << Value << std::endl;
     return Value;
   }
    
-  double Value ;
+  float Value ;
 };
 
 class PUAnalyzer : public HaNaBaseMiniAnalyzer{
@@ -62,7 +63,7 @@ public:
   float mu1pt, mu2pt, mu1eta , mu2eta;
 
   
-  std::vector< DoubleReader > Rhos ;
+  std::vector< DoubleReader* > Rhos ;
   //-------------
 protected:
   virtual void beginJob() override;
@@ -75,8 +76,10 @@ PUAnalyzer::~PUAnalyzer() {}
 PUAnalyzer::PUAnalyzer( const edm::ParameterSet& ps ) :
   HaNaBaseMiniAnalyzer( ps ) 
 {
-  for(auto s : ps.getParameter< std::vector<string> >("Rhos") )
-    Rhos.push_back( DoubleReader( s , consumesCollector() ) ); 
+  for(auto s : ps.getParameter< std::vector<string> >("Rhos") ){
+    Rhos.push_back( new DoubleReader( s , consumesCollector() ) ); 
+    //std::cout << *(Rhos.rbegin())->tagName << std::endl;
+  }
 
   ZSelection = ps.getParameter<bool>("ZSelection");
 }
@@ -113,8 +116,10 @@ void PUAnalyzer::beginJob()
   theTree->Branch("nPhotons" , &(packedReader->nPhotons) );
   theTree->Branch("nNeutralHadrons" , &(packedReader->nNeutralHadrons) );
 
-  for(auto rho : Rhos )
-    theTree->Branch(rho.tagName.c_str() , rho.Value );
+  for(auto rho : Rhos ){
+    theTree->Branch(rho->tagName.c_str() , &(rho->Value) );
+    //std::cout << rho->tagName << std::endl ;
+  }
 
 
   if( ZSelection ){
@@ -165,7 +170,7 @@ void PUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
   for(auto _Rho_ : Rhos ){
-    _Rho_.Read(iEvent);
+    _Rho_->Read(iEvent);
   }
 
 

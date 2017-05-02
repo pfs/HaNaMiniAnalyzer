@@ -21,13 +21,13 @@ appendixName=$2
 #/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt 
 
 function produce {
-    pileupCalc.py -i $ANJSON --inputLumiJSON $1  --calcMode true --minBiasXsec $xsec --maxPileupBin $nBins --numPileupBins $nBins ./data_$2_${xsecvariation}_${appendixName}.root
+    pileupCalc.py -i $ANJSON --inputLumiJSON $1  --calcMode true --minBiasXsec $xsec --maxPileupBin $nBins --numPileupBins $nBins --pileupHistName=h_${xsec} ./datapu/data_$2_${xsecvariation}_${appendixName}.root
     #echo pileupCalc.py -i $ANJSON --inputLumiJSON $1  --calcMode true --minBiasXsec $xsecDown --maxPileupBin $nBins --numPileupBins $nBins ./data_$2_${xsecvariation}_down.root
     #echo pileupCalc.py -i $ANJSON --inputLumiJSON $1  --calcMode true --minBiasXsec $xsecUp --maxPileupBin $nBins --numPileupBins $nBins ./data_$2_${xsecvariation}_up.root
 }
 
-produce ./datacert2016ReRecoByLS_Pre3puJSON.txt pcc
-produce /eos/cms/store/user/jsalfeld/datacert2016ReRecoByLSpuJSON.txt bestFit
+#produce ./datacert2016ReRecoByLS_Pre3puJSON.txt pcc
+#produce /eos/cms/store/user/jsalfeld/datacert2016ReRecoByLSpuJSON.txt bestFit
 produce /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/PileUp/pileup_latest.txt latest
 
 

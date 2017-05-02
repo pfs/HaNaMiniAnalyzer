@@ -8,8 +8,8 @@ for f in listdir(dir):
     jsons[era] = dir+f
 
 
-queue = "1nh"
+queue = "8nm"
 for era in jsons:
     command = "produceDataPU.sh {json:s} {era:s}"
-    submit = ('bsub -q {que:s} -J "{era:s}[84-117]" -o {era:s}_{var:s} ' + command).format( var="%I" , json=jsons[era] , era=era , que=queue )
+    submit = ('bsub -q {que:s} -J "{era:s}[84-117]" -o datapu/{era:s}_{var:s}.out ' + command).format( var="%I" , json=jsons[era] , era=era , que=queue )
     print submit
