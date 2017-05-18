@@ -11,7 +11,7 @@ then
     echo $xsecvariation
 fi
 
-xsec=`echo 69200 \* $xsecvariation / 100. | bc`
+xsec=`echo 69200 \* $xsecvariation / 1000. | bc`
 echo $xsec
 
 nBins=100
@@ -21,7 +21,7 @@ appendixName=$2
 #/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt 
 
 function produce {
-    pileupCalc.py -i $ANJSON --inputLumiJSON $1  --calcMode true --minBiasXsec $xsec --maxPileupBin $nBins --numPileupBins $nBins --pileupHistName=h_${xsec} ./datapu/data_$2_${xsecvariation}_${appendixName}.root
+    pileupCalc.py -i $ANJSON --inputLumiJSON $1  --calcMode true --minBiasXsec $xsec --maxPileupBin $nBins --numPileupBins $nBins --pileupHistName=h_${xsecvariation} ./datapu/data_$2_${xsecvariation}_${appendixName}.root
     #echo pileupCalc.py -i $ANJSON --inputLumiJSON $1  --calcMode true --minBiasXsec $xsecDown --maxPileupBin $nBins --numPileupBins $nBins ./data_$2_${xsecvariation}_down.root
     #echo pileupCalc.py -i $ANJSON --inputLumiJSON $1  --calcMode true --minBiasXsec $xsecUp --maxPileupBin $nBins --numPileupBins $nBins ./data_$2_${xsecvariation}_up.root
 }

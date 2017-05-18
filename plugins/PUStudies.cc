@@ -23,6 +23,7 @@ using namespace std;
 
 class DoubleReader : public BaseEventReader< double  > {
 public:
+
   DoubleReader( std::string tag , edm::ConsumesCollector && iC) :
     BaseEventReader< double  >(tag , &iC)
   {
@@ -36,10 +37,26 @@ public:
     BaseEventReader< double  >::Read( iEvent );
     Value =*(BaseEventReader< double  >::handle);
     //std::cout << tagName << " : " << Value << std::endl;
+    AVG += Value;
+    n ++ ;
+
     return Value;
   }
-   
+
+  void CalcAVG(){
+    if(n != 0)
+      AVG /= n;
+    else
+      AVG = -999;
+  }
+  void ResetAVG(){
+    AVG = 0 ;
+    n = 0 ;
+  }
+
   float Value ;
+  float AVG;
+  int n;
 };
 
 class PUAnalyzer : public HaNaBaseMiniAnalyzer{
@@ -52,6 +69,7 @@ public:
   Histograms* hnTruInt;
 
   TTree* theTree;
+  TTree* theLumiTree;
   //TREE VALS
   unsigned int runNumber, lumiNumber;
   // unsigned long long EventN;
@@ -62,12 +80,49 @@ public:
   bool mu1positive, mu2positive;
   float mu1pt, mu2pt, mu1eta , mu2eta;
 
+  float AVGnGoodVertices, AVGnVertices, AVGnInt, AVGnInt50ns , AVGnEles , AVGnMus , AVGnChargedHadrons , AVGnLostTracks , AVGnPhotons , AVGnNeutralHadrons ;
+  int nEventsInLumi;
+  void ResetAVGs(){
+    nEventsInLumi = 0;
+    AVGnGoodVertices= AVGnVertices= AVGnInt= AVGnInt50ns = AVGnEles = AVGnMus = AVGnChargedHadrons = AVGnLostTracks = AVGnPhotons = AVGnNeutralHadrons = 0;
+    for(auto rho : Rhos )
+      rho->ResetAVG();
+  };
+  void CalcAVGs(){
+    if(nEventsInLumi != 0){
+      AVGnGoodVertices /= nEventsInLumi; 
+      AVGnVertices/= nEventsInLumi; 
+      AVGnInt/= nEventsInLumi; 
+      AVGnInt50ns /= nEventsInLumi; 
+      AVGnEles /= nEventsInLumi; 
+      AVGnMus /= nEventsInLumi; 
+      AVGnChargedHadrons /= nEventsInLumi; 
+      AVGnLostTracks /= nEventsInLumi; 
+      AVGnPhotons /= nEventsInLumi; 
+      AVGnNeutralHadrons /= nEventsInLumi;
+    }else{
+      AVGnGoodVertices= AVGnVertices= AVGnInt= AVGnInt50ns = AVGnEles = AVGnMus = AVGnChargedHadrons = AVGnLostTracks = AVGnPhotons = AVGnNeutralHadrons = -999;
+    }
+    for(auto rho : Rhos )
+      rho->CalcAVG();
+  }
   
   std::vector< DoubleReader* > Rhos ;
   //-------------
 protected:
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void beginLuminosityBlock(LuminosityBlock const &, EventSetup const &) override {
+    this->ResetAVGs();
+    cout << "New Lumi Started : " << nEventsInLumi << endl;
+  };
+  virtual void endLuminosityBlock(LuminosityBlock const &, EventSetup const &) override {
+    this->CalcAVGs();
+    cout << nEventsInLumi << "  " ;
+    this->theLumiTree->Fill();
+    cout << "Lumi ended : " <<  nEventsInLumi << endl;
+  };
+
 };
 
 DEFINE_FWK_MODULE(PUAnalyzer);
@@ -98,6 +153,22 @@ void PUAnalyzer::beginJob()
   // TFile* f = TFile::Open("tree.root" , "RECREATE");
   // f->cd();
   // gDirectory->Print();
+  theLumiTree = treeDir.make<TTree>("Lumis" , "Lumis");
+  theLumiTree->Branch( "run" , &runNumber );
+  theLumiTree->Branch( "lumi" , &lumiNumber );
+  theLumiTree->Branch( "AVGnGoodVertices" , &AVGnGoodVertices );
+  theLumiTree->Branch( "AVGnVertices" , &AVGnVertices );
+  theLumiTree->Branch( "AVGnInt" , &AVGnInt );
+  theLumiTree->Branch( "AVGnInt50ns" , &AVGnInt50ns );
+  theLumiTree->Branch( "AVGnEles" , &AVGnEles );
+  theLumiTree->Branch( "AVGnMus" , &AVGnMus );
+  theLumiTree->Branch( "AVGnChargedHadrons" , &AVGnChargedHadrons );
+  theLumiTree->Branch( "AVGnLostTracks" , &AVGnLostTracks );
+  theLumiTree->Branch( "AVGnPhotons" , &AVGnPhotons );
+  theLumiTree->Branch( "AVGnNeutralHadrons" , &AVGnNeutralHadrons );
+  theLumiTree->Branch( "nEventsInLumi" , &nEventsInLumi );
+
+
   theTree = treeDir.make<TTree>("Events" , "Events");
   //fs->make<TTree>("SelectedEventNumbers" , "SelectedEventNumbers");
 
@@ -118,6 +189,7 @@ void PUAnalyzer::beginJob()
 
   for(auto rho : Rhos ){
     theTree->Branch(rho->tagName.c_str() , &(rho->Value) );
+    theLumiTree->Branch( ("AVG"+rho->tagName).c_str() , &(rho->AVG) );
     //std::cout << rho->tagName << std::endl ;
   }
 
@@ -173,6 +245,16 @@ void PUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     _Rho_->Read(iEvent);
   }
 
+  AVGnGoodVertices += vertexReader->nGoodVtx;
+  AVGnVertices += vertexReader->vtxMult;
+  AVGnInt += vertexReader->npv ;
+  AVGnInt50ns += vertexReader->npv50ns;
+  AVGnEles += packedReader->nEles;
+  AVGnMus += packedReader->nMus;
+  AVGnChargedHadrons += packedReader->nChargedHadrons;
+  AVGnLostTracks += nLostTracks;
+  AVGnPhotons += packedReader->nPhotons;
+  AVGnNeutralHadrons += packedReader->nNeutralHadrons;
 
   if( ZSelection ){
     //cout << vertexReader->PV()->ndof() << endl;
@@ -209,7 +291,7 @@ void PUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     mu2positive = diMuReader->DiMuon.mu2().charge() > 0;
   }
 
-
+  nEventsInLumi++;
   theTree->Fill();
 }
 

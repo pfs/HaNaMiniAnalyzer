@@ -6,8 +6,9 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -31,7 +32,7 @@ using namespace edm;
 using namespace std;
 //using namespace pat;
 
-class HaNaBaseMiniAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class HaNaBaseMiniAnalyzer : public edm::EDAnalyzer  {
 public:
   explicit HaNaBaseMiniAnalyzer(const edm::ParameterSet&);
   ~HaNaBaseMiniAnalyzer();
@@ -41,6 +42,12 @@ protected:
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
+
+  virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override{};
+  virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override{};
+
+  // virtual void beginLuminosityBlock(LuminosityBlock const &, EventSetup const &) override {};
+  // virtual void endLuminosityBlock(LuminosityBlock const &, EventSetup const &) override {};
 
   // ---------- Common variables needed for event analyzing in analyze method
   double W;
