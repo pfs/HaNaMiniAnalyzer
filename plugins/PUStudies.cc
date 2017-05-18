@@ -114,13 +114,13 @@ protected:
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void beginLuminosityBlock(LuminosityBlock const &, EventSetup const &) override {
     this->ResetAVGs();
-    cout << "New Lumi Started : " << nEventsInLumi << endl;
+    // cout << "New Lumi Started : " << nEventsInLumi << endl;
   };
   virtual void endLuminosityBlock(LuminosityBlock const &, EventSetup const &) override {
     this->CalcAVGs();
-    cout << nEventsInLumi << "  " ;
+    // cout << nEventsInLumi << "  " ;
     this->theLumiTree->Fill();
-    cout << "Lumi ended : " <<  nEventsInLumi << endl;
+    // cout << "Lumi ended : " <<  nEventsInLumi << endl;
   };
 
 };
@@ -245,17 +245,6 @@ void PUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     _Rho_->Read(iEvent);
   }
 
-  AVGnGoodVertices += vertexReader->nGoodVtx;
-  AVGnVertices += vertexReader->vtxMult;
-  AVGnInt += vertexReader->npv ;
-  AVGnInt50ns += vertexReader->npv50ns;
-  AVGnEles += packedReader->nEles;
-  AVGnMus += packedReader->nMus;
-  AVGnChargedHadrons += packedReader->nChargedHadrons;
-  AVGnLostTracks += nLostTracks;
-  AVGnPhotons += packedReader->nPhotons;
-  AVGnNeutralHadrons += packedReader->nNeutralHadrons;
-
   if( ZSelection ){
     //cout << vertexReader->PV()->ndof() << endl;
     switch( diMuReader->Read( iEvent , vertexReader->PV() ) ){
@@ -269,7 +258,19 @@ void PUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     case DiMuonReader::LessThan2Muons :
       return ;
     }
+
+    AVGnGoodVertices += vertexReader->nGoodVtx;
+    AVGnVertices += vertexReader->vtxMult;
+    AVGnInt += vertexReader->npv ;
+    AVGnInt50ns += vertexReader->npv50ns;
+    AVGnEles += packedReader->nEles;
+    AVGnMus += packedReader->nMus;
+    AVGnChargedHadrons += packedReader->nChargedHadrons;
+    AVGnLostTracks += nLostTracks;
+    AVGnPhotons += packedReader->nPhotons;
+    AVGnNeutralHadrons += packedReader->nNeutralHadrons;
   
+
     InvMass = diMuReader->DiMuon.totalP4().M();
     passDiMuMedium = true;
 
@@ -289,6 +290,17 @@ void PUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     mu1positive = diMuReader->DiMuon.mu1().charge() > 0;
     mu2positive = diMuReader->DiMuon.mu2().charge() > 0;
+  }else{
+    AVGnGoodVertices += vertexReader->nGoodVtx;
+    AVGnVertices += vertexReader->vtxMult;
+    AVGnInt += vertexReader->npv ;
+    AVGnInt50ns += vertexReader->npv50ns;
+    AVGnEles += packedReader->nEles;
+    AVGnMus += packedReader->nMus;
+    AVGnChargedHadrons += packedReader->nChargedHadrons;
+    AVGnLostTracks += nLostTracks;
+    AVGnPhotons += packedReader->nPhotons;
+    AVGnNeutralHadrons += packedReader->nNeutralHadrons;
   }
 
   nEventsInLumi++;
