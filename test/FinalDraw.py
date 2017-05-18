@@ -1,14 +1,16 @@
 from ROOT import TH1, TFile, TDirectory, TGraphAsymmErrors , gDirectory, TIter, kRed
 import array
 
-def plotIt( dir_ , jsonName , prop ):
-    main_canvas = dir_.Get("{dirN:s}_{json:s}_nominal/{prop:s}/{dirN:s}_{json:s}_nominal_{prop:s}_canvas".format( json=jsonName , prop=prop , dirN=dir_.GetName() ) ).Clone()
+def plotIt( dir_ , era , prop , jsonName = "latest" ):
+    canvas_name = "{json:s}_100_{era:s}/{json:s}_100_{era:s}/{prop:s}/{json:s}_100_{era:s}_{prop:s}_canvas".format( json=jsonName , prop=prop , era=era )
+    print canvas_name
+    main_canvas = dir_.Get(canvas_name).Clone()
 
-    ratio_name = "{dirN:s}_{json:s}_{{0}}/{prop:s}/AdditionalInfo/{dirN:s}_{json:s}_{{0}}_{prop:s}_Ratio".format( json=jsonName , prop=prop  , dirN=dir_.GetName() )
+    ratio_name = "{json:s}_{{0}}_{era:s}/{json:s}_{{0}}_{era:s}/{prop:s}/AdditionalInfo/{json:s}_{{0}}_{era:s}_{prop:s}_Ratio".format( json=jsonName , prop=prop  , era=era )
     #print ratio_name.format("nominal")
-    main_ratio = dir_.Get(ratio_name.format("nominal"))
-    up_ratio = dir_.Get(ratio_name.format("up"))
-    down_ratio = dir_.Get(ratio_name.format("down"))
+    main_ratio = dir_.Get(ratio_name.format("100"))
+    up_ratio = dir_.Get(ratio_name.format("105"))
+    down_ratio = dir_.Get(ratio_name.format("95"))
 
     x = []
     y_low = []
@@ -49,19 +51,19 @@ def plotIt( dir_ , jsonName , prop ):
     return main_canvas,ret
 
 
-mainDirs = ["All" ,"SingleMuB2","SingleMuC","SingleMuD", "SingleMuE","SingleMuF","SingleMuG","SingleMuH2","SingleMuH3"]
-jsons = ["bestFit" , "latest" , "pcc"]
-props = ["nVertices" , "Rho" , "nChargedParticles" ]
+mainDirs = ["All" , "eraB" , "eraC" , "eraD", "eraE","eraF","eraG","eraH"]
+jsons = [ "latest" ]
+props = ["nVertices" , "RhoAll" , "nChargedParticles" ]
 
-f = TFile.Open("out_All3_normtolumi.root")
+f = TFile.Open("out_latest.root")
 
 allNC = []
 allGr = []
 for mdir in mainDirs :
-    f.cd( mdir )
+    #f.cd( mdir )
     for js in jsons:
         for prp in props:
-            canvas,graph = plotIt( gDirectory , js , prp )
+            canvas,graph = plotIt( gDirectory , mdir , prp , js )
             print canvas.GetName()
             canvas.Draw()
             canvas.SaveAs(canvas.GetName() + ".png")
