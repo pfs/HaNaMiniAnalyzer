@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-nFilesPerJob=5
+nFilesPerJob=6
 CheckFailedJobs=False
 hname = "Hamb/CutFlowTable/CutFlowTable"
 prefix = "out"
@@ -76,7 +76,7 @@ for sample in samples:
                 "vomsaddress":"`pwd`/.x509up_u%d" % (os.getuid()) ,
                 "scram":os.getenv("SCRAM_ARCH") ,
                 "cmsver":os.getenv("CMSSW_VERSION"),
-                "gitco":"master" ,
+                "gitco":"80X_201705" ,
                 "sample":sample.Name ,
                 "out":prefix ,
                 "outdir":OutPath,
@@ -100,7 +100,7 @@ for sample in samples:
                 "vomsaddress":"`pwd`/.x509up_u%d" % (os.getuid()) ,
                 "scram":os.getenv("SCRAM_ARCH") ,
                 "cmsver":os.getenv("CMSSW_VERSION"),
-                "gitco":"master" ,
+                "gitco":"80X_201705" ,
                 "sample":sample.Name ,
                 "out":prefix ,
                 "outdir":OutPath,
