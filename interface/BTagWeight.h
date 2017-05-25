@@ -8,8 +8,9 @@
 #include <iostream>
 #include <string>
 
-#include "BTagCalibration.h"
-#include "BTagCalibrationReader.h"
+#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
+#include "CondTools/BTau/interface/BTagCalibrationReader.h"
+
 #include "DataFormats/PatCandidates/interface/Jet.h"
 using namespace std;
 
@@ -65,15 +66,24 @@ class BTagWeight
 	Systs[1] = "up";
 	cout<< setupDir+"/"+algo+string(".csv")<<endl;
 	calib = new BTagCalibration(algo /*"CSVv2"*/, setupDir+"/"+algo+string(".csv"));
-	reader = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"mujets",Systs[syst]);
-        readerCent = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"mujets","central");  
-	readerLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"incl",Systs[syst]);
-        readerCentLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"incl","central");  
+	reader = new BTagCalibrationReader( (BTagEntry::OperatingPoint)WPT, "central" , {"up", "down"} );
+
+	reader->load( *calib , BTagEntry::FLAV_B , "mujets" );
+	reader->load( *calib , BTagEntry::FLAV_UDSG , "incl" );
+	
+	/* reader = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"mujets",Systs[syst]); */
+        /* readerCent = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"mujets","central");   */
+	/* readerLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"incl",Systs[syst]); */
+        /* readerCentLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPT,"incl","central");   */
 	if(WPL != -1){
-		readerExc = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPL,"mujets",Systs[syst]);
-        	readerCentExc = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint) WPL,"mujets","central");  
-		readerExcLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPL,"incl",Systs[syst]);
-        	readerCentExcLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint) WPL,"incl","central");  
+	  readerExc = new BTagCalibrationReader( (BTagEntry::OperatingPoint)WPL , "central" , {"up", "down"} );
+	  readerExc->load( *calib , BTagEntry::FLAV_B , "mujets" );
+	  readerExc->load( *calib , BTagEntry::FLAV_UDSG , "incl" );
+
+		/* readerExc = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPL,"mujets",Systs[syst]); */
+        	/* readerCentExc = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint) WPL,"mujets","central");   */
+		/* readerExcLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint)WPL,"incl",Systs[syst]); */
+        	/* readerCentExcLight = new BTagCalibrationReader(calib,(BTagEntry::OperatingPoint) WPL,"incl","central");   */
 	}
 
 	/* Sanity checks

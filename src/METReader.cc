@@ -13,6 +13,7 @@ METReader::METReader( edm::ParameterSet const& iPS, edm::ConsumesCollector && iC
       oldjetToken_= iC.consumes<pat::JetCollection>(iPS.getParameter<edm::InputTag>("oldjets")) ;
       ReadOldJets = true;
     }
+  reRunMetSig = iPS.exists("metsig");
   if(iPS.exists("metsig")){
     metsigToken_ = iC.consumes<double>(iPS.getParameter<edm::InputTag>("metsig"));
   }
@@ -57,7 +58,10 @@ double METReader::ReadMetSig (const edm::Event& iEvent){
   //END
   //
   //
-  iEvent.getByToken(metsigToken_, metsig);
+  if( !reRunMetSig ){
+    return handle->front().metSignificance(); 
+  }
+   iEvent.getByToken(metsigToken_, metsig);
   //Test for METSignificance
   //double METSignificance_;
   if(metsig.failedToGet()) cout<< "Failed to get METSig"<<endl;

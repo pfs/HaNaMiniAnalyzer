@@ -11,6 +11,7 @@
 #include "TROOT.h"
 #include "TFile.h"
 #include "TDirectory.h"
+#include "TGraphAsymmErrors.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
@@ -87,6 +88,7 @@ private :
   /* MUON SF TOOLS */
   double MuonSFMedium( double etaL , double ptL , double etaSL , double ptSL );
   double MuonSFLoose( double etaL , double ptL , double etaSL , double ptSL );
+  double MuonTrkEff(double abseta);
 public:
   double MuonSFHltMu17Mu8( double ptL , double ptSL );
   double MuonSFHltMu17Mu8_DZ( double ptL , double ptSL );
@@ -95,6 +97,7 @@ private:
   TH2* hMuSFIso;
   TH2* hMuHltMu17Mu8;
   TH2* hMuHltMu17Mu8_DZ;
+  TGraphAsymmErrors* hTrk;
   /* MUON SF TOOLS */
 
   /* MUON SELECTION PARAMS */

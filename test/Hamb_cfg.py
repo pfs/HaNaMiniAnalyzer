@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("HaNa")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 10000
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
@@ -134,10 +134,17 @@ from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMet
 runMetCorAndUncFromMiniAOD(process, isData = theSample.IsData)
 
 if theSample.IsData :
+    process.Hamb.MET.Input = "slimmedMETsMuEGClean"
+    
     import FWCore.PythonUtilities.LumiList as LumiList
     process.source.lumisToProcess = LumiList.LumiList(filename = (process.Hamb.SetupDir.value() + '/JSON.txt')).getVLuminosityBlockRange()
     #process.GlobalTag.globaltag = '76X_dataRun2_v15'
-    process.GlobalTag.globaltag = '80X_dataRun2_Prompt_ICHEP16JEC_v0'
+    #process.GlobalTag.globaltag = '80X_dataRun2_Prompt_ICHEP16JEC_v0
+    process.GlobalTag.globaltag = '80X_dataRun2_2016SeptRepro_v7'
+    if (theSample.Name is 'DoubleMuH2') or (theSample.Name is 'DoubleMuH3'):
+	process.GlobalTag.globaltag = '80X_dataRun2_Prompt_v16'
+    
+    
     process.p = cms.Path( process.fullPatMetSequence+process.METSignificance + process.Hamb )
     #process.p = cms.Path( process.Hamb )
     for v in range(0 , 10 ):
@@ -145,34 +152,52 @@ if theSample.IsData :
         process.Hamb.HLT_Mu17Mu8_DZ.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
         process.Hamb.HLT_Mu17Mu8.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v%d' % (v) )
         process.Hamb.HLT_Mu17Mu8.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v%d' % (v) )
+        process.Hamb.HLT_Mu17Mu8.HLT_To_Or.append( 'HLT_IsoMu24_v%d' % (v) )
+        process.Hamb.HLT_Mu17Mu8.HLT_To_Or.append( 'HLT_IsoTkMu24_v%d' % (v) )
+        process.Hamb.HLT_Mu17Mu8.HLT_To_Or.append( 'HLT_IsoMu22_eta2p1_v%d' % (v) )
+        process.Hamb.HLT_Mu17Mu8.HLT_To_Or.append( 'HLT_IsoTkMu22_eta2p1_v%d' % (v) )
+
 
 else :
+    from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+
+   # If you only want to re-correct and get the proper uncertainties
+    runMetCorAndUncFromMiniAOD(process,
+                               isData=False
+                               )
+    process.Hamb.MET.Input = "slimmedMETs"
+
+    process.Hamb.Jets.ApplyJER = True
     #process.GlobalTag.globaltag = '76X_dataRun2_16Dec2015_v0' #76X_mcRun2_asymptotic_RunIIFall15DR76_v1
-    process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_miniAODv2_v1'
-    from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import *
-    process.patJetCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
-        src = cms.InputTag("slimmedJets"),
-        levels = ['L1FastJet', 
-                  'L2Relative', 
-                  'L3Absolute'],
-        payload = 'AK4PFchs' ) # Make sure to choose the appropriate levels and payload here!
+    #process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_miniAODv2_v1'
+    process.GlobalTag.globaltag = '80X_mcRun2_asymptotic_2016_TrancheIV_v8'
+    # from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import *
+    # process.patJetCorrFactorsReapplyJEC = updatedPatJetCorrFactors.clone(
+    #     src = cms.InputTag("slimmedJets"),
+    #     levels = ['L1FastJet', 
+    #               'L2Relative', 
+    #               'L3Absolute'],
+    #     payload = 'AK4PFchs' ) # Make sure to choose the appropriate levels and payload here!
 
-    process.patJetsReapplyJEC = updatedPatJets.clone(
-        jetSource = cms.InputTag("slimmedJets"),
-        jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
-        )
+    # process.patJetsReapplyJEC = updatedPatJets.clone(
+    #     jetSource = cms.InputTag("slimmedJets"),
+    #     jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
+    #     )
 
-    process.Hamb.Jets.Input = "patJetsReapplyJEC"
-    process.METSignificance.srcPfJets = "patJetsReapplyJEC"
-    #process.p = cms.Path( process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.fullPatMetSequence + process.METSignificance + process.Hamb)
-    #process.p = cms.Path( process.patJetCorrFactorsReapplyJEC + process.patJetsReapplyJEC + process.Hamb)
-    process.p = cms.Path( process.fullPatMetSequence + process.METSignificance + process.Hamb)
+    # process.Hamb.Jets.Input = "patJetsReapplyJEC"
+    # process.METSignificance.srcPfJets = "patJetsReapplyJEC"
+    #  + process.METSignificance
+    process.p = cms.Path( process.fullPatMetSequence + process.Hamb)
     if options.sync == 0 :
         for v in range(0 , 10 ):
             process.Hamb.HLT_Mu17Mu8_DZ.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v%d' % (v) )
             process.Hamb.HLT_Mu17Mu8_DZ.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v%d' % (v) )
             process.Hamb.HLT_Mu17Mu8.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v%d' % (v) )
             process.Hamb.HLT_Mu17Mu8.HLT_To_Or.append( 'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v%d' % (v) )
+            process.Hamb.HLT_Mu17Mu8.HLT_To_Or.append( 'HLT_IsoMu24_v%d' % (v) )
+            process.Hamb.HLT_Mu17Mu8.HLT_To_Or.append( 'HLT_IsoTkMu24_v%d' % (v) )
+            process.Hamb.HLT_Mu17Mu8.HLT_To_Or.append( 'HLT_IsoMu22_eta2p1_v%d' % (v) )
+            process.Hamb.HLT_Mu17Mu8.HLT_To_Or.append( 'HLT_IsoTkMu22_eta2p1_v%d' % (v) )
     if theSample.DSName.count( "_reHLT_" ):
 	process.Hamb.HLT_Mu17Mu8_DZ.Input = cms.InputTag( "TriggerResults","","HLT2" )
 	process.Hamb.HLT_Mu17Mu8.Input = cms.InputTag( "TriggerResults","","HLT2" )

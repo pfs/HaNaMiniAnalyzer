@@ -28,17 +28,18 @@ Hamb = cms.EDFilter('TreeHamb',
 
                      MET = cms.PSet( Input = cms.InputTag("slimmedMETs"),
                                      Cut = cms.double( 40. ),
-                                     oldjets = cms.InputTag("slimmedJets"),
-				     metsig = cms.InputTag("METSignificance:METSignificance:HaNa")	
+                                     
+                                     #oldjets = cms.InputTag("slimmedJets"),
+				     #metsig = cms.InputTag("METSignificance:METSignificance:HaNa")	
                                      ),
                      Jets = cms.PSet( Input = cms.InputTag("slimmedJets"),
                                       ApplyJER = cms.bool( False ),
                                       JetPtCut = cms.double( 15. ),
                                       JetEtaCut = cms.double( 2.4 ),
                                       BTagAlgo = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
-                                      BTagWPL = cms.double( 0.460 ),
-                                      BTagWPM = cms.double( 0.800 ),
-                                      BTagWPT = cms.double( 0.935 ),
+                                      BTagWPL = cms.double(  0.5426  ),
+                                      BTagWPM = cms.double(  0.8484  ),
+                                      BTagWPT = cms.double(  0.9535 ),
                                       #Which WP to use in selection: 0,1,2 ---> L, M, T
                                       # -1 ---> no requirement
                                       BTagCuts = cms.vint32(1,-1), # supporting up to two working point, the second is for veto

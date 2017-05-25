@@ -30,6 +30,10 @@ public:
   pat::JetCollection selectedJets;
   pat::JetCollection selectedJetsSortedByB;
   pat::JetCollection selectedBJets;
+  pat::JetCollection selectedJetsJESUp;
+  pat::JetCollection selectedJetsJESDown;
+  pat::JetCollection selectedJetsJERUp;
+  pat::JetCollection selectedJetsJERDown;
   double W;
   float weights[9];
 

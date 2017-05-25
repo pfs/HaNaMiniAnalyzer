@@ -12,6 +12,7 @@
 <use name="PhysicsTools/Utilities"/>
 <use name="SimDataFormats/PileupSummaryInfo" />
 <use name="CondFormats/BTauObjects"/>
+<use name="CondTools/BTau" />
 <use name="DataFormats/MuonReco"/>
 <export>
   <lib   name="1"/>

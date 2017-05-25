@@ -268,10 +268,10 @@ bool TreeHamb::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 //---------- HLT --------
 // Currently no HLT in MC
-  if(IsData){
-    passHLT_Mu17Mu8 = (!( hltReader_Mu17Mu8->Read( iEvent ) < 0 ));
-    passHLT_Mu17Mu8_DZ = (!( hltReader_Mu17Mu8_DZ->Read( iEvent ) < 0 ));
-  } 
+//if(IsData){
+ passHLT_Mu17Mu8 = (!( hltReader_Mu17Mu8->Read( iEvent ) < 0 ));
+ passHLT_Mu17Mu8_DZ = (!( hltReader_Mu17Mu8_DZ->Read( iEvent ) < 0 ));
+    //  } 
   
   hCutFlowTable->Fill( ++stepEventSelection , W );
 

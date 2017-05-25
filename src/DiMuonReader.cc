@@ -22,13 +22,13 @@ DiMuonReader::DiMuonReader( edm::ParameterSet const& iConfig, edm::ConsumesColle
     gROOT->cd();
     hMuSFID = NULL;
     if(MuonID == 1 ) // Loose ID
-      hMuSFID = (TH2*)( f1->Get("MC_NUM_LooseID_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio")->Clone("MuSFID") );
+      hMuSFID = (TH2*)( f1->Get("MC_NUM_LooseID_DEN_genTracks_PAR_pt_eta/pt_abseta_ratio")->Clone("MuSFID") );
     else if(MuonID == 2 ) // Medium ID
-      hMuSFID = (TH2*)( f1->Get("MC_NUM_MediumID_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio")->Clone("MuSFID") );
+      hMuSFID = (TH2*)( f1->Get("MC_NUM_MediumID_DEN_genTracks_PAR_pt_eta/pt_abseta_ratio")->Clone("MuSFID") );
     else if(MuonID == 3 ) // Tight ID
-      hMuSFID = (TH2*)( f1->Get("MC_NUM_TightIDandIPCut_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio")->Clone("MuSFID") );
-    else if(MuonID == 4 ) // Soft ID
-      hMuSFID = (TH2*)( f1->Get("MC_NUM_SoftID_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio")->Clone("MuSFID") );
+      hMuSFID = (TH2*)( f1->Get("MC_NUM_TightID_DEN_genTracks_PAR_pt_eta/pt_abseta_ratio")->Clone("MuSFID") );
+    //else if(MuonID == 4 ) // Soft ID
+    //  hMuSFID = (TH2*)( f1->Get("MC_NUM_SoftID_DEN_genTracks_PAR_pt_spliteta_bin1/pt_abseta_ratio")->Clone("MuSFID") );
     else
       cout << "No scale factor is availabel for Muon ID " << MuonID << endl;
     f1->Close();
@@ -36,18 +36,31 @@ DiMuonReader::DiMuonReader( edm::ParameterSet const& iConfig, edm::ConsumesColle
     f1 = TFile::Open( TString(SetupDir + "/MuonIsoSF.root") );
     gROOT->cd();
     if( MuonIsoCut == 0.15 )
-      hMuSFIso = (TH2*)( f1->Get("MC_NUM_TightRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio")->Clone("MuSFIso") );
+      hMuSFIso = (TH2*)( f1->Get("TightISO_TightID_pt_eta/pt_abseta_ratio")->Clone("MuSFIso") );
     else if( MuonIsoCut == 0.25 )
-      hMuSFIso = (TH2*)( f1->Get("MC_NUM_LooseRelIso_DEN_TightID_PAR_pt_spliteta_bin1/pt_abseta_ratio")->Clone("MuSFIso") );
+      hMuSFIso = (TH2*)( f1->Get("LooseISO_TightID_pt_eta/pt_abseta_ratio")->Clone("MuSFIso") );
     else
       cout << "No scale factor is availabel for Muon Iso " << MuonIsoCut << endl;
     f1->Close();
 
-    f1 = TFile::Open(TString(SetupDir + "/DiMuonHLTs.root"));
-    gROOT->cd();
-    hMuHltMu17Mu8 = (TH2*)( f1->Get("Mu17Mu8")->Clone("Mu17Mu8_") );
-    hMuHltMu17Mu8_DZ = (TH2*)( f1->Get("Mu17Mu8_DZ")->Clone("Mu17Mu8_DZ_") );
-    f1->Close();
+    //f1 = TFile::Open(TString(SetupDir + "/DiMuonHLTs.root"));
+    //gROOT->cd();
+    //hMuHltMu17Mu8 = (TH2*)( f1->Get("Mu17Mu8")->Clone("Mu17Mu8_") );
+    //hMuHltMu17Mu8_DZ = (TH2*)( f1->Get("Mu17Mu8_DZ")->Clone("Mu17Mu8_DZ_") );
+    //f1->Close();
+    /* According to Reza's calculations: https://indico.cern.ch/event/640550/contributions/2601786/attachments/1465253/2264977/EFT_Dilepton_2.pdf 
+     * ** SingleMu Trigger should be added
+     * ** If necessary at analysis level the muon topologic cut should be applied
+     * ** Only one of the two weights below is sufficient
+    */
+    
+
+    /* Tracking efficiency 
+     * https://twiki.cern.ch/twiki/bin/view/CMS/MuonWorkInProgressAndPagResults#Results_on_the_full_2016_data
+     */
+    f1 = TFile::Open(TString(SetupDir + "/Tracking.root")); 
+    hTrk = (TGraphAsymmErrors*)((TGraphAsymmErrors*) f1->Get("ratio_eff_aeta_dr030e030_corr"))->Clone("hTrk");
+    f1->Close(); 
   }
   myIso = new Isolation("TestIso");
   goodMuIso.clear();
@@ -161,10 +174,12 @@ DiMuonReader::SelectionStatus DiMuonReader::Read( const edm::Event& iEvent, cons
     return DiMuonReader::NoPairWithChargeReq;
 
   if( !IsData ){
+    W = MuonTrkEff(fabs(goodMusOS[0].eta()))*MuonTrkEff(fabs(goodMusOS[1].eta())); 
+    if(W == 0) W = 1;
     if( MuonIsoCut == 0.25 )
-      W = MuonSFLoose(  goodMusOS[0].eta() , goodMusOS[0].pt() , goodMusOS[1].eta() , goodMusOS[1].pt() ); 
+      W *= MuonSFLoose(  goodMusOS[0].eta() , goodMusOS[0].pt() , goodMusOS[1].eta() , goodMusOS[1].pt() ); 
     else if( MuonIsoCut == 0.15 )
-      W = MuonSFMedium( goodMusOS[0].eta() , goodMusOS[0].pt() , goodMusOS[1].eta() , goodMusOS[1].pt() ); 
+      W *= MuonSFMedium( goodMusOS[0].eta() , goodMusOS[0].pt() , goodMusOS[1].eta() , goodMusOS[1].pt() ); 
   }
     
   DiMuon = DiObjectProxy( goodMusOS[0] , goodMusOS[1] );
@@ -191,14 +206,7 @@ double DiMuonReader::MuonSFMedium( double etaL , double ptL , double etaSL , dou
 
   double el = fabs(etaL);
   double esl = fabs(etaSL);
-  if(el < 1.2 && esl < 1.2 )
-    ret = 0.926 ;				
-  else if( el < 1.2 )
-    ret = 0.943;
-  else if( esl < 1.2 )
-    ret = 0.958 ;
-  else 
-    ret = 0.926 ;
+
 
   ret *= ( hMuSFID->GetBinContent( hMuSFID->FindBin( ptL , el ) ) * hMuSFID->GetBinContent( hMuSFID->FindBin( ptSL , esl ) ) );
   ret *= (hMuSFIso->GetBinContent(hMuSFIso->FindBin(ptL ,el ) ) * hMuSFIso->GetBinContent( hMuSFIso->FindBin( ptSL , esl ) ) );
@@ -206,19 +214,17 @@ double DiMuonReader::MuonSFMedium( double etaL , double ptL , double etaSL , dou
   return ret;
 }
 double DiMuonReader::MuonSFLoose( double etaL , double ptL , double etaSL , double ptSL ){
+  // To accound for boundary effects
+  if( ptSL < 20 ) ptSL = 20.01;
+  if( ptL < 20 ) ptL = 20.01;
+  if( ptSL > 120 ) ptSL = 119;
+  if( ptL > 120 ) ptL = 119;
+
   //AN2016_025_v7 Figure 19, Middle Row, Right for trigger
   double ret = 1.0;
     
   double el = fabs(etaL);
   double esl = fabs(etaSL);
-  if(el < 1.2 && esl < 1.2 )
-    ret = 0.930 ;				
-  else if( el < 1.2 )
-    ret = 0.933;
-  else if( esl < 1.2 )
-    ret = 0.951 ;
-  else 
-    ret = 0.934 ;
 
   if( ptSL < 20 || ptL < 20 )
     return ret;
@@ -230,6 +236,7 @@ double DiMuonReader::MuonSFLoose( double etaL , double ptL , double etaSL , doub
 }
 double DiMuonReader::MuonSFHltMu17Mu8( double ptL , double ptSL ){
   double ret = 1.0;
+  return ret;
   if(ptL < 20 )
 	ptL = 20.01;
   if(ptSL < 18)
@@ -239,10 +246,30 @@ double DiMuonReader::MuonSFHltMu17Mu8( double ptL , double ptSL ){
 }
 double DiMuonReader::MuonSFHltMu17Mu8_DZ( double ptL , double ptSL ){
   double ret = 1.0;
+  return ret; // Very close to one. The effect will be considered as uncertainty (1-2%)
   if(ptL < 20 )
         ptL = 20.01;
   if(ptSL < 18)
         ptSL = 20.01;
   ret *= (hMuHltMu17Mu8_DZ->GetBinContent(hMuHltMu17Mu8_DZ->FindBin(ptL,ptSL)));
   return ret;
+}
+
+double DiMuonReader::MuonTrkEff(double abseta){
+    double x,y;
+    int iPoint = -1;
+    if(abseta < 0.2) iPoint = 0;
+    else if (abseta < 0.4) iPoint = 1;
+    else if (abseta < 0.6) iPoint = 2;
+    else if (abseta < 0.8) iPoint = 3;
+    else if (abseta < 1.0) iPoint = 4;
+    else if (abseta < 1.2) iPoint = 5;
+    else if (abseta < 1.4) iPoint = 6;
+    else if (abseta < 1.6) iPoint = 7;
+    else if (abseta < 1.8) iPoint = 8;
+    else if (abseta < 2.0) iPoint = 9;
+    else if (abseta < 2.2) iPoint = 10;
+    else iPoint = 11;
+    hTrk->GetPoint(iPoint,x,y);
+    return y;
 }
