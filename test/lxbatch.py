@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-nFilesPerJob=6
-CheckFailedJobs=False
+nFilesPerJob=15
+CheckFailedJobs=True
 hname = "Hamb/CutFlowTable/CutFlowTable"
 prefix = "out"
 
@@ -72,7 +72,7 @@ for sample in samples:
     if CheckFailedJobs:
         if len(FailedJobs[ sample.Name ]) > 0:
             #command = 'bsub -q 8nh -J "%(sample)s%(countor)s[%(list)s]"  -o %(sample)s%%I.out `pwd`/SetupAndRun.sh %(vomsaddress)s %(scram)s %(cmsver)s %(gitco)s %(sample)s %(out)s %(outdir)s %(nFilesPerJob)d' % {
-            command = 'bsub -q 1nd -J "%(sample)s%(countor)s[%(list)s]"  -o %(sample)s%%I.out `pwd`/SetupAndRun.sh %(vomsaddress)s %(scram)s %(cmsver)s %(gitco)s %(sample)s %(out)s %(outdir)s %(nFilesPerJob)d' % {
+            command = 'bsub -q 1nw -J "%(sample)s%(countor)s[%(list)s]"  -o %(sample)s%%I.out `pwd`/SetupAndRun.sh %(vomsaddress)s %(scram)s %(cmsver)s %(gitco)s %(sample)s %(out)s %(outdir)s %(nFilesPerJob)d' % {
                 "vomsaddress":"`pwd`/.x509up_u%d" % (os.getuid()) ,
                 "scram":os.getenv("SCRAM_ARCH") ,
                 "cmsver":os.getenv("CMSSW_VERSION"),
