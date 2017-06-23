@@ -48,8 +48,8 @@ DiMuonReader::DiMuonReader( edm::ParameterSet const& iConfig, edm::ConsumesColle
     hMuHltMu17Mu8 = (TH2*)( f1->Get("Mu17Mu8")->Clone("Mu17Mu8_") );
     hMuHltMu17Mu8_DZ = (TH2*)( f1->Get("Mu17Mu8_DZ")->Clone("Mu17Mu8_DZ_") );
     f1->Close();
-    myIso = new Isolation("TestIso");
   }
+  myIso = new Isolation("TestIso");
   goodMuIso.clear();
   goodMuId.clear();
   goodMuIsoChargedHadronPt.clear();
