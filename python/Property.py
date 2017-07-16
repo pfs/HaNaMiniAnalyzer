@@ -1,4 +1,4 @@
-from ROOT import TDirectory, TFile, TCanvas , TH1D , TH1 , THStack, TList, gROOT, TLegend, TPad, TLine, gStyle, TTree , TObject , gDirectory, gPad, TLimit, Double, TLimitDataSource, TString
+from ROOT import TDirectory, TFile, TCanvas , TH1D , TH1 , THStack, TList, gROOT, TLegend, TPad, TLine, gStyle, TTree , TObject , gDirectory, gPad, TLimit, Double, TLimitDataSource, TString, TLatex
 from ROOT import RooFit,RooDataHist, RooHistPdf,RooAddPdf,RooFitResult, RooRealVar, RooArgSet, RooArgList
 
 from math import sqrt,log
@@ -320,6 +320,14 @@ class Property:
 
 		return self.LineOne
 
+        def GetTitleBox(self):
+                title = self.Samples[0].GetTitle()
+                if not hasattr(self , "TitleBox"):
+                        self.TitleBox = TLatex()
+                        self.TitleBox.SetNDC()
+                        self.TitleBox.SetTextSize(0.06)
+                        self.TitleBox.DrawLatex(0.6,0.943,title)
+                return self.TitleBox
 
 	def Draw(self, normalizetodata = False , padOrCanvas = 0 ):
 		gStyle.SetOptTitle(0)
@@ -332,7 +340,7 @@ class Property:
 				s.Draw("E SAME HIST")
 			self.GetSLegend().Draw()
 		self.GetLegend().Draw()
-			
+		self.GetTitleBox().Draw()
 		self.GetCanvas(2)
 		self.GetRatioUnc().Draw("E2")
 		self.GetRatioPlot().Draw("ep same")
