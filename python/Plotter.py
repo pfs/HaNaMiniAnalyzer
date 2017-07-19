@@ -151,6 +151,7 @@ class CutInfo:
 
     def LoadHistos( self , samplename , isdata , tree , indices=[0] , additionalCut = None ):
         tree.SetEventList( None )
+        tree.SetEntryList( None )
         cut_ = self.Cut
         if(additionalCut):
             cut_ += " && " + additionalCut
@@ -159,9 +160,9 @@ class CutInfo:
 		if cut_ == "":
 			cut_ += "(higgsjetPtOrdered.mass > 135 || higgsjetPtOrdered.mass < 115)"
 		else:
-                        cut_ += " && (higgsjetPtOrdered.mass > 135 || higgsjetPtOrdered.mass < 115)"
+			cut_ += " && (higgsjetPtOrdered.mass > 135 || higgsjetPtOrdered.mass < 115)"
                         
-        nLoaded = tree.Draw( ">>list_%s_%s"%(samplename, self.Name) , cut_ ) # , "entrylist" )
+        nLoaded = tree.Draw( ">>list_%s_%s"%(samplename, self.Name) , cut_  , "entrylist" )
         #gDirectory.ls()
         lst = gDirectory.Get( "list_%s_%s"%(samplename, self.Name) )
         print "%s\t\tEvents from tree are loaded (%s , %s), %d" % (bcolors.UNDERLINE, self.Name , cut_ , nLoaded )
@@ -169,15 +170,16 @@ class CutInfo:
         if nLoaded < 0:
             print "Error in loading events with cut (%s) from dataset (%s), nLoaded = %d" % (cut_,samplename , nLoaded)
         if nLoaded < 1 :
-            self.ListOfEvents[samplename] = TEventList( "list_%s" % (samplename) , cut_ ) # , tree ) #TEntryList(
+            #self.ListOfEvents[samplename] = TEventList( "list_%s" % (samplename) , cut_ ) # , tree ) #TEntryList(
+            self.ListOfEvents[ samplename ] = TEntryList( "list_%s" % (samplename) ,cut_ , tree )
         else:
             self.ListOfEvents[samplename] = lst
 
         #print self.ListOfEvents[samplename]
         #self.ListOfEvents[samplename].Print()
         #self.ListOfEvents[samplename].SetTreeName( tree.GetName() )
-        tree.SetEventList( self.ListOfEvents[samplename] )
-
+	    #tree.SetEventList( self.ListOfEvents[samplename] )
+        tree.SetEntryList( self.ListOfEvents[samplename] )
             
         ret = {}
         for hist in self.ListOfHists:
@@ -203,7 +205,7 @@ class CutInfo:
                             f.write("#{0:s}:[{1:d},{2:.2g},{3:.2g}]".format( hist.VarName , hist.nBins , hist.From , hist.To ) )
                         
 
-                            
+                    
                     tree.Draw( "%s>>cloned_%s(%s)" % ( hist.VarName , hname , hist.Bins() ) ,
                                "" if isdata else self.Weights( n , samplename , isdata) )
                     #print self.Weights(n,samplename,isdata)
@@ -289,7 +291,8 @@ class Plotter:
             st.LoadHistos( lumi , dirName , cftName , self.TreePlots )
             for prop in st.AllHists:
                 if not prop in self.Props:
-                    self.Props[prop] = Property( prop , OrderedDict() , None, None , [] )
+                	self.Props[prop] = Property( prop , OrderedDict() , None, [] , [], self.FindGRE(prop)) 
+                    #self.Props[prop] = Property( prop , OrderedDict() , None, None , [] )
                 append = []
                 for s in st.Samples:
                     if prop in s.AllHists:
@@ -300,7 +303,7 @@ class Plotter:
                 if st.IsData():
                     self.Props[prop].Data = st.AllHists[prop]
                 elif st.IsSignal:
-                    self.Props[prop].Signal = st.AllOtherHists[prop].values()
+                    self.Props[prop].Signal.extend( st.AllOtherHists[prop].values() )
                 else :
                     self.Props[prop].Bkg[st.Name] = st.AllHists[prop]
 
