@@ -334,6 +334,7 @@ class Property:
 		gStyle.SetOptTitle(0)
 		self.GetCanvas(1, padOrCanvas)
                 self.Data.GetYaxis().SetRangeUser( 0.000001 , 2*self.Data.GetMaximum() )
+                self.Data.SetMarkerStyle(20)
 		self.Data.Draw("E")
 		self.GetStack(normalizetodata).Draw("HIST SAME")
 		self.Data.Draw("E SAME P")
