@@ -26,8 +26,8 @@ def GetSample( s ):
         return s
 
 
-#nTuples = "/home/nadjieh/cernbox/Hamb13/Oct14_8020_Opt/Trees/"
-nTuples = "/home/hbakhshi/Downloads/Hamb_Nadjieh/withSelVariables/"
+nTuples = "/home/nadjieh/cernbox/Hamb13/June06_Full2016_MassProd/withSelVariables/"
+#nTuples = "/home/hbakhshi/Downloads/Hamb_Nadjieh/withSelVariables/"
 
 from Haamm.HaNaMiniAnalyzer.SampleType import *
 from ROOT import kGray, kGreen, kOrange, kRed, kBlack, kCyan, kBlue, kAzure, kTeal, kPink, kYellow
@@ -77,7 +77,8 @@ Cuts = { "HLT":"(passHLT_Mu17Mu8 || passHLT_Mu17Mu8_DZ)",
          "chi2sum":"chi2Sum < 5 ",
          "TL":"passTL" ,
          "LL" : "1==1",
-         "TLFormula":"Max$(jetsBtag) > 0.9535 && Sum$( jetsBtag > 0.5426 ) > 1"
+         "TLFormula":"Max$(jetsBtag) > 0.9535 && Sum$( jetsBtag > 0.5426 ) > 1",
+         "invchi2sum":"chi2Sum > 5 && chi2Sum < 11"
          }
 
 cPreselectionLL = CutInfo( "PreselectionLL" , "&&".join( [Cuts[ss] for ss in ["HLT", "BasicJetsMu" , "LL"]] ) , "Weight*bWeightLL" , title="2#mu2loose-bjets"  )
@@ -86,8 +87,10 @@ cTLMetBlind = CutInfo( "TLMetBlind" , "&&".join( [Cuts[ss] for ss in ["HLT", "Ba
 cSRBlind = CutInfo( "SRBlind" , "&&".join( [Cuts[ss] for ss in ["HLT", "BasicJetsMu" , "TL" , "MET" , "chi2sum"]] ) , "Weight*bWeightTL" , title="Signal Region (blind)" , blind=True )
 cSR = CutInfo( "SR" , "&&".join( [Cuts[ss] for ss in ["HLT", "BasicJetsMu" , "TL" , "MET" , "chi2sum"]] ) , "Weight*bWeightTL" , title="Signal Region"  )
 cTLMet = CutInfo( "TLMet" , "&&".join( [Cuts[ss] for ss in ["HLT", "BasicJetsMu" , "TL" , "MET"]] ) , "Weight*bWeightTL" , title="2#mu, tight-loose b-jets, met>60"   )
+cTLChi2Sum = CutInfo( "TLChi2Sum" , "&&".join( [Cuts[ss] for ss in ["HLT", "BasicJetsMu" , "TL" , "chi2sum"]] ) , "Weight*bWeightTL" , title="2#mu, tight-loose b-jets, chi2sum<5"   )
+cTLInvChi2Sum = CutInfo( "CRChi2Sum" , "&&".join( [Cuts[ss] for ss in ["HLT", "BasicJetsMu" , "TL" , "MET", "invchi2sum"]] ) , "Weight*bWeightTL" , title="2#mu, tight-loose b-jets, 11>chi2sum>5"   )
 
-cuts = [cPreselectionTL, cPreselectionLL , cTLMet , cSR , cSRBlind, cTLMetBlind ]
+cuts = [cPreselectionTL, cPreselectionLL , cTLMet , cSR , cSRBlind, cTLMetBlind, cTLChi2Sum, cTLInvChi2Sum ]
 
 for cut in cuts :
     if "Blind" not in cut.Name :
@@ -95,7 +98,7 @@ for cut in cuts :
         cut.AddHist( "nVertices" , "nVertices" , 50 , 0. , 50., False , Title="#Vertices" , dirName="General" )
         cut.AddHist( "metPhi" , "abs(metPhi)" , 16 , 0. , 3.2, False , Title="#phi" , dirName="MET" )
         cut.AddHist( "metSig" , "metSig" , 25, 0, 50, False , Title="met significance" , dirName="MET" )
-        cut.AddHist( "met" , "met" , 30 , 0. , 300, False , Title="met" , dirName="MET")
+        met = cut.AddHist( "met" , "met" , 30 , 0. , 300, False , Title="met" , dirName="MET")
         cut.AddHist( "amuPt" , "amPt" , 30 , 0. , 300., False , Title="p_{T}^{#mu#mu}" , dirName="MuMu")
         cut.AddHist( "abPt" , "abPt" , 30 , 0. , 300., False , Title="p_{T}^{bb}" , dirName="bb")
         cut.AddHist( "abMass" , "abMass" , 24, 10. , 250., False , Title="m_{bb}" , dirName="bb")
@@ -107,13 +110,15 @@ for cut in cuts :
         cut.AddHist( "Mu2Eta" , "muEta[1]" , 10 , -2.5 , 2.5 , False , Title="#mu_{sub-lead.} #eta" , dirName="Mus" )
         cut.AddHist( "Jet1Eta" , "jetsEta[0]" , 10 ,-2.5 , 2.5 , False , Title="jet_{lead.} #eta" , dirName="Jets")
         cut.AddHist( "Jet2Eta" , "jetsEta[1]" , 10 , -2.5 , 2.5 , False , Title="jet_{sub-lead.} #eta" , dirName="Jets"  )
-    cut.AddHist( "chi2Sum" , "chi2Sum", 25 , 0. , 50., False , Title="#chi^{2}_{H}+#chi^{2}_{a#rightarrowbb}", dirName="Jets")
-    cut.AddHist( "amuMass" , "aMuMass", 55 , 15 , 70 , Title="#mu#mu mass" , dirName="General")
+    chi2sum = cut.AddHist( "chi2Sum" , "chi2Sum", 25 , 0. , 50., False , Title="#chi^{2}_{H}+#chi^{2}_{a#rightarrowbb}", dirName="Jets")
+    amuMass = cut.AddHist( "amuMass" , "aMuMass", 25 , 20 , 70 , Title="#mu#mu mass" , dirName="General")
     cut.AddHist( "HiggsMass" , "higgsMass" , 46 , 75 , 305, False , Title="m_{#mu#mubb}" , dirName="MuMU" )
     cut.AddHist( "HiggsPt" , "higgsPt" , 30 , 0. , 300., False , Title="p_{T}^{#mu#mubb}", dirName="MuMubb")
     cut.AddHist( "chi2B" , "chi2B", 25 , 0. , 50., False , Title="#chi^{2}_{a#rightarrowbb}" , dirName="bb")
     cut.AddHist( "chi2H" , "chi2H", 25 , 0. , 50., False , Title="#chi^{2}_{H#rightarrowbb#mu#mu}" , dirName="MuMubb" )
     cut.AddHist( "HiggsMDiff" , "abs(higgsMass - 125.0)", 20 , 0. , 100., False , Title="|mass_{#mu#mubb}-125.0|" , dirName="MuMubb" )
+    #cut.AddHist( amuMass , chi2sum )
+    #cut.AddHist( amuMass , met )
 
 for c in cuts :
     plotter.AddTreePlots( c )

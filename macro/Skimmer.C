@@ -121,9 +121,9 @@ int main(int argc, char** argv) {
     	    newTree->Branch("passMu1Pt", &passMu1Pt);
     	    newTree->Branch("passMu2Pt", &passMu2Pt);
 	} else {
-	    newTree->Branch("aMuMass", &amuMass);
-	    newTree->Branch("bWeightTL", &bWTL);				        			
-	    newTree->Branch("bWeightLL", &bWLL);
+	    //newTree->Branch("aMuMass", &amuMass);
+	    //newTree->Branch("bWeightTL", &bWTL);				        			
+	    //newTree->Branch("bWeightLL", &bWLL);
 	}
         cout << rds->fChain->GetEntriesFast() << endl;
         for (int eventNumber = 0; eventNumber < rds->fChain->GetEntriesFast(); eventNumber++) {
@@ -317,13 +317,18 @@ int main(int argc, char** argv) {
     		  newTree->Fill();		
 	    } else {
 	      
-	      //amuMass = rds->aMu_mass;
+
 	      //according to optimization of Dec. 2016
-	      if(rds->jetsPt->at(0) < 20) continue;
+	      //if(rds->jetsPt->at(0) < 20) continue;
 	      //
-	      amuMass = a.M();
-	      bWTL = rds->bWs_W1L1T;
-	      bWLL = rds->bWs_W2L;
+	      //amuMass = a.M();
+	      //bWTL = rds->bWs_W1L1T;
+	      //bWLL = rds->bWs_W2L;
+	      
+	      // for the control region for multipdf
+	      if(!rds->passTL) continue;
+	      if(rds->met > 60) continue;
+	      if(rds->chi2Sum < 5 || rds->chi2Sum > 11) continue;
 	      newTree->Fill();			
 	    }
 	}

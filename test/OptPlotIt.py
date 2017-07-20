@@ -144,7 +144,7 @@ chi2HCut = "%s < 5" %(chi2H)
 chi2BCut = "%s < 5" %(chi2B)
 chi2SumCut = "%s < 5" %(chi2Sum)
 trueb = metSig + " && abs(jetsFlavour[0]) == 5 && abs(jetsFlavour[1]) == 5"
-metcut = "met < 60"
+metcut = "met < 50"
 
 #btagWP = [0.460, 0.800, 0.935] #ICHEP
 btagWP = [0.5426, 0.8484, 0.9535] # full2016
