@@ -302,6 +302,7 @@ class Property:
 			self.RatioUncert.GetXaxis().SetTitleOffset(0.25)
 			self.RatioUncert.GetYaxis().SetLabelSize(0.1)
 			self.RatioUncert.GetXaxis().SetTickLength(0.09)
+                        self.RatioUncert.GetXaxis().SetTitle("")
 			self.RatioUncert.GetYaxis().SetTitleSize(0.18)
 			self.RatioUncert.GetYaxis().SetNdivisions(509)
 			self.RatioUncert.GetYaxis().SetTitleOffset(0.25)
@@ -332,6 +333,7 @@ class Property:
 	def Draw(self, normalizetodata = False , padOrCanvas = 0 ):
 		gStyle.SetOptTitle(0)
 		self.GetCanvas(1, padOrCanvas)
+                self.Data.GetYaxis().SetRangeUser( 0.000001 , 2*self.Data.GetMaximum() )
 		self.Data.Draw("E")
 		self.GetStack(normalizetodata).Draw("HIST SAME")
 		self.Data.Draw("E SAME P")

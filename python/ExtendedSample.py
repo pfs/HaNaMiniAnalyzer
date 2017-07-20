@@ -76,12 +76,14 @@ class ExtendedSample: #extend the sample object to store histograms
         if self.IsData :
             return
         self.nTotal = self.GetNTotal()
+        #print self.Name, "nTotal : " , self.nTotal, "xSec: " , self.XSection
         if self.nTotal == 0:
             print "\tSample %s has no entries" % (self.Name)
             return
 
         for index in self.LoadedIndices:
             self.XSFactor = lumi*self.XSections[index]/self.nTotal
+            #print "\t XSFactor : " , self.XSFactor
             print "\t\tXSFactor[%d] for lumi %d is : %.4f" % (index , lumi , self.XSFactor)
             #print "%s factor : (%.2f*%.2f)/%.0f = %.3f" % (sample , lumi , self.XSections[sample] , ntotal  , factor)
             for h in self.AllHists :

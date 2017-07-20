@@ -97,7 +97,7 @@ class HistInfo:
         return "%s_%s_%d" % (sName , self.Name , index )
 
 class CutInfo:
-    def __init__(self, name , cut , weight = "1" , blind_ = False , title = ""):
+    def __init__(self, name , cut , weight = "1"  , title = "" , blind=False ):
         self.Name = name
         self.Cut = cut
         self.Weight = weight
@@ -107,7 +107,7 @@ class CutInfo:
         self.AllTH1s = {}
 
         self.GREs = []
-        self.Blind = blind_
+        self.Blind = blind
         self.Title = name if title == "" else title
         
     def AddHist(self, name , varname = None , nbins = None , _from = None , to = None , GRE = True , Title = "" , Auto = False , dirName = None  ):
@@ -150,19 +150,24 @@ class CutInfo:
             return ("Weight.W%d" % (index) )
 
     def LoadHistos( self , samplename , isdata , tree , indices=[0] , additionalCut = None ):
-        tree.SetEventList( None )
-        tree.SetEntryList( None )
+        UseEventList = gROOT.GetVersionCode() > 60000
+
+        if UseEventList :
+            tree.SetEventList( None )
+        else:
+            tree.SetEntryList( None )
+        
         cut_ = self.Cut
         if(additionalCut):
             cut_ += " && " + additionalCut
 
-        if self.Blind:
-		if cut_ == "":
-			cut_ += "(higgsjetPtOrdered.mass > 135 || higgsjetPtOrdered.mass < 115)"
-		else:
-			cut_ += " && (higgsjetPtOrdered.mass > 135 || higgsjetPtOrdered.mass < 115)"
+        if self.Blind and isdata:
+	    if cut_ == "":
+		cut_ += "(abs(higgsMass - 125.0) > 10)"
+	    else:
+		cut_ += " && (abs(higgsMass - 125.0) > 10)"
                         
-        nLoaded = tree.Draw( ">>list_%s_%s"%(samplename, self.Name) , cut_  , "entrylist" )
+        nLoaded = tree.Draw( ">>list_%s_%s"%(samplename, self.Name) , cut_  , "" if UseEventList else  "entrylist" )
         #gDirectory.ls()
         lst = gDirectory.Get( "list_%s_%s"%(samplename, self.Name) )
         print "%s\t\tEvents from tree are loaded (%s , %s), %d" % (bcolors.UNDERLINE, self.Name , cut_ , nLoaded )
@@ -170,16 +175,20 @@ class CutInfo:
         if nLoaded < 0:
             print "Error in loading events with cut (%s) from dataset (%s), nLoaded = %d" % (cut_,samplename , nLoaded)
         if nLoaded < 1 :
-            #self.ListOfEvents[samplename] = TEventList( "list_%s" % (samplename) , cut_ ) # , tree ) #TEntryList(
-            self.ListOfEvents[ samplename ] = TEntryList( "list_%s" % (samplename) ,cut_ , tree )
+            if UseEventList :
+                self.ListOfEvents[samplename] = TEventList( "list_%s" % (samplename) , cut_ )
+            else:
+                self.ListOfEvents[ samplename ] = TEntryList( "list_%s" % (samplename) ,cut_ , tree )
         else:
             self.ListOfEvents[samplename] = lst
 
         #print self.ListOfEvents[samplename]
         #self.ListOfEvents[samplename].Print()
         #self.ListOfEvents[samplename].SetTreeName( tree.GetName() )
-	    #tree.SetEventList( self.ListOfEvents[samplename] )
-        tree.SetEntryList( self.ListOfEvents[samplename] )
+        if UseEventList :
+	    tree.SetEventList( self.ListOfEvents[samplename] )
+        else:
+            tree.SetEntryList( self.ListOfEvents[samplename] )
             
         ret = {}
         for hist in self.ListOfHists:

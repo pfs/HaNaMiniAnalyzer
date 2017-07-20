@@ -1,0 +1,125 @@
+#!/usr/bin/env python
+from ROOT import gROOT, TLatex, TCanvas, TFile, gROOT, TColor
+import math
+import string
+
+LUMI=35900
+
+gROOT.SetBatch(True)
+
+from Samples80.Samples import *
+samples = None
+runOnOutsOfAnotherJob = False
+if runOnOutsOfAnotherJob :
+    samples = samples24june
+    samples += sampleswith24juneonly
+else :
+    samples = MiniAOD80Samples
+
+def GetSample( s ):
+    if runOnOutsOfAnotherJob:
+        for ss in samples:
+            if s.Name == ss.Name :
+                return ss
+        return None
+    else:
+        return s
+
+
+#nTuples = "/home/nadjieh/cernbox/Hamb13/Oct14_8020_Opt/Trees/"
+nTuples = "/home/hbakhshi/Downloads/Hamb_Nadjieh/withSelVariables/"
+
+from Haamm.HaNaMiniAnalyzer.SampleType import *
+from ROOT import kGray, kGreen, kOrange, kRed, kBlack, kCyan, kBlue, kAzure, kTeal, kPink, kYellow
+ci = TColor.GetColor("#ff6666")
+DYSamples = SampleType("DY" , ci , [ GetSample(DYJets80) , GetSample(DYJetsLowMass80), GetSample(WJetsMG80)] , nTuples )
+ci = TColor.GetColor("#ffff66")
+TopSamples = SampleType("Top" , ci , [ GetSample(TTBar80) , GetSample(TW80), GetSample(TbarW80) , GetSample(TChannelTbar80) , GetSample( TChannelT80 ) ] , nTuples )
+ci = 38
+DiBosonSamples = SampleType("DiBoson" , ci , [ GetSample(ZZ80) , GetSample(WZ80), GetSample(WW80) ] , nTuples )
+ci = TColor.GetColor("#996633")
+
+signalsamples = []
+signalsamples.append (SampleType( "Signal15" , kAzure+10 , [ GetSample(GGH1580) ] , nTuples , True ))
+signalsamples.append (SampleType( "Signal20" , kBlue+2 , [ GetSample(GGH2080) ] , nTuples , True ))
+signalsamples.append (SampleType( "Signal25" , kCyan+2	, [ GetSample(GGH2580) ] , nTuples , True ))
+signalsamples.append (SampleType( "Signal30" , kTeal+10 , [ GetSample(GGH3080) ] , nTuples , True ))
+signalsamples.append (SampleType( "Signal35" , kGreen+2 , [ GetSample(GGH3580) ] , nTuples , True ))
+signalsamples.append (SampleType( "Signal40" , kYellow+2 , [ GetSample(GGH4080) ] , nTuples , True ))
+signalsamples.append (SampleType( "Signal45" , kOrange-2 , [ GetSample(GGH4580) ] , nTuples , True ))
+signalsamples.append (SampleType( "Signal50" , kOrange+10 , [ GetSample(GGH5080) ] , nTuples , True ))
+signalsamples.append (SampleType( "Signal55" , kRed+2 , [ GetSample(GGH5580) ] , nTuples , True ))
+signalsamples.append (SampleType( "Signal60" , kPink+10 , [ GetSample(GGH6080) ] , nTuples , True ))
+
+nTotals = {}
+            
+from Haamm.HaNaMiniAnalyzer.Plotter import *
+plotter = Plotter()
+listofdata = [GetSample(s) for s in MiniAOD80Samples if s.IsData]
+dataSamples2 = SampleType("Data" , kBlack , listofdata  , nTuples  ) # , additionalCut="(higgsMass > 135 || higgsMass < 115)"
+allSTs = [ dataSamples2 , DiBosonSamples, TopSamples, DYSamples ]
+allSTs.extend(signalsamples)
+for st in allSTs :
+    plotter.AddSampleType( st )
+    for s in st.Samples:
+        if s.IsData :
+            continue
+        if s.Name in nTotals :
+            s.SetNTotal( nTotals[s.Name] )
+        else:
+            print "total number for sample %s is not set" % s.Name
+
+
+
+Cuts = { "HLT":"(passHLT_Mu17Mu8 || passHLT_Mu17Mu8_DZ)",
+         "BasicJetsMu":"passJetSize && passMuSize && passJet1Pt && passJet2Pt && passMu1Pt && passMu2Pt ",
+         "MET":"met < 60 ",
+         "chi2sum":"chi2Sum < 5 ",
+         "TL":"passTL" ,
+         "LL" : "1==1",
+         "TLFormula":"Max$(jetsBtag) > 0.9535 && Sum$( jetsBtag > 0.5426 ) > 1"
+         }
+
+cPreselectionLL = CutInfo( "PreselectionLL" , "&&".join( [Cuts[ss] for ss in ["HLT", "BasicJetsMu" , "LL"]] ) , "Weight*bWeightLL" , title="2#mu2loose-bjets"  )
+cPreselectionTL = CutInfo( "PreselectionTL" , "&&".join( [Cuts[ss] for ss in ["HLT", "BasicJetsMu" , "TL"]] ) , "Weight*bWeightTL" , title="2#mu, tight-loose b-jets"  )
+cTLMetBlind = CutInfo( "TLMetBlind" , "&&".join( [Cuts[ss] for ss in ["HLT", "BasicJetsMu" , "TL" , "MET"]] ) , "Weight*bWeightTL" , title="2#mu, tight-loose b-jets, met>60 (blind)" , blind=True  )
+cSRBlind = CutInfo( "SRBlind" , "&&".join( [Cuts[ss] for ss in ["HLT", "BasicJetsMu" , "TL" , "MET" , "chi2sum"]] ) , "Weight*bWeightTL" , title="Signal Region (blind)" , blind=True )
+cSR = CutInfo( "SR" , "&&".join( [Cuts[ss] for ss in ["HLT", "BasicJetsMu" , "TL" , "MET" , "chi2sum"]] ) , "Weight*bWeightTL" , title="Signal Region"  )
+cTLMet = CutInfo( "TLMet" , "&&".join( [Cuts[ss] for ss in ["HLT", "BasicJetsMu" , "TL" , "MET"]] ) , "Weight*bWeightTL" , title="2#mu, tight-loose b-jets, met>60"   )
+
+cuts = [cPreselectionTL, cPreselectionLL , cTLMet , cSR , cSRBlind, cTLMetBlind ]
+
+for cut in cuts :
+    if "Blind" not in cut.Name :
+        cut.AddHist( "nJets" , "@jetsPt.size()", 10 , 0 , 10, False , Title="#jets" )
+        cut.AddHist( "nVertices" , "nVertices" , 50 , 0. , 50., False , Title="#Vertices" )
+        cut.AddHist( "metPhi" , "abs(metPhi)" , 16 , 0. , 3.2, False , Title="#phi" )
+        cut.AddHist( "metSig" , "metSig" , 25, 0, 50, False , Title="met significance" )
+        cut.AddHist( "met" , "met" , 30 , 0. , 300, False , Title="met" )
+        cut.AddHist( "amuPt" , "amPt" , 30 , 0. , 300., False , Title="p_{T}^{#mu#mu}" )
+        cut.AddHist( "abPt" , "abPt" , 30 , 0. , 300., False , Title="p_{T}^{bb}")
+        cut.AddHist( "abMass" , "abMass" , 24, 10. , 250., False , Title="m_{bb}" )
+        cut.AddHist( "Mu1Pt" , "muPt[0]" , 50 , 0 , 500 , False , Title="p_{T}^{#mu} (leading)" )
+        cut.AddHist( "Mu2Pt" , "muPt[1]" , 50 , 0 , 500 , False , Title="p_{T}^{#mu} (sub-leading)")
+        cut.AddHist( "Jet1Pt" , "jetsPt[0]" , 50 , 0 , 500 , False , Title="p_{T}^{jet} (leading)" )
+        cut.AddHist( "Jet2Pt" , "jetsPt[1]" , 50 , 0 , 500 , False , Title="p_{T}^{jet} (sub-leading)")
+        cut.AddHist( "Mu1Eta" , "muEta[0]" , 10 , -2.5 , 2.5 , False , Title="#mu_{lead.} #eta" )
+        cut.AddHist( "Mu2Eta" , "muEta[1]" , 10 , -2.5 , 2.5 , False , Title="#mu_{sub-lead.} #eta"  )
+        cut.AddHist( "Jet1Eta" , "jetsEta[0]" , 10 ,-2.5 , 2.5 , False , Title="jet_{lead.} #eta" )
+        cut.AddHist( "Jet2Eta" , "jetsEta[1]" , 10 , -2.5 , 2.5 , False , Title="jet_{sub-lead.} #eta"  )
+    cut.AddHist( "chi2Sum" , "chi2Sum", 25 , 0. , 50., False , Title="#chi^{2}_{H}+#chi^{2}_{a#rightarrowbb}")
+    cut.AddHist( "amuMass" , "aMuMass", 55 , 15 , 70 , Title="#mu#mu mass")
+    cut.AddHist( "HiggsMass" , "higgsMass" , 46 , 75 , 305, False , Title="m_{#mu#mubb}" )
+    cut.AddHist( "HiggsPt" , "higgsPt" , 30 , 0. , 300., False , Title="p_{T}^{#mu#mubb}")
+    cut.AddHist( "chi2B" , "chi2B", 25 , 0. , 50., False , Title="#chi^{2}_{a#rightarrowbb}" )
+    cut.AddHist( "chi2H" , "chi2H", 25 , 0. , 50., False , Title="#chi^{2}_{H#rightarrowbb#mu#mu}" )
+    cut.AddHist( "HiggsMDiff" , "abs(higgsMass - 125.0)", 20 , 0. , 100., False , Title="|mass_{#mu#mubb}-125.0|" )
+
+for c in cuts :
+    plotter.AddTreePlots( c )
+
+plotter.LoadHistos( LUMI )
+name_extent = sys.argv[1] if len(sys.argv) == 2 else "defaults"
+fout = TFile.Open("out_FinalPlots_%s.root" %(name_extent), "recreate")
+plotter.Write(fout, False)
+fout.Close()
