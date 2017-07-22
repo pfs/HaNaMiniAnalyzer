@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
     stringstream optionStr;
     for(unsigned int i =0; i < varInfo.size(); i++){
     	cout<<varInfo[i].name<<"\t"<<varInfo[i].isCommon <<"\t"<<varInfo[i].isFixed<<"\t"<<varInfo[i].val<<"\t"<<varInfo[i].xD<<"\t"<<varInfo[i].xU<<endl;
-    	if(varInfo[i].isCommon && varInfo[i].name != "mS" && varInfo[i].name != "mcbS" && varInfo[i].name != "a1"){
+    	if(varInfo[i].isCommon && varInfo[i].name != "mS" && varInfo[i].name != "a0" && varInfo[i].name != "a1" && varInfo[i].name != "b0"){
     		optionStr << varInfo[i].name <<"Common";
     	}
     	if(varInfo[i].isFixed){
