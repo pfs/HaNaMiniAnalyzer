@@ -127,7 +127,13 @@ Running this script, a directory is created in the test directory. There, you ca
 
 
 ## Monitor the job outputs and re-run for the failed jobs
-There is a hard-coded parameter in the [lxbatch.py](https://github.com/nadjieh/HaNaMiniAnalyzer/blob/80X_201705/test/lxbatch.py#L3) file. It is called CheckFailedJobs. If it is set to `True`, lxbatch.py looks for the output of the previous jobs in `eos` and if one file is missing, add it to the list of jobs to run over them again
+There is a hard-coded parameter in the [lxbatch.py](https://github.com/nadjieh/HaNaMiniAnalyzer/blob/80X_201705/test/lxbatch.py#L3) file. It is called CheckFailedJobs. If it is set to `True`, lxbatch.py looks for the output of the previous jobs in `eos` and if one file is missing, add it to the list of jobs to run over them again.
+
+## Merge the ouput files
+A script is availabel to merge the output files. It can be found at [test/hadd.py](test/hadd.py).
+
+
+# This documentation is not complete, please contact developers
 
 
 
