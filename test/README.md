@@ -104,11 +104,30 @@ cmsRun <config_file_name.py> sample=<sample_name> nFilePerJob=1 job=0
 ```
 Please test if it runs properly for data and MC samples.
 
+
+## Ready to submit on the lxbatch
+There is a script to produce all the environment from scratch and run the job with the given parameters. You can find it [here](https://github.com/nadjieh/HaNaMiniAnalyzer/blob/80X_201705/test/SetupAndRun.sh)
+
+In the first 20 lines of that file, it creates an empty CMSSW directory, then clones the package from github and compile it. One has to add any extra package which is needed to run here. As an example, here the `git-merge-topic` has been called several times.
+
+Then it calls the `cmsRun Hamb_cfg.py` command and configure it using the input arguments.
+
+After that, it tries several times to copy the output files to the `eos` directory of the user. The copy part should be adapted it you want to copy the output file somewhere else.
+
 ## How to submit the jobs into lxbatch
-There is a tool called `lxbatch.py` to produce jobs. It also needs to run 
+There is a tool called [`lxbatch.py`](lxbatch.py) to produce jobs. One has to edit it and mention the `samples.py` file that wants to loop over.
+
+It only needs two parameters : 
+
+```
+python lxbatch.py <eos_dir_to_copy_output_files> <current_dir_to_store_configurations>
+```
+
+Running this script, a directory is created in the test directory. There, you can find a file called `submit.sh`. Running it, all the jobs are submitted to the lxbatch.
 
 
-
+## Monitor the job outputs and re-run for the failed jobs
+There is a hard-coded parameter in the [lxbatch.py](https://github.com/nadjieh/HaNaMiniAnalyzer/blob/80X_201705/test/lxbatch.py#L3) file. It is called CheckFailedJobs. If it is set to `True`, lxbatch.py looks for the output of the previous jobs in `eos` and if one file is missing, add it to the list of jobs to run over them again
 
 
 
