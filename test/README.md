@@ -133,7 +133,7 @@ There is a hard-coded parameter in the [lxbatch.py](https://github.com/nadjieh/H
 A script is availabel to merge the output files. It can be found at [test/hadd.py](test/hadd.py).
 
 
-# This documentation is not complete, please contact developers
+# This documentation is not complete, please contact developers if more information is needed
 
 
 
